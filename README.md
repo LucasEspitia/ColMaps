@@ -12,14 +12,14 @@ Rather than developing new routing or geospatial algorithms, the project focuses
 
 The main goals of Colomaps are to:
 
-* Build a modular Web GIS architecture with clearly separated responsibilities.
-* Provide interactive visualization of geographic data and tourist points of interest.
-* Support route calculation using OpenStreetMap-based routing.
-* Optimize frontend performance according to **Core Web Vitals**.
-* Improve accessibility according to **WCAG** recommendations.
-* Integrate automated testing and quality validation into the CI/CD pipeline.
-* Create a reproducible workflow for preparing and importing geospatial data.
-* Evaluate the resulting prototype using measurable performance and quality metrics.
+- Build a modular Web GIS architecture with clearly separated responsibilities.
+- Provide interactive visualization of geographic data and tourist points of interest.
+- Support route calculation using OpenStreetMap-based routing.
+- Optimize frontend performance according to **Core Web Vitals**.
+- Improve accessibility according to **WCAG** recommendations.
+- Integrate automated testing and quality validation into the CI/CD pipeline.
+- Create a reproducible workflow for preparing and importing geospatial data.
+- Evaluate the resulting prototype using measurable performance and quality metrics.
 
 ## Planned Architecture
 
@@ -62,37 +62,37 @@ The architecture separates visualization, business logic, spatial storage, routi
 
 ### Frontend
 
-* Angular
-* TypeScript
-* MapLibre GL
-* Progressive Web App technologies
+- Angular
+- TypeScript
+- MapLibre GL
+- Progressive Web App technologies
 
 ### Backend
 
-* NestJS
-* Node.js
-* REST API
-* GeoJSON / JSON
+- NestJS
+- Node.js
+- REST API
+- GeoJSON / JSON
 
 ### Geospatial Infrastructure
 
-* PostgreSQL
-* PostGIS
-* OpenStreetMap
-* GeoFabrik
-* osm2pgsql
-* OSRM
+- PostgreSQL
+- PostGIS
+- OpenStreetMap
+- GeoFabrik
+- osm2pgsql
+- OSRM
 
 ### Quality & Testing
 
 Planned quality assurance includes:
 
-* Unit testing
-* End-to-end testing
-* Lighthouse
-* Core Web Vitals
-* Accessibility validation
-* Automated CI/CD checks
+- Unit testing
+- End-to-end testing
+- Lighthouse
+- Core Web Vitals
+- Accessibility validation
+- Automated CI/CD checks
 
 ## Geospatial Data
 
@@ -128,7 +128,7 @@ Route calculation is planned to be handled by **OSRM (Open Source Routing Machin
 
 Routing is intentionally treated as a separate service because the objective of the project is not to develop a new pathfinding algorithm, but to study the architecture, performance, accessibility, maintainability, and validation of a Web GIS application.
 
-##  Performance
+## Performance
 
 Performance is one of the main evaluation areas of the project.
 
@@ -148,12 +148,12 @@ Colomaps aims to explore accessibility challenges specific to interactive Web GI
 
 The project will consider areas such as:
 
-* Keyboard navigation
-* Semantic interface structure
-* Accessible controls
-* Alternative representation of relevant geographic information
-* Color and contrast
-* Screen-reader compatibility
+- Keyboard navigation
+- Semantic interface structure
+- Accessible controls
+- Alternative representation of relevant geographic information
+- Color and contrast
+- Screen-reader compatibility
 
 Accessibility will be evaluated according to applicable **WCAG guidelines**.
 
@@ -163,14 +163,14 @@ A major goal of the project is to make the development and data preparation proc
 
 The repository is expected to include scripts and configuration for:
 
-* Environment setup
-* Database initialization
-* OpenStreetMap data preparation
-* Data import
-* OSRM preprocessing
-* Application execution
-* Automated testing
-* Performance validation
+- Environment setup
+- Database initialization
+- OpenStreetMap data preparation
+- Data import
+- OSRM preprocessing
+- Application execution
+- Automated testing
+- Performance validation
 
 The objective is to minimize undocumented manual configuration and allow the system to be recreated from documented steps.
 
@@ -181,17 +181,21 @@ The repository is expected to evolve approximately as follows:
 ```text
 colomaps/
 │
-├── frontend/           # Angular + MapLibre application
-├── backend/            # NestJS REST API
-├── database/           # PostGIS configuration and initialization
-├── routing/            # OSRM configuration
-├── data-pipeline/      # OSM preparation and import
-├── scripts/            # Development and automation scripts
-├── docs/               # Architecture and project documentation
+├── frontend/            # Angular + MapLibre application
+├── backend/             # NestJS REST API
+├── database/            # PostGIS configuration and initialization
+├── routing/             # OSRM configuration
+├── data-pipeline/       # OSM preparation and import
+├── scripts/             # Development and automation scripts
+├── docs/                # Architecture and project documentation
 │
-├── docker-compose.yml
-├── LICENSE
-└── README.md
+├── .editorconfig        # Shared code formatting rules across editors and IDEs
+├── .gitignore           # Files and directories excluded from Git version control
+├── .nvmrc               # Node.js version used by the project
+│
+├── docker-compose.yml   # Definition and orchestration of local infrastructure services
+├── LICENSE              # Project license and usage conditions
+└── README.md            # Project overview, requirements, and basic usage instructions
 ```
 
 The structure may change as the prototype evolves.
@@ -230,4 +234,4 @@ Slovak University of Technology in Bratislava
 
 ---
 
-*Colomaps — Exploring Colombia through an accessible, performant and reproducible Web GIS.*
+_Colomaps — Exploring Colombia through an accessible, performant and reproducible Web GIS._
