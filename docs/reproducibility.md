@@ -89,3 +89,47 @@ and indexable pages.
 
 Interactive GIS functionality will remain client-side where browser-specific
 APIs are required.
+
+Verify the installation:
+
+```bash
+npm start
+npm run build
+```
+
+## 4. Taiga UI Setup
+
+ColMaps uses Taiga UI as its primary Angular component library.
+
+From the `frontend` directory:
+
+```bash
+npx ng add taiga-ui
+```
+
+The installation configures the required Taiga UI dependencies for the Angular application.
+
+Taiga UI requires the LESS stylesheet preprocessor for its global theme files.
+
+Install it as a development dependency:
+
+```bash
+npm install --save-dev less
+```
+
+Taiga UI SSR support requires `@ng-web-apis/universal`.
+
+The current version of `@ng-web-apis/universal` requires Node.js type
+definitions from the Node 24 branch, therefore the project uses:
+
+```bash
+npm install --save-dev @types/node@^24.10.11
+npm install @ng-web-apis/universal
+```
+
+Verify the installation:
+
+```bash
+npm start
+npm run build
+```
