@@ -1,4 +1,4 @@
-# Colomaps
+# ColMaps
 
 > A high-performance and accessible Web GIS prototype for exploring tourist routes and points of interest in Colombia.
 
