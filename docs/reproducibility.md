@@ -502,3 +502,116 @@ Expected response:
   "status": "ok"
 }
 ```
+
+## 5. PostgreSQL and PostGIS Setup
+
+ColMaps uses **PostgreSQL 18** with **PostGIS 3.6** as its spatial database.
+
+The database runs inside Docker to provide an isolated and reproducible environment without requiring a local PostgreSQL or PostGIS installation.
+
+### 5.1 Docker Compose Configuration
+
+The database service is defined in the root `docker-compose.yml` file:
+
+```yaml
+services:
+  db:
+    image: postgis/postgis:18-3.6
+    container_name: colmaps-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: colmaps
+      POSTGRES_USER: colmaps
+      POSTGRES_PASSWORD: colmaps_pwd
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - colmaps_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U colmaps -d colmaps"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  colmaps_postgres_data:
+```
+
+The database uses PostgreSQL's standard internal port `5432`, which is exposed as port `5432` on the host machine:
+
+```text
+localhost:5432 → container:5432
+```
+
+The named Docker volume `colmaps_postgres_data` persists the database data between container restarts.
+
+> **PostgreSQL 18 note:** PostgreSQL 18+ Docker images use a version-specific data directory structure. Therefore, the persistent volume is mounted at `/var/lib/postgresql` rather than `/var/lib/postgresql/data`.
+
+### 5.2 Start the Database
+
+From the ColMaps project root, start the database service:
+
+```bash
+docker compose up -d db
+```
+
+Verify the container status:
+
+```bash
+docker compose ps
+```
+
+The `colmaps-db` container should report a healthy status:
+
+```text
+colmaps-db   ...   Up ... (healthy)
+```
+
+The configured health check uses `pg_isready` to verify that PostgreSQL is ready to accept connections.
+
+### 5.3 Verify PostgreSQL and PostGIS
+
+Open a PostgreSQL shell inside the running container:
+
+```bash
+docker exec -it colmaps-db psql -U colmaps -d colmaps
+```
+
+Verify the PostgreSQL installation:
+
+```sql
+SELECT version();
+```
+
+Verify that PostGIS is available:
+
+```sql
+SELECT PostGIS_Full_Version();
+```
+
+Both queries should return version information successfully.
+
+Exit the PostgreSQL shell with:
+
+```text
+\q
+```
+
+### 5.4 Reset the Development Database
+
+If the database needs to be recreated completely, stop the Compose services and remove their volumes:
+
+```bash
+docker compose down -v
+```
+
+Then recreate the database:
+
+```bash
+docker compose up -d db
+```
+
+> Removing the Docker volume permanently deletes the current development database contents. This command should therefore only be used when a complete database reset is intended.

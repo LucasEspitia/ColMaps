@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgis/postgis:18-3.6
+    container_name: colmaps-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: colmaps
+      POSTGRES_USER: colmaps
+      POSTGRES_PASSWORD: colmaps_pwd
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - colmaps_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U colmaps -d colmaps"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  colmaps_postgres_data:
