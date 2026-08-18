@@ -400,3 +400,24 @@ npm run build
 ```
 
 Both the development server and production build should complete successfully before continuing with the implementation of application-specific GIS functionality.
+
+## 3.3 Architecture organization
+
+The frontend follows the architecture documented in `docs/architecture.md`
+
+## 3.4 Lazy Loading
+
+To prevent MapLibre GL JS from being included in the initial application
+bundle, the map feature is loaded lazily through Angular routing.
+
+Configure the map route in `app.routes.ts`:
+
+```typescript
+{
+  path: 'map',
+  loadComponent: () =>
+    import('./features/map/map/map').then(
+      (m) => m.MapComponent,
+    ),
+}
+```
