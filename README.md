@@ -2,7 +2,7 @@
 
 > A high-performance and accessible Web GIS prototype for exploring tourist routes and points of interest in Colombia.
 
-Colomaps is a bachelor's thesis project focused on the design and development of a **high-performance, accessible, modular, and reproducible Web GIS application**.
+ColMaps is a bachelor's thesis project focused on the design and development of a **high-performance, accessible, modular, and reproducible Web GIS application**.
 
 The project uses Colombia as a case study, providing an interactive platform for exploring geographic information, tourist points of interest, and routes based on OpenStreetMap data.
 
@@ -10,7 +10,7 @@ Rather than developing new routing or geospatial algorithms, the project focuses
 
 ## Project Goals
 
-The main goals of Colomaps are to:
+The main goals of ColMaps are to:
 
 - Build a modular Web GIS architecture with clearly separated responsibilities.
 - Provide interactive visualization of geographic data and tourist points of interest.
@@ -96,7 +96,7 @@ Planned quality assurance includes:
 
 ## Geospatial Data
 
-Colomaps uses geographic data from **OpenStreetMap**, with Colombia extracts obtained through GeoFabrik.
+ColMaps uses geographic data from **OpenStreetMap**, with Colombia extracts obtained through GeoFabrik.
 
 The planned data pipeline is:
 
@@ -144,7 +144,7 @@ Performance measurements and thresholds are intended to become part of the autom
 
 ## Accessibility
 
-Colomaps aims to explore accessibility challenges specific to interactive Web GIS applications.
+ColMaps aims to explore accessibility challenges specific to interactive Web GIS applications.
 
 The project will consider areas such as:
 
@@ -179,7 +179,7 @@ The objective is to minimize undocumented manual configuration and allow the sys
 The repository is expected to evolve approximately as follows:
 
 ```text
-colomaps/
+ColMaps/
 │
 ├── frontend/            # Angular + MapLibre application
 ├── backend/             # NestJS REST API
@@ -210,7 +210,7 @@ Features and architectural decisions documented in this repository may evolve du
 
 ## Academic Context
 
-Colomaps is being developed as part of a **Bachelor's Thesis in Informatics at the Slovak University of Technology in Bratislava (STU), Faculty of Informatics and Information Technologies (FIIT)**.
+ColMaps is being developed as part of a **Bachelor's Thesis in Informatics at the Slovak University of Technology in Bratislava (STU), Faculty of Informatics and Information Technologies (FIIT)**.
 
 The thesis investigates engineering practices for building Web GIS applications with particular emphasis on:
 
