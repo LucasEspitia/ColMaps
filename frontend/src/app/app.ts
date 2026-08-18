@@ -5,7 +5,7 @@ import { MapComponent } from './features/map/map';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TuiRoot, MapComponent],
+  imports: [RouterOutlet, TuiRoot],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
