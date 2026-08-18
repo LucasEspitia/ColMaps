@@ -97,7 +97,7 @@ npm start
 npm run build
 ```
 
-## 3.1 Taiga UI Setup
+### 3.1 Taiga UI Setup
 
 ColMaps uses **Taiga UI** as its primary Angular component library.
 
@@ -111,7 +111,7 @@ npx ng add taiga-ui
 
 During the installation, no optional add-on packages are required at this stage. Additional packages such as charts or tables can be installed later if they become necessary for the application dashboard or other features.
 
-### LESS Preprocessor
+#### LESS Preprocessor
 
 Taiga UI uses LESS files for some of its global theme styles.
 
@@ -123,7 +123,7 @@ npm install --save-dev less
 
 Without this dependency, Angular may fail to process Taiga UI theme files during the build process.
 
-### Node.js Type Definitions
+#### Node.js Type Definitions
 
 Taiga UI SSR support requires `@ng-web-apis/universal`.
 
@@ -133,7 +133,7 @@ The current version of `@ng-web-apis/universal` requires Node.js type definition
 npm install --save-dev @types/node@^24.10.11
 ```
 
-### Server-Side Rendering Support
+#### Server-Side Rendering Support
 
 Install the Web API compatibility package required for Taiga UI when using Angular Server-Side Rendering:
 
@@ -163,7 +163,7 @@ const serverConfig: ApplicationConfig = {
 };
 ```
 
-### Verify the Installation
+#### Verify the Installation
 
 Start the Angular development server:
 
@@ -174,7 +174,7 @@ npm run build
 
 Both commands should complete without LESS preprocessing or SSR-related errors before continuing with additional frontend dependencies.
 
-## 3.2 MapLibre GL Setup
+### 3.2 MapLibre GL Setup
 
 ColMaps uses MapLibre GL JS as the map rendering library for interactive geospatial visualization.
 
@@ -188,7 +188,7 @@ npm install maplibre-gl
 
 MapLibre GL JS includes its own TypeScript definitions, therefore no additional `@types` package is required.
 
-### Global MapLibre
+#### Global MapLibre
 
 MapLibre requires its stylesheet for map controls and other built-in UI elements.
 
@@ -203,7 +203,7 @@ Add the MapLibre stylesheet to the global styles configuration inside `angular.j
 
 The exact existing application stylesheet entry should be preserved if it differs from `src/styles.css`.
 
-### Angular Development Server Configuration
+#### Angular Development Server Configuration
 
 MapLibre GL uses a Web Worker for processing map data outside the main browser thread.
 
@@ -221,7 +221,7 @@ Inside the `serve` configuration in `angular.json`, add:
 }
 ```
 
-### MapLibre Worker Assets
+#### MapLibre Worker Assets
 
 During development, the MapLibre worker and its shared module must be accessible to the browser.
 
@@ -257,7 +257,7 @@ This makes both required modules available under:
 
 Both files should be served successfully by the Angular development server.
 
-### SSR-Safe Map Component
+#### SSR-Safe Map Component
 
 Because ColMaps uses Server-Side Rendering, MapLibre must only be initialized in a browser environment.
 
@@ -322,7 +322,7 @@ The `isPlatformBrowser()` check creates an explicit boundary between Angular's s
 
 The HTML structure of the Angular application can therefore participate in server-side rendering while the interactive WebGL map is initialized after the application runs in the browser.
 
-### Worker Verification
+#### Worker Verification
 
 After starting the development server, verify that the worker files are accessible.
 
@@ -349,7 +349,7 @@ After changing the worker or Angular build configuration, the Angular cache can 
 npx ng cache clean
 ```
 
-### Exceding Angular's Bundle Budget
+#### Exceding Angular's Bundle Budget
 
 The initial integration of MapLibre GL and Taiga UI may exceed Angular's
 default initial bundle budget.
@@ -369,7 +369,7 @@ This budget is used during the initial development phase and does not represent
 the final performance target of the application. Bundle size will be measured
 and optimized during the performance evaluation stage.
 
-### Verify the Instalation
+#### Verify the Instalation
 
 It's worth mentioning that the created component will need to import the root `app.ts` file using:
 
@@ -401,11 +401,11 @@ npm run build
 
 Both the development server and production build should complete successfully before continuing with the implementation of application-specific GIS functionality.
 
-## 3.3 Architecture organization
+### 3.3 Architecture organization
 
 The frontend follows the architecture documented in `docs/architecture.md`
 
-## 3.4 Lazy Loading
+### 3.4 Lazy Loading
 
 To prevent MapLibre GL JS from being included in the initial application
 bundle, the map feature is loaded lazily through Angular routing.
@@ -419,5 +419,86 @@ Configure the map route in `app.routes.ts`:
     import('./features/map/map/map').then(
       (m) => m.MapComponent,
     ),
+}
+```
+
+## 4. Backend Setup
+
+ColMaps uses **NestJS** as the backend framework.
+
+The backend is maintained inside the `backend/` directory of the main ColMaps repository and uses the same Node.js environment defined for the project.
+
+### 4.1 Initialize the NestJS Application
+
+From the ColMaps project root, navigate to the backend directory:
+
+```bash
+cd backend
+```
+
+Initialize a new NestJS application inside the existing directory:
+
+```bash
+npx @nestjs/cli new colmaps-backend --directory=. --skip-git --strict
+```
+
+During the installation, select:
+
+```bash
+Package manager: npm
+```
+
+The `--directory=.` option initializes the NestJS application directly inside the existing backend/ directory.
+
+The `--strict` option enables stricter TypeScript compiler settings to improve type safety and maintainability.
+
+The `--skip-git` option prevents NestJS from intentionally initializing a separate Git repository, since the backend belongs to the main ColMaps repository.
+
+### 4.2 Verify the Devlopment Server
+
+Start NestJS in development mode:
+
+```bash
+npm run start:dev
+```
+
+By default, the backend is available at:
+
+```text
+http://localhost:3000
+```
+
+The initial NestJS application should respond successfully with the default:
+
+```text
+Hello World!
+```
+
+### 4.3 Health Endpoint
+
+A basic health endpoint is provided to verify that the backend application is running correctly.
+
+In `app.controller.ts`, define:
+
+```typescript
+@Get('health')
+getHealth() {
+  return {
+    status: 'ok',
+  };
+}
+```
+
+With the backend running, verify the endpoint at:
+
+```text
+http://localhost:3000/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok"
 }
 ```
