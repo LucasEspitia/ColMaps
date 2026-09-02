@@ -615,3 +615,157 @@ docker compose up -d db
 ```
 
 > Removing the Docker volume permanently deletes the current development database contents. This command should therefore only be used when a complete database reset is intended.
+
+## 6. MikroORM and PostGIS Connection
+
+ColMaps uses **MikroORM** as the Object-Relational Mapper (ORM) for the NestJS backend.
+
+MikroORM connects the backend to the PostgreSQL/PostGIS database while providing integration with NestJS dependency injection and support for PostgreSQL-specific functionality.
+
+### 6.1 nstall MikroORM
+
+From the `backend` directory, install the required dependencies:
+
+```bash
+npm install @mikro-orm/core @mikro-orm/nestjs @mikro-orm/postgresql @nestjs/config dotenv
+```
+
+The packages provide:
+
+- `@mikro-orm/core` — core ORM functionality.
+- `@mikro-orm/nestjs` — NestJS integration.
+- `@mikro-orm/postgresql` — PostgreSQL driver.
+- `@nestjs/config` — environment configuration.
+- `dotenv` — loading environment variables for the standalone MikroORM configuration.
+
+### 6.2 Database Environment Configuration
+
+Create a `.env` file inside `backend/`:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=colmaps
+DB_USER=colmaps
+DB_PASSWORD=colmaps_dev
+```
+
+The `.env` file must not be committed to Git.
+
+Make sure the backend `gitignore` does not contain any reference of env.
+
+### 6.3 MikroORM Configuration
+
+Create `mikro-orm.config.ts` in the backend root:
+
+```typescript
+import "dotenv/config";
+
+import { defineConfig } from "@mikro-orm/postgresql";
+
+export default defineConfig({
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  dbName: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+
+  entities: ["./dist/**/*.entity.js"],
+  entitiesTs: ["./src/**/*.entity.ts"],
+
+  discovery: {
+    warnWhenNoEntities: false,
+  },
+
+  debug: false,
+});
+```
+
+`warnWhenNoEntities` is disabled during the initial setup because no persistent entities have been introduced yet.
+
+### 6.4 NestJS Integration
+
+Register MikroORM and the environment configuration in `app.module.ts`:
+
+```typescript
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
+
+import mikroOrmConfig from "../mikro-orm.config";
+import { AppController } from "./app.controller";
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MikroOrmModule.forRoot(mikroOrmConfig),
+  ],
+  controllers: [AppController],
+})
+export class AppModule {}
+```
+
+The resulting connection path is:
+
+```text
+NestJS
+   ↓
+MikroORM
+   ↓
+PostgreSQL
+   ↓
+PostGIS
+```
+
+### 6.5 Verify the PostGIS Connection
+
+The existing health endpoint can be used to verify that the complete database connection is operational.
+
+Inject the PostgreSQL `EntityManager` and execute a PostGIS query:
+
+```typescript
+import { Controller, Get } from "@nestjs/common";
+import { EntityManager } from "@mikro-orm/postgresql";
+
+@Controller()
+export class AppController {
+  constructor(private readonly em: EntityManager) {}
+
+  @Get("health")
+  async getHealth() {
+    const result = await this.em.getConnection().execute<{ postgis_version: string }[]>("SELECT PostGIS_Version() AS postgis_version");
+
+    return {
+      status: "ok",
+      database: "connected",
+      postgis: result[0].postgis_version,
+    };
+  }
+}
+```
+
+Start the backend:
+
+```bash
+npm run start:dev
+```
+
+Then access:
+
+```text
+http://localhost:3000/health
+```
+
+A successful setup should return a response similar to:
+
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "postgis": "3.6 USE_GEOS=1 USE_PROJ=1 USE_STATS=1"
+}
+```
+
+This verifies that NestJS can successfully connect through MikroORM to the PostgreSQL database and execute PostGIS-specific SQL operations.
