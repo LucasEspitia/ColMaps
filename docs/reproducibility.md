@@ -769,3 +769,145 @@ A successful setup should return a response similar to:
 ```
 
 This verifies that NestJS can successfully connect through MikroORM to the PostgreSQL database and execute PostGIS-specific SQL operations.
+
+## 7. Data Pipeline Environment
+
+The geospatial data preprocessing and analysis tools are maintained in a
+separate Python environment. Miniforge is used to manage the environment and
+its native geospatial dependencies through the `conda-forge` channel.
+
+This approach was selected because some of the libraries used for processing OpenStreetMap data include native dependencies that are not reliably installable through `pip` on all development environments.
+
+### 7.1 Install Miniforge
+
+On Windows, Miniforge can be installed using Chocolatey:
+
+```powershell
+choco install miniforge3 -y
+```
+
+If you do not have the Choco installer installed, you can install it by downloading the official `.exe` file from the Miniforge [website](https://conda-forge.org/download/).
+
+If Conda is not immediately available in PowerShell after the installation,
+initialize it explicitly:
+
+```powershell
+& "C:\tools\miniforge3\Scripts\conda.exe" init powershell
+```
+
+Restart PowerShell and verify the installation:
+
+```powershell
+conda --version
+```
+
+### 7.2 Create the Data Pipeline Environment from scratch
+
+**This step can be skipped and you can go directly to step 7.3!!**
+
+From the `data-pipeline` directory, create the Python environment:
+
+```powershell
+conda create -n colmaps-pipeline python=3.14 -y
+conda activate colmaps-pipeline
+```
+
+Install the geospatial and data analysis dependencies:
+
+```powershell
+conda install -c conda-forge osmium-tool pyrosm pyarrow geopandas pandas matplotlib jupyter -y
+```
+
+The environment provides:
+
+- **Osmium Tool** for efficient inspection and preprocessing of raw OpenStreetMap .osm.pbf datasets. It is used for operations that can be performed directly on the native OSM representation before constructing geospatial objects.
+- **Pyrosm** for reading filtered OpenStreetMap .osm.pbf datasets and converting OSM entities into structured geospatial data. Its out-of-core processing engine is used when working with datasets that should not be fully materialized in memory.
+- **PyArrow** as the columnar data processing backend used alongside the out-of-core workflow and for efficient intermediate data representation, including Parquet-based storage.
+- **GeoPandas** for manipulating and analysing the geospatial objects produced during the processing pipeline.
+- **Pandas** for tabular analysis, statistics, and inspection of extracted OpenStreetMap attributes.
+- **Matplotlib** for exploratory data visualisation during dataset analysis.
+- **Jupyter** for interactive exploration and validation of the intermediate datasets produced by the pipeline.
+
+### 7.3 Reproduce the Environment
+
+The Conda environment definition is stored in:
+
+```text
+data-pipeline/environment.yml
+```
+
+The environment can be recreated with:
+
+```bash
+conda env create -f environment.yml
+conda activate colmaps-pipeline
+```
+
+Once the environment is installed, we can check the osm package or python version within it using:
+
+```bash
+python -c "import pyrosm; print(pyrosm.__version__)"
+python --version
+```
+
+We should finish with something like this:
+
+```bash
+Python 3.14.x
+0.13.1
+```
+
+### 7.4 Jupyter runtime configuration on Windows
+
+Jupyter is installed as part of the `colmaps-pipeline` Conda environment and is used for the exploratory and validation stages of the data pipeline.
+
+On Windows, Jupyter may fail to start if it cannot create or access its runtime files in the default directory:
+
+```text
+C:\Users\<user>\AppData\Roaming\jupyter\runtime\
+```
+
+During the initial ColMaps setup, this resulted in a PermissionError when Jupyter attempted to create its server runtime files.
+
+To persist the configuration for subsequent terminal sessions:
+
+```powershell
+[Environment]::SetEnvironmentVariable(
+    "JUPYTER_RUNTIME_DIR",
+    "$HOME\.jupyter-runtime",
+    "User"
+)
+```
+
+Then Jupyter can be started normally:
+
+```powershell
+jupyter notebook
+```
+
+**This workaround is only necessary when the default Jupyter runtime directory produces permission errors.**
+
+## 8. Data Analysis
+
+The exploratory analysis of the OpenStreetMap dataset is performed through
+Jupyter notebooks stored in:
+
+```text
+data-pipeline/notebooks/
+```
+
+The notebooks document the exploratory and validation stages used to understand the source data and derive the preprocessing rules applied by the ColMaps data pipeline.
+
+### 8.1 Raw OSM Dataset Inspection
+
+Before defining any filtering rules, the original Colombia GeoFabrik `.osm.pbf` dataset was inspected to determine its structure, scale, and actual OSM tagging characteristics.
+
+The complete exploratory procedure, including the dataset metadata, discovered tag keys, value distributions, and observations, is documented in:
+
+<pre style="background-color: #f6f8fa; padding: 16px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 85%; line-height: 1.45; margin: 0;">
+<a href="../data-pipeline/notebooks/01_inspect_osm.ipynb" style="color: #297ad7; text-decoration: none;">[01 - Raw OSM Dataset Inspection](../data-pipeline/notebooks/01_inspect_osm.ipynb)</a>
+</pre>
+
+The analysis showed that complete OSM tag families are generally too broad to serve directly as tourism filtering rules. Therefore, subsequent preprocessing stages define the required ColMaps feature categories and map them to explicit OSM `key=value` combinations.
+
+**It is recommended to open the file directly in Jupyter instead of reading its contents directly!!**
