@@ -1,0 +1,6 @@
+.ipynb_checkpoints/
+*.osm.pbf
+*.osm
+.venv/
+raw/
+filtered/
