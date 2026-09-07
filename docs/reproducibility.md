@@ -921,12 +921,12 @@ After inspecting the structure and tag distribution of the raw OSM dataset, the 
 
 Rather than using complete OSM tag families, ColMaps defines application-level categories representing places and services potentially relevant to travelers. These categories are mapped to explicit OSM key=value combinations observed during the raw dataset inspection.
 
-This stage establishes a candidate semantic scope only. No OSM objects are filtered or transformed, and inclusion at this stage does not imply that every corresponding object will be retained in the final dataset.
+This stage establishes a candidate semantic scope and exports the resulting mapping specification for subsequent validation. The candidate mappings are also used to generate a reduced intermediate OSM extract containing the selected feature population and the referenced OSM elements required to preserve its structure.
 
-The complete feature-category definition, OSM mapping decisions, consistency checks, and methodological rationale are documented in:
+The intermediate extraction is performed to reduce the computational cost of subsequent analysis. It does not represent the final ColMaps dataset: individual mappings have not yet undergone targeted validation and may still be retained, refined, or excluded before the final filtering rules are established.
 
-<pre style="background-color: #f6f8fa; padding: 16px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 85%; line-height: 1.45; margin: 0;">
-<a href="../data-pipeline/notebooks/01_inspect_osm.ipynb" style="color: #297ad7; text-decoration: none;">[02 - ColMaps Feature Scope Definition](../data-pipeline/notebooks/02_define_feature_scope.ipynb)</a>
-</pre>
+The complete feature-category definition, OSM mapping decisions, consistency checks, intermediate extraction procedure, and methodological rationale are documented in:
 
-The resulting candidate scope is subsequently used as the input for targeted data validation, where potentially ambiguous, inconsistent, or overly broad feature classifications can be investigated before the final filtering rules are established.
+<pre style="background-color: #f6f8fa; padding: 16px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 85%; line-height: 1.45; margin: 0;"> <a href="../data-pipeline/notebooks/02_define_feature_scope.ipynb" style="color: #297ad7; text-decoration: none;">[02 - ColMaps Feature Scope Definition](../data-pipeline/notebooks/02_define_feature_scope.ipynb)</a> </pre>
+
+The resulting candidate scope and reduced OSM extract are subsequently used as inputs for targeted data validation, where potentially ambiguous, inconsistent, or overly broad feature classifications are investigated before the final dataset-preparation rules are established.
