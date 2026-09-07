@@ -889,8 +889,7 @@ jupyter notebook
 
 ## 8. Data Analysis
 
-The exploratory analysis of the OpenStreetMap dataset is performed through
-Jupyter notebooks stored in:
+The exploratory analysis of the OpenStreetMap dataset is performed through Jupyter notebooks stored in:
 
 ```text
 data-pipeline/notebooks/
@@ -899,6 +898,8 @@ data-pipeline/notebooks/
 The notebooks document the exploratory and validation stages used to understand the source data and derive the preprocessing rules applied by the ColMaps data pipeline.
 
 ### 8.1 Raw OSM Dataset Inspection
+
+Answers `What's in our data?`
 
 Before defining any filtering rules, the original Colombia GeoFabrik `.osm.pbf` dataset was inspected to determine its structure, scale, and actual OSM tagging characteristics.
 
@@ -911,3 +912,21 @@ The complete exploratory procedure, including the dataset metadata, discovered t
 The analysis showed that complete OSM tag families are generally too broad to serve directly as tourism filtering rules. Therefore, subsequent preprocessing stages define the required ColMaps feature categories and map them to explicit OSM `key=value` combinations.
 
 **It is recommended to open the file directly in Jupyter instead of reading its contents directly!!**
+
+### 8.2 Dataset Feature Scope Definition
+
+Answers `What does ColMaps actually need?`
+
+After inspecting the structure and tag distribution of the raw OSM dataset, the next stage defines the geographic feature scope required by ColMaps.
+
+Rather than using complete OSM tag families, ColMaps defines application-level categories representing places and services potentially relevant to travelers. These categories are mapped to explicit OSM key=value combinations observed during the raw dataset inspection.
+
+This stage establishes a candidate semantic scope only. No OSM objects are filtered or transformed, and inclusion at this stage does not imply that every corresponding object will be retained in the final dataset.
+
+The complete feature-category definition, OSM mapping decisions, consistency checks, and methodological rationale are documented in:
+
+<pre style="background-color: #f6f8fa; padding: 16px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 85%; line-height: 1.45; margin: 0;">
+<a href="../data-pipeline/notebooks/01_inspect_osm.ipynb" style="color: #297ad7; text-decoration: none;">[02 - ColMaps Feature Scope Definition](../data-pipeline/notebooks/02_define_feature_scope.ipynb)</a>
+</pre>
+
+The resulting candidate scope is subsequently used as the input for targeted data validation, where potentially ambiguous, inconsistent, or overly broad feature classifications can be investigated before the final filtering rules are established.
