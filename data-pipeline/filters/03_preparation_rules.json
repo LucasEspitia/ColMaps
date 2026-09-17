@@ -1,0 +1,54 @@
+{
+  "natural=water": {
+    "rule_type": "classification",
+    "secondary_key": "water",
+    "allowed_values": [
+      "lagoon",
+      "lake",
+      "oxbow",
+      "pond",
+      "reservoir",
+      "river",
+      "stream",
+      "stream_pool"
+    ],
+    "missing_value": "retain",
+    "reclassify": {
+      "wetland": "wetland"
+    }
+  },
+  "natural=wetland": {
+    "rule_type": "classification",
+    "secondary_key": "wetland",
+    "allowed_values": [
+      "bog",
+      "fen",
+      "mangrove",
+      "marsh",
+      "reedbed",
+      "saltmarsh",
+      "swamp",
+      "tidalflat",
+      "wet_meadow"
+    ],
+    "missing_value": "retain"
+  },
+  "leisure=swimming_pool": {
+    "rule_type": "restriction",
+    "secondary_key": "access",
+    "excluded_values": [
+      "private",
+      "no"
+    ],
+    "missing_value": "retain"
+  },
+  "leisure=garden": {
+    "rule_type": "restriction",
+    "secondary_key": "access",
+    "excluded_values": [
+      "private",
+      "no"
+    ],
+    "missing_value": "retain"
+  }
+}

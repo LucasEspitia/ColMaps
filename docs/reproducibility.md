@@ -946,3 +946,28 @@ The complete profiling process, targeted validation cases, refinement decisions,
 </pre>
 
 The validated specification is exported as `filters/02_validated_feature_scope.csv` and serves as the semantic input for the subsequent deterministic preparation of the final OSM dataset.
+
+### 8.4 OSM Dataset Preparation
+
+Answers `How is the validated ColMaps feature scope transformed into a reproducible OSM dataset for subsequent database import?`
+
+The validated feature scope is applied to the original Colombia OSM extract to produce a reduced dataset containing the primary mappings required by ColMaps. Mappings marked as `EXCLUDE` are removed from the active feature scope, while mappings marked as `REFINE` are associated with explicit preparation rules for secondary classification, access restrictions, and semantic reclassification.
+
+The preparation preserves referenced OSM elements required for structural integrity and geometry reconstruction. Therefore, physical presence in the resulting PBF is distinguished from semantic eligibility as a ColMaps feature.
+
+The complete preparation process, refinement rules, validation checks, and resulting dataset statistics are documented in:
+
+<pre>
+<a href="../data-pipeline/notebooks/04_prepare_osm_dataset.ipynb">[04 - ColMaps OSM Dataset Preparation](../data-pipeline/notebooks/04_prepare_osm_dataset.ipynb)</a>
+</pre>
+
+The stage produces `processed/colombia-colmaps.osm.pbf` together with `filters/03_preparation_rules.json`, providing the reproducible inputs required for the subsequent PostGIS import stage.
+
+> [!IMPORTANT]
+> **Dataset-dependent validation**
+>
+> The preparation workflow described above is reproducible for the analyzed Colombia OSM dataset, but the semantic decisions derived from the exploratory analysis should not be assumed to generalize directly to other OSM extracts.
+>
+> OSM data is heterogeneous and evolves over time. Different geographic extracts may contain different tag distributions, secondary classifications, metadata completeness, non-standard values, and local tagging conventions. Consequently, conditions observed in this dataset—such as missing secondary tags, access-related ambiguity, heterogeneous `water=*` or `wetland=*` classifications, or alternative tagging conventions—may occur differently or may not occur at all in another dataset.
+>
+> Therefore, the **methodology and pipeline structure are reproducible, while dataset-specific semantic rules require independent validation**. When applying the workflow to another region or a substantially different dataset version, the exploratory inspection and feature-scope validation stages should be repeated before reusing or adapting the preparation rules.
