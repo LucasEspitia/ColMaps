@@ -930,3 +930,19 @@ The complete feature-category definition, OSM mapping decisions, consistency che
 <pre style="background-color: #f6f8fa; padding: 16px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 85%; line-height: 1.45; margin: 0;"> <a href="../data-pipeline/notebooks/02_define_feature_scope.ipynb" style="color: #297ad7; text-decoration: none;">[02 - ColMaps Feature Scope Definition](../data-pipeline/notebooks/02_define_feature_scope.ipynb)</a> </pre>
 
 The resulting candidate scope and reduced OSM extract are subsequently used as inputs for targeted data validation, where potentially ambiguous, inconsistent, or overly broad feature classifications are investigated before the final dataset-preparation rules are established.
+
+### 8.3 Dataset Feature Scope Validation
+
+Answers `Is the candidate ColMaps feature scope suitable for the final dataset?`
+
+The candidate feature scope is validated using the reduced OSM extract generated during the previous stage. Rather than manually reviewing every mapping, targeted validation focuses on classifications presenting semantic, descriptive, spatial, representational, or classification-related uncertainty.
+
+The validation determines whether candidate mappings should be **retained**, **refined**, or **excluded**. The resulting decisions and refinement requirements are consolidated into a validated feature-scope specification that can be consumed by the final dataset-preparation pipeline.
+
+The complete profiling process, targeted validation cases, refinement decisions, and methodological rationale are documented in:
+
+<pre style="background-color: #f6f8fa; padding: 16px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace; font-size: 85%; line-height: 1.45; margin: 0;">
+<a href="../data-pipeline/notebooks/03_validate_feature_scope.ipynb" style="color: #297ad7; text-decoration: none;">[03 - ColMaps Feature Scope Validation](../data-pipeline/notebooks/03_validate_feature_scope.ipynb)</a>
+</pre>
+
+The validated specification is exported as `filters/02_validated_feature_scope.csv` and serves as the semantic input for the subsequent deterministic preparation of the final OSM dataset.
