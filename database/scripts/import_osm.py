@@ -4,7 +4,7 @@ import os
 import subprocess
 from pathlib import Path
 
-import psycopg
+import psycopg # type: ignore
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
