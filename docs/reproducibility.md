@@ -828,17 +828,14 @@ conda activate colmaps-pipeline
 Install the geospatial and data analysis dependencies:
 
 ```powershell
-conda install -c conda-forge osmium-tool pyrosm pyarrow geopandas pandas matplotlib jupyter -y
+conda install -c conda-forge osmium-tool pyrosm pandas jupyter nbconvert -y
 ```
 
 The environment provides:
 
 - **Osmium Tool** for efficient inspection and preprocessing of raw OpenStreetMap .osm.pbf datasets. It is used for operations that can be performed directly on the native OSM representation before constructing geospatial objects.
 - **Pyrosm** for reading filtered OpenStreetMap .osm.pbf datasets and converting OSM entities into structured geospatial data. Its out-of-core processing engine is used when working with datasets that should not be fully materialized in memory.
-- **PyArrow** as the columnar data processing backend used alongside the out-of-core workflow and for efficient intermediate data representation, including Parquet-based storage.
-- **GeoPandas** for manipulating and analysing the geospatial objects produced during the processing pipeline.
 - **Pandas** for tabular analysis, statistics, and inspection of extracted OpenStreetMap attributes.
-- **Matplotlib** for exploratory data visualisation during dataset analysis.
 - **Jupyter** for interactive exploration and validation of the intermediate datasets produced by the pipeline.
 
 ### 7.3 Reproduce the Environment
