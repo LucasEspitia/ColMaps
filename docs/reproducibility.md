@@ -1,6 +1,8 @@
 # ColMaps Reproducibility Guide
 
-This document describes the steps required to reproduce the ColMaps development environment and run the project locally.
+This document describes the steps done by the developer and it should be used as a roadmap of what has been done, rather than as the primary guide if you intend to run the project locally.
+
+It serves primarily as a learning tool, illustrating the internal process and the decisions made during the creation of ColMaps.
 
 ## 1. Repository Structure
 
