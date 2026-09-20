@@ -1343,11 +1343,11 @@ The local `.env` file contains development-specific values and credentials and m
 The `.env.example` file contains the same required variable names, but uses non-sensitive placeholder values:
 
 ```env
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=colmaps
-POSTGRES_USER=colmaps
-POSTGRES_PASSWORD=change_me
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=colmaps
+DB_USER=colmaps
+DB_PASSWORD=change_me
 ```
 
 This central configuration is used by multiple project components:
@@ -1372,3 +1372,33 @@ and then replace the placeholder values with their local configuration.
 The `.env.example` file must remain committed to Git so that all required configuration variables are documented without exposing real credentials.
 
 For production deployments, secrets should be provided through the deployment platform or secret-management mechanism rather than through a committed `.env` file.
+
+It is worth adding that the previously created docker-compose file underwent a transformation to centralize this change.
+
+```yaml
+services:
+  db:
+    image: postgis/postgis:18-3.6
+    container_name: colmaps-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${DB_NAME:-colmaps}
+      POSTGRES_USER: ${DB_USER:-colmaps}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-colmaps_pwd}
+
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
+    volumes:
+      - colmaps_postgres_data:/var/lib/postgresql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  colmaps_postgres_data:
+```
