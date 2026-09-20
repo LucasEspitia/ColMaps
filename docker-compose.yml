@@ -5,17 +5,18 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_DB: colmaps
-      POSTGRES_USER: colmaps
-      POSTGRES_PASSWORD: colmaps_pwd
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
 
     volumes:
       - colmaps_postgres_data:/var/lib/postgresql
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U colmaps -d colmaps"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
       timeout: 5s
       retries: 5

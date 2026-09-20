@@ -645,19 +645,27 @@ The packages provide:
 
 ### 6.2 Database Environment Configuration
 
-Create a `.env` file inside `backend/`:
+Database connection values are defined through the project-level environment configuration located in the repository root.
+
+Create a local .env file based on the provided .env.example file:
+
+Copy-Item .env.example .env
+
+The root .env file contains the local PostgreSQL/PostGIS configuration shared by the project infrastructure, for example:
 
 ```env
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=colmaps
 DB_USER=colmaps
-DB_PASSWORD=colmaps_dev
+DB_PASSWORD=change_me
 ```
 
 The `.env` file must not be committed to Git.
 
-Make sure the backend `gitignore` does not contain any reference of env.
+The repository therefore includes .env.example to document the required variables without exposing local credentials.
+
+The backend consumes the same database configuration values when connecting to PostgreSQL/PostGIS, avoiding duplicated or inconsistent credentials across the application, database tooling, and Docker Compose configuration.
 
 ### 6.3 MikroORM Configuration
 
@@ -1313,3 +1321,54 @@ Forced execution
 ```
 
 This script serves as the reproducible interface between the prepared OSM dataset and the PostGIS database and will subsequently be used as part of the containerized application initialization workflow.
+
+## 10. Centralized Environment Configuration
+
+To avoid duplicated or inconsistent configuration across the backend, database tooling, and Docker Compose services, shared environment values are centralized at the repository root.
+
+The local configuration is stored in:
+
+```text
+.env
+```
+
+while a version-controlled template is provided as:
+
+```text
+.env.example
+```
+
+The local `.env` file contains development-specific values and credentials and must not be committed to Git.
+
+The `.env.example` file contains the same required variable names, but uses non-sensitive placeholder values:
+
+```env
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=colmaps
+POSTGRES_USER=colmaps
+POSTGRES_PASSWORD=change_me
+```
+
+This central configuration is used by multiple project components:
+
+```text
+.env
+ ├── Docker Compose
+ ├── database import automation
+ └── backend database configuration
+```
+
+This avoids maintaining separate database credentials in multiple locations.
+
+For local development, users should create their own `.env` file from the provided template:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+and then replace the placeholder values with their local configuration.
+
+The `.env.example` file must remain committed to Git so that all required configuration variables are documented without exposing real credentials.
+
+For production deployments, secrets should be provided through the deployment platform or secret-management mechanism rather than through a committed `.env` file.

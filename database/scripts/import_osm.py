@@ -5,9 +5,12 @@ import subprocess
 from pathlib import Path
 
 import psycopg # type: ignore
-
+from dotenv import load_dotenv #type: ignore
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+load_dotenv(PROJECT_ROOT / ".env")
+
 
 PBF_PATH = (
     PROJECT_ROOT
@@ -24,10 +27,10 @@ LUA_CONFIG_PATH = (
 )
 
 
-DB_NAME = os.getenv("POSTGRES_DB", "colmaps")
-DB_USER = os.getenv("POSTGRES_USER", "colmaps")
-DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
-DB_PORT = os.getenv("POSTGRES_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "colmaps")
+DB_USER = os.getenv("DB_USER", "colmaps")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
 
 OUTPUT_TABLE = "osm_features"
 PROPERTIES_TABLE = "osm2pgsql_properties"
@@ -49,7 +52,7 @@ def validate_inputs() -> None:
 
 def get_database_password() -> str:
     """Get the database password from the environment or prompt securely."""
-    password = os.getenv("POSTGRES_PASSWORD")
+    password = os.getenv("DB_PASSWORD")
 
     if password:
         return password
