@@ -4,6 +4,9 @@ This document describes the steps done by the developer and it should be used as
 
 It serves primarily as a learning tool, illustrating the internal process and the decisions made during the creation of ColMaps.
 
+> [!NOTE]
+> This installation steps document the local development and validation environment used. The final ColMaps reproducible deployment will provide all dependencies through the containerized project environment, avoiding the requirement for end users to install it manually on the host system.
+
 ## 1. Repository Structure
 
 The project uses the following base structure:
@@ -1009,3 +1012,167 @@ The exploratory notebooks document how the filtering rules were selected, while 
 > **Dataset-dependent validation**
 >
 > The filtering rules were defined for the Colombian OpenStreetMap dataset and the ColMaps tourism use case. The pipeline structure is reproducible, but applying it to another region or substantially different dataset may require a new exploratory analysis and adjustment of the filtering rules.
+
+## 9. Database Import
+
+After completing the dataset preparation stage, the generated colombia-colmaps.osm.pbf file is imported into PostgreSQL/PostGIS using osm2pgsql.
+
+This stage converts the prepared OpenStreetMap data into spatial database structures that can be queried by the ColMaps backend.
+
+```text
+colombia-colmaps.osm.pbf
+        │
+        ▼
+    osm2pgsql
+        │
+        ▼
+PostgreSQL + PostGIS
+```
+
+### 9.1 Install osm2pgsql
+
+osm2pgsql is used to import the prepared OpenStreetMap dataset into PostgreSQL/PostGIS.
+
+For the local development environment, version 2.3.1 was installed using the official Windows binary distribution.
+
+The Windows package can be obtained from the official osm2pgsql download page:
+
+```url
+https://osm2pgsql.org/download/windows/
+```
+
+After downloading the x64 archive, extract it to a local tools directory, for example:
+
+```powershell
+C:\Tools\osm2pgsql
+```
+
+The directory containing osm2pgsql.exe must then be added to the Windows `PATH` environment variable so that the executable can be called directly from PowerShell or other terminals.
+
+After updating the environment variable, open a new terminal and verify the installation:
+
+```powershell
+osm2pgsql --version
+```
+
+The expected output should report the installed osm2pgsql version, for example:
+
+```powershell
+osm2pgsql version 2.3.1
+```
+
+This confirms that the local development environment can invoke osm2pgsql independently of the current project directory.
+
+### 9.2 Import Prepared OSM Data into PostGIS
+
+After installing `osm2pgsql`, the prepared ColMaps OSM dataset can be imported into the running PostgreSQL/PostGIS database.
+
+The import uses the `flex` output mode, which allows the target table structure and geometry handling to be explicitly defined through a Lua configuration file.
+
+The ColMaps configuration is stored in:
+
+```text
+database/osm2pgsql/colmaps.lua
+```
+
+The configuration defines the `public.osm_features` table with the following main fields:
+
+```text
+osm_type
+osm_id
+name
+tags
+geom
+```
+
+The `tags` column stores the original OSM tags as `JSONB`, while the `geom` column stores the corresponding PostGIS geometry.
+
+The import can be executed from the project root using:
+
+```powershell
+osm2pgsql `
+  -O flex `
+  -S database/osm2pgsql/colmaps.lua `
+  -d colmaps `
+  -U colmaps `
+  -H localhost `
+  -P 5432 `
+  -W `
+  data-pipeline/processed/colombia-colmaps.osm.pbf
+```
+
+The `-W` option requests the database password interactively instead of including it directly in the command.
+
+For the current local development configuration, the database is provided by the PostGIS Docker container defined in the root `docker-compose.yml`.
+
+During the validated import, `osm2pgsql` successfully connected to:
+
+```text
+PostgreSQL 18.6
+PostGIS 3.6
+```
+
+and created the `public.osm_features` table together with a GiST spatial index on the geometry column.
+
+The resulting table can be inspected using:
+
+1. Get Inside The Database using the command
+
+```powershell
+docker exec -it colmaps-db psql -U colmaps -d colmaps
+```
+
+2. Run this Command to inspect the table
+
+```sql
+\d osm_features
+```
+
+The imported dataset contains OSM nodes, ways, and relations, represented using the following geometry types:
+
+```text
+POLYGON
+POINT
+LINESTRING
+MULTIPOLYGON
+GEOMETRYCOLLECTION
+```
+
+The final validated import contained no null geometries:
+
+```sql
+SELECT COUNT(*)
+FROM osm_features
+WHERE geom IS NULL;
+```
+
+Expected result:
+
+```text
+0
+```
+
+The geometry distribution can be inspected using:
+
+```sql
+SELECT
+    GeometryType(geom) AS geometry_type,
+    COUNT(*)
+FROM osm_features
+GROUP BY GeometryType(geom)
+ORDER BY COUNT(*) DESC;
+```
+
+For the validated dataset, the resulting distribution was:
+
+```text
+POLYGON             116212
+POINT                83575
+LINESTRING            8845
+MULTIPOLYGON           535
+GEOMETRYCOLLECTION      28
+```
+
+Relations tagged as `type=multipolygon` are converted to multipolygon geometries, while other relation types such as `site`, `boundary`, `waterway`, and similar composite structures may be represented as geometry collections.
+
+This manual import validates the database schema, geometry conversion strategy, spatial indexing, and compatibility between the prepared OSM dataset and PostGIS before the import process is automated.
