@@ -21,5 +21,20 @@ services:
       timeout: 5s
       retries: 5
 
+  data-pipeline:
+    build:
+      context: ./data-pipeline
+      dockerfile: Dockerfile
+
+    container_name: colmaps-data-pipeline
+
+    volumes:
+      - colmaps_raw_data:/app/data-pipeline/raw
+      - colmaps_filtered_data:/app/data-pipeline/filtered
+      - colmaps_processed_data:/app/data-pipeline/processed
+
 volumes:
   colmaps_postgres_data:
+  colmaps_raw_data:
+  colmaps_filtered_data:
+  colmaps_processed_data:

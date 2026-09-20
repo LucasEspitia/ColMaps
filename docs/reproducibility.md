@@ -1399,3 +1399,158 @@ services:
 volumes:
   colmaps_postgres_data:
 ```
+
+## 11. Application Containerization
+
+The ColMaps application is progressively containerized to ensure that its components can be reproduced consistently across different host systems using Docker.
+
+### 11.1 Data Pipeline Containerization
+
+#### 11.1.1 Dockerfile
+
+A dedicated Dockerfile was created in:
+
+```text
+data-pipeline/Dockerfile
+```
+
+The image uses the existing Conda environment definition:
+
+```text
+data-pipeline/environment.yml
+```
+
+to reproduce the Python environment required by the pipeline.
+
+The container includes the dependencies used by the notebooks and automation scripts, including Python, Jupyter, `nbconvert`, `osmium-tool`, pandas, and Pyrosm.
+
+The container executes the validated pipeline stages sequentially:
+
+```text
+download_osm.py
+        ↓
+filter_osm.py
+```
+
+`PYTHONUNBUFFERED=1` is also enabled so that script output is immediately visible through Docker logs.
+
+This allows the same validated pipeline to run independently of locally installed Python, Conda, Jupyter, or Osmium versions.
+
+#### 11.1.2 Runtime Data and Docker Volumes
+
+A `.dockerignore` file was added to:
+
+```text
+data-pipeline/.dockerignore
+```
+
+Generated runtime directories are excluded from the Docker image:
+
+```text
+raw/
+filtered/
+processed/
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+```
+
+The `raw`, `filtered`, and `processed` directories are intentionally not included in the image because they contain generated datasets rather than application source code.
+
+Embedding these datasets directly into the Docker image would increase the image size and require rebuilding the image whenever the generated data changes.
+
+Instead, the directories are stored using persistent Docker volumes:
+
+```text
+colmaps_raw_data
+colmaps_filtered_data
+colmaps_processed_data
+```
+
+This allows generated data to survive container recreation.
+
+Consequently, repeated executions can reuse previously generated artifacts and preserve the existing skip behavior implemented by the pipeline scripts.
+
+For example:
+
+```text
+raw dataset exists
+→ verify checksum
+→ skip download
+
+processed dataset exists
+→ skip filtering
+```
+
+The volumes remain available after:
+
+```powershell
+docker compose down
+```
+
+and are removed only when explicitly deleting Docker volumes, for example:
+
+```powershell
+docker compose down -v
+```
+
+#### 11.1.3 Root Docker Compose Integration
+
+The existing root-level `docker-compose.yml` was extended with the following service:
+
+```yaml
+data-pipeline:
+  build:
+    context: ./data-pipeline
+    dockerfile: Dockerfile
+
+  container_name: colmaps-data-pipeline
+
+  volumes:
+    - colmaps_raw_data:/app/data-pipeline/raw
+    - colmaps_filtered_data:/app/data-pipeline/filtered
+    - colmaps_processed_data:/app/data-pipeline/processed
+```
+
+The `build` configuration defines `data-pipeline/` as the Docker build context and uses the Dockerfile contained in that directory.
+
+```yaml
+build:
+  context: ./data-pipeline
+  dockerfile: Dockerfile
+```
+
+The container is assigned an explicit name:
+
+```yaml
+container_name: colmaps-data-pipeline
+```
+
+to make its execution and logs easier to identify during development.
+
+The volume mappings connect the persistent Docker volumes to the directories expected by the existing pipeline scripts:
+
+```yaml
+volumes:
+  - colmaps_raw_data:/app/data-pipeline/raw
+  - colmaps_filtered_data:/app/data-pipeline/filtered
+  - colmaps_processed_data:/app/data-pipeline/processed
+```
+
+The corresponding volumes are declared at the root level of the Compose configuration:
+
+```yaml
+volumes:
+  colmaps_postgres_data:
+  colmaps_raw_data:
+  colmaps_filtered_data:
+  colmaps_processed_data:
+```
+
+The containerized pipeline can be executed independently using:
+
+```powershell
+docker compose up --build data-pipeline
+```
+
+A successful run completes the required pipeline stages or skips already completed stages and terminates with exit code `0`.
