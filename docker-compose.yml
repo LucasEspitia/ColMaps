@@ -5,12 +5,12 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-colmaps}
+      POSTGRES_USER: ${DB_USER:-colmaps}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-colmaps_pwd}
 
     ports:
-      - "${DB_PORT}:5432"
+      - "${DB_PORT:-5432}:5432"
 
     volumes:
       - colmaps_postgres_data:/var/lib/postgresql
