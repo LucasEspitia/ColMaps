@@ -1176,3 +1176,140 @@ GEOMETRYCOLLECTION      28
 Relations tagged as `type=multipolygon` are converted to multipolygon geometries, while other relation types such as `site`, `boundary`, `waterway`, and similar composite structures may be represented as geometry collections.
 
 This manual import validates the database schema, geometry conversion strategy, spatial indexing, and compatibility between the prepared OSM dataset and PostGIS before the import process is automated.
+
+### 9.3 Database Automation Environment
+
+The database import automation uses a dedicated Conda environment to keep its Python dependencies isolated from the data-analysis pipeline.
+
+The environment definition is stored in:
+
+```text
+database/environment.yml
+```
+
+The environment uses the same Python version as the data pipeline in order to keep the project runtime consistent across Python-based components.
+
+The current environment definition is:
+
+```yaml
+name: colmaps-database
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python=3.14
+  - psycopg
+```
+
+The environment can be created from the `database` directory using:
+
+```powershell
+conda env create -f environment.yml
+```
+
+After creation, activate it with:
+
+```powershell
+conda activate colmaps-database
+```
+
+The installation can be verified using:
+
+```powershell
+python --version
+```
+
+and:
+
+```powershell
+python -c "import psycopg; print(psycopg.__version__)"
+```
+
+This environment is intentionally kept separate from `data-pipeline/environment.yml`.
+
+The data pipeline environment contains dependencies required for exploratory analysis, Jupyter notebook execution, and dataset preparation, while the database environment contains only the Python dependencies required for database automation.
+
+This separation keeps component responsibilities explicit and reduces unnecessary dependency coupling between pipeline stages.
+
+The same environment definition can later be reused when the database import stage is containerized, allowing the local development environment and the Docker-based environment to derive from the same declared dependency specification.
+
+### 9.4 Automated PostGIS Import
+
+After validating the `osm2pgsql` import manually, the process is automated through:
+
+```text
+database/scripts/import_osm.py
+```
+
+The script provides a reproducible entry point for importing the prepared OSM dataset into PostGIS using the previously validated `osm2pgsql` Flex configuration.
+
+The import uses:
+
+```text
+data-pipeline/processed/colombia-colmaps.osm.pbf
+```
+
+together with:
+
+```text
+database/osm2pgsql/colmaps.lua
+```
+
+Before starting the import, the script validates that both required files exist.
+
+It then connects to the ColMaps PostgreSQL database and checks whether the imported `public.osm_features` table already exists and contains data.
+
+If a valid imported dataset is already present, the import is skipped:
+
+```text
+ColMaps dataset is already imported.
+Existing features: ...
+Skipping PostGIS import.
+Use --force to recreate the imported dataset.
+```
+
+This prevents the complete OSM dataset from being reimported unnecessarily during repeated development or initialization runs.
+
+The automated import can be executed from the project root using:
+
+```powershell
+python database/scripts/import_osm.py
+```
+
+If the dataset must be rebuilt, the `--force` option can be used:
+
+```powershell
+python database/scripts/import_osm.py --force
+```
+
+When forced, the script removes the tables created by the previous ColMaps `osm2pgsql` import and recreates them using the validated Flex configuration.
+
+The script does not remove unrelated PostGIS schemas or extension tables.
+
+After `osm2pgsql` completes, the script performs additional validation against the resulting database state.
+
+It verifies that:
+
+- the expected `public.osm_features` table exists;
+- the table contains imported features;
+- no imported feature contains a null geometry.
+
+A successful execution therefore validates both the `osm2pgsql` process and the resulting PostGIS dataset before reporting completion.
+
+The automation provides two complementary execution modes:
+
+```text
+Normal execution
+→ inspect database state
+→ existing valid import → skip
+→ missing import → import and validate
+
+Forced execution
+→ remove previous ColMaps import
+→ execute osm2pgsql
+→ recreate database dataset
+→ validate resulting import
+```
+
+This script serves as the reproducible interface between the prepared OSM dataset and the PostGIS database and will subsequently be used as part of the containerized application initialization workflow.
