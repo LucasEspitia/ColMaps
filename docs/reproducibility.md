@@ -889,7 +889,7 @@ jupyter notebook
 
 **This workaround is only necessary when the default Jupyter runtime directory produces permission errors.**
 
-## 8. Data Analysis
+## 8. Data Analysis & Preparation
 
 The exploratory analysis of the OpenStreetMap dataset is performed through Jupyter notebooks stored in:
 
@@ -965,11 +965,47 @@ The complete preparation process, refinement rules, validation checks, and resul
 
 The stage produces `processed/colombia-colmaps.osm.pbf` together with `filters/03_preparation_rules.json`, providing the reproducible inputs required for the subsequent PostGIS import stage.
 
+### 8.5 Automated Dataset Preparation
+
+The dataset acquisition and filtering process was automated after validating the required OpenStreetMap features during the exploratory analysis.
+
+To ensure reproducibility, the pipeline does **not** download the latest GeoFabrik extract. Instead, it retrieves the exact dataset version used by ColMaps:
+
+```text
+colombia-260901.osm.pbf
+```
+
+The downloaded file is verified using its expected SHA-256 checksum:
+
+```text
+94f936ae50a2050cdab53103d7ab63ed6bd4b3e9e9b67ebea0ebbe752f115c58
+```
+
+The preparation workflow is:
+
+```text
+Fixed GeoFabrik snapshot
+        │
+        ▼
+Download and verify dataset
+        │
+        ▼
+Apply validated filtering rules
+        │
+        ▼
+Generate filtered .osm.pbf
+```
+
+The scripts can be executed directly from the `data-pipeline` directory:
+
+```bash
+python scripts/download_osm.py
+python scripts/filter_osm.py
+```
+
+The exploratory notebooks document how the filtering rules were selected, while the scripts reproduce those validated decisions automatically.
+
 > [!IMPORTANT]
 > **Dataset-dependent validation**
 >
-> The preparation workflow described above is reproducible for the analyzed Colombia OSM dataset, but the semantic decisions derived from the exploratory analysis should not be assumed to generalize directly to other OSM extracts.
->
-> OSM data is heterogeneous and evolves over time. Different geographic extracts may contain different tag distributions, secondary classifications, metadata completeness, non-standard values, and local tagging conventions. Consequently, conditions observed in this dataset—such as missing secondary tags, access-related ambiguity, heterogeneous `water=*` or `wetland=*` classifications, or alternative tagging conventions—may occur differently or may not occur at all in another dataset.
->
-> Therefore, the **methodology and pipeline structure are reproducible, while dataset-specific semantic rules require independent validation**. When applying the workflow to another region or a substantially different dataset version, the exploratory inspection and feature-scope validation stages should be repeated before reusing or adapting the preparation rules.
+> The filtering rules were defined for the Colombian OpenStreetMap dataset and the ColMaps tourism use case. The pipeline structure is reproducible, but applying it to another region or substantially different dataset may require a new exploratory analysis and adjustment of the filtering rules.
