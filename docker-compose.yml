@@ -33,6 +33,29 @@ services:
       - colmaps_filtered_data:/app/data-pipeline/filtered
       - colmaps_processed_data:/app/data-pipeline/processed
 
+  data-import:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+
+    container_name: colmaps-data-import
+
+    environment:
+      DB_HOST: db
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-colmaps}
+      DB_USER: ${DB_USER:-colmaps}
+      DB_PASSWORD: ${DB_PASSWORD:-colmaps_pwd}
+
+    volumes:
+      - colmaps_processed_data:/app/data-pipeline/processed
+
+    depends_on:
+      db:
+        condition: service_healthy
+      data-pipeline:
+        condition: service_completed_successfully
+
 volumes:
   colmaps_postgres_data:
   colmaps_raw_data:
