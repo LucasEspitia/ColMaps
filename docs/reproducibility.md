@@ -1755,7 +1755,6 @@ http://localhost:3000/health
 
 The resulting setup provides a reproducible backend development environment integrated with the automated data preparation and database initialization processes.
 
-
 ### 11.4 Frontend Containerization
 
 The Angular frontend is containerized to provide a consistent development environment while preserving automatic compilation and hot reload.
@@ -1816,6 +1815,7 @@ The application is accessible at:
 ```text
 http://localhost:4200
 ```
+
 #### 11.4.4 Verification
 
 The frontend was built and started through Docker Compose:
@@ -1846,12 +1846,12 @@ The resulting configuration allows Angular and NestJS to run together in a conta
 >
 > The following measurements were recorded:
 >
-> | Configuration | Angular compilation time |
-> |---|---:|
-> | Docker with Windows/OneDrive bind mount — initial startup | 62.496 s |
-> | Docker with Windows/OneDrive bind mount — subsequent startup | 27.995 s |
-> | Native execution on Windows | 4.685 s |
-> | Docker with repository stored in WSL2 | 4.698 s |
+> | Configuration                                                | Angular compilation time |
+> | ------------------------------------------------------------ | -----------------------: |
+> | Docker with Windows/OneDrive bind mount — initial startup    |                 62.496 s |
+> | Docker with Windows/OneDrive bind mount — subsequent startup |                 27.995 s |
+> | Native execution on Windows                                  |                  4.685 s |
+> | Docker with repository stored in WSL2                        |                  4.698 s |
 >
 > The migration reduced the subsequent containerized compilation time by approximately **83%**, bringing it close to the measured native execution time.
 >
@@ -1868,3 +1868,8 @@ The resulting configuration allows Angular and NestJS to run together in a conta
 > This configuration provides a development experience comparable to native execution while preserving the isolation and consistency of the containerized environment.
 >
 > WSL2 is an optional optimization for Windows developers, **not a mandatory prerequisite for reproducing ColMaps**. The application remains executable through Docker Compose on supported host environments.
+>
+> If you utilized the optimization to improve Docker hot-reload performance during development, it is recommended to reinstall nvm so you can use the Node version
+> specified in the `.nvmrc` file (if you do not already have it).
+>
+> Additionally, reinstall the dependencies listed in the previous sections.
