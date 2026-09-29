@@ -1873,3 +1873,23 @@ The resulting configuration allows Angular and NestJS to run together in a conta
 > specified in the `.nvmrc` file (if you do not already have it).
 >
 > Additionally, reinstall the dependencies listed in the previous sections.
+
+## 12. Testing Environment
+
+The testing environment is configured to support automated validation of both application components before integration into the CI pipeline.
+
+Vitest is used as the common testing framework, while each application retains the configuration required by its respective architecture.
+
+### 12.1 Frontend Testing
+
+Angular 22 provides native integration with Vitest through its `@angular/build:unit-test` builder. Consequently, no additional testing framework or custom runner configuration was required.
+
+The existing frontend tests were adapted to the current application structure and dependencies to ensure successful execution.
+
+Tests can be executed once, without entering watch mode, from `frontend` foler, using:
+
+```bash
+npm test -- --watch=false
+```
+
+This command provides the non-interactive execution required for automated CI validation.
