@@ -1754,3 +1754,117 @@ http://localhost:3000/health
 ```
 
 The resulting setup provides a reproducible backend development environment integrated with the automated data preparation and database initialization processes.
+
+
+### 11.4 Frontend Containerization
+
+The Angular frontend is containerized to provide a consistent development environment while preserving automatic compilation and hot reload.
+
+The configuration supports Angular SSR and allows developers to modify source files locally without rebuilding the Docker image after every change.
+
+#### 11.4.1 Docker Image
+
+The frontend image is defined in `frontend/Dockerfile` using the official Node.js 24 Alpine image, consistent with the backend development environment.
+
+Dependencies are installed using `npm ci`, ensuring that the installation follows the committed `package-lock.json`.
+
+The development server is started using:
+
+```dockerfile
+CMD ["npm", "start", "--", "--host", "0.0.0.0", "--poll", "1000"]
+```
+
+The `--host 0.0.0.0` argument makes the development server accessible outside the container.
+
+The `--poll 1000` argument enables periodic filesystem checks, allowing Angular to detect source-code modifications even when native filesystem notifications are not reliably propagated through Docker bind mounts.
+
+A dedicated `.dockerignore` excludes local dependencies, build artifacts, Angular cache files, and environment files from the image build context.
+
+#### 11.4.2 Docker Compose Integration
+
+The frontend is integrated into the root `docker-compose.yml` and exposed through port `4200`.
+
+Its configuration includes three development volumes:
+
+```yaml
+volumes:
+  - ./frontend:/app/frontend
+  - frontend_node_modules:/app/frontend/node_modules
+  - frontend_angular_cache:/app/frontend/.angular
+```
+
+The source-code bind mount allows files edited on the host to be immediately available inside the container.
+
+The `frontend_node_modules` volume preserves dependencies installed for the container's Linux environment, preventing conflicts with host-specific installations.
+
+The `frontend_angular_cache` volume preserves Angular's development cache across container restarts and recreation.
+
+The frontend depends on the backend service, integrating it into the existing Docker Compose startup sequence.
+
+#### 11.4.3 Angular SSR and Development Mode
+
+The frontend runs through Angular's development server rather than a production build.
+
+Angular generates both browser and server bundles to support the project's SSR configuration.
+
+During startup, Vite also performs dependency optimization for the browser and SSR environments.
+
+Watch mode remains enabled, allowing automatic recompilation when source files are modified.
+
+The application is accessible at:
+
+```text
+http://localhost:4200
+```
+#### 11.4.4 Verification
+
+The frontend was built and started through Docker Compose:
+
+```bash
+docker compose build frontend
+docker compose up frontend
+```
+
+The following functionality was verified:
+
+1. Successful Angular development server startup.
+2. Generation of browser and SSR bundles.
+3. Access to the application through the published port.
+4. Synchronization of local source files with the container.
+5. Automatic recompilation and browser updates without rebuilding the Docker image.
+6. Persistence of the Angular development cache.
+
+The resulting configuration allows Angular and NestJS to run together in a containerized development environment while retaining their respective watch modes.
+
+> **Optional — Windows Development Performance Optimization (WSL2)**
+>
+> During initial development, the repository was located in a OneDrive-synchronized directory on the Windows NTFS filesystem and mounted into Linux containers.
+>
+> Although Angular's persistent cache was enabled, development compilation remained significantly slower than native execution.
+>
+> To investigate the observed performance difference, the repository was migrated to the WSL2 Linux filesystem while retaining the existing Docker Desktop engine, Docker Compose configuration, and persistent volumes.
+>
+> The following measurements were recorded:
+>
+> | Configuration | Angular compilation time |
+> |---|---:|
+> | Docker with Windows/OneDrive bind mount — initial startup | 62.496 s |
+> | Docker with Windows/OneDrive bind mount — subsequent startup | 27.995 s |
+> | Native execution on Windows | 4.685 s |
+> | Docker with repository stored in WSL2 | 4.698 s |
+>
+> The migration reduced the subsequent containerized compilation time by approximately **83%**, bringing it close to the measured native execution time.
+>
+> Hot reload was also manually verified to respond in under one second after modifying an Angular template.
+>
+> Initially, the Angular development server used `--poll 1000` to detect filesystem changes across the Windows-to-Linux bind mount. After migrating the repository to WSL2, this option was removed, allowing Angular to rely on native filesystem notifications while retaining automatic recompilation and hot reload.
+>
+> The resulting development command is:
+>
+> ```dockerfile
+> CMD ["npm", "start", "--", "--host", "0.0.0.0"]
+> ```
+>
+> This configuration provides a development experience comparable to native execution while preserving the isolation and consistency of the containerized environment.
+>
+> WSL2 is an optional optimization for Windows developers, **not a mandatory prerequisite for reproducing ColMaps**. The application remains executable through Docker Compose on supported host environments.
