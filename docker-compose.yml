@@ -55,9 +55,38 @@ services:
         condition: service_healthy
       data-pipeline:
         condition: service_completed_successfully
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: colmaps-backend
+
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-colmaps}
+      DB_USER: ${DB_USER:-colmaps}
+      DB_PASSWORD: ${DB_PASSWORD:-colmaps_pwd}
+      PORT: 3000
+
+      TSC_WATCHFILE: FixedPollingInterval
+
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+
+    volumes:
+      - ./backend:/app/backend
+      - backend_node_modules:/app/backend/node_modules
+
+    depends_on:
+      data-import:
+        condition: service_completed_successfully
 
 volumes:
   colmaps_postgres_data:
   colmaps_raw_data:
   colmaps_filtered_data:
   colmaps_processed_data:
+  backend_node_modules:

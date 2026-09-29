@@ -1649,3 +1649,108 @@ Data pipeline → completed successfully
 The import service then checks the current database state. If the dataset has already been imported, the process is skipped and exits successfully with code `0`.
 
 This preserves the same idempotent behavior previously validated during local execution.
+
+### 11.3 Backend Containerization
+
+The NestJS backend is containerized to provide a consistent development environment and integrate it with the existing PostgreSQL/PostGIS infrastructure.
+
+The container is configured for development, supporting automatic recompilation and application restart when source files are modified locally.
+
+#### 11.3.1 Docker Image
+
+The backend image is defined in `backend/Dockerfile` using the official Node.js 24 Alpine image.
+
+Alpine was selected for its lightweight base system and reduced package footprint. Alternative Debian-based images were evaluated using Docker Scout. The Alpine-based image eliminated the critical operating-system vulnerabilities identified in the initial Bookworm-based image.
+
+The remaining reported vulnerabilities originated from npm dependencies and are handled separately through dependency auditing and updates.
+
+The Dockerfile installs dependencies using `npm ci`, ensuring that installation follows the committed `package-lock.json`.
+
+The development server is started using:
+
+```dockerfile
+CMD ["npm", "run", "start:dev"]
+```
+
+This enables NestJS watch mode without requiring a new image build after each source-code modification.
+
+#### 11.3.2 Docker Compose Integration
+
+The backend is integrated into the root `docker-compose.yml`.
+
+Its configuration includes:
+
+- Environment variables for the application port and database connection.
+- Connection to PostgreSQL through Docker's internal service hostname (`db`).
+- A dependency on successful completion of the automated data import.
+- Port mapping to expose the API to the host.
+- Persistent storage for container-specific Node.js dependencies.
+
+The backend follows the existing startup dependency chain:
+
+```text
+PostgreSQL/PostGIS
+        ↓
+OSM data pipeline
+        ↓
+Database import
+        ↓
+NestJS backend
+```
+
+The application listens on `0.0.0.0`, allowing access through the published container port.
+
+#### 11.3.3 Source Synchronization and Hot Reload
+
+Two volumes are used during development:
+
+```yaml
+volumes:
+  - ./backend:/app/backend
+  - backend_node_modules:/app/backend/node_modules
+```
+
+The bind mount synchronizes the local source code with the container, while the separate named volume preserves Linux-specific dependencies without mixing them with the host's Windows installation.
+
+During validation, source-code modifications were successfully synchronized but were not initially detected by the TypeScript watcher.
+
+To address this behavior under Windows and Docker Desktop, polling was enabled in `backend/tsconfig.json`:
+
+```json
+"watchOptions": {
+  "watchFile": "fixedPollingInterval",
+  "watchDirectory": "fixedPollingInterval",
+  "excludeDirectories": ["**/node_modules", "dist"]
+}
+```
+
+Polling allows TypeScript to detect file modifications even when native filesystem notifications are not reliably propagated through the bind mount.
+
+After this configuration, source-code changes triggered automatic recompilation and application restart without manually rebuilding or restarting the container.
+
+#### 11.3.4 Verification
+
+The backend was built and started through Docker Compose:
+
+```powershell
+docker compose build backend
+docker compose up backend
+```
+
+The following functionality was verified:
+
+1. Successful NestJS application startup.
+2. Successful connection to PostgreSQL/PostGIS.
+3. Successful response from the `/health` endpoint.
+4. Synchronization of local source-code changes with the container.
+5. Automatic recompilation and restart after modifying a TypeScript file.
+
+The health endpoint also executes a PostGIS query, validating that the backend can communicate with the spatial database.
+
+The API is accessible locally at:
+
+```text
+http://localhost:3000/health
+```
+
+The resulting setup provides a reproducible backend development environment integrated with the automated data preparation and database initialization processes.
