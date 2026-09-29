@@ -84,9 +84,33 @@ services:
       data-import:
         condition: service_completed_successfully
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: colmaps-frontend
+
+    environment:
+      NODE_ENV: development
+      NG_ALLOWED_HOSTS: localhost
+
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
+
+    volumes:
+      - ./frontend:/app/frontend
+      - frontend_node_modules:/app/frontend/node_modules
+      - frontend_angular_cache:/app/frontend/.angular
+
+    depends_on:
+      backend:
+        condition: service_started
 volumes:
   colmaps_postgres_data:
   colmaps_raw_data:
   colmaps_filtered_data:
   colmaps_processed_data:
   backend_node_modules:
+  frontend_node_modules:
+  frontend_angular_cache:
