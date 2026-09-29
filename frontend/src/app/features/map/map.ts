@@ -3,7 +3,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  Inject,
+  inject,
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
@@ -16,16 +16,15 @@ import { Map, setWorkerUrl } from 'maplibre-gl';
   templateUrl: './map.html',
 })
 export class MapComponent implements AfterViewInit {
+
+  private readonly platformId = inject(PLATFORM_ID);
+
+  
   @ViewChild('mapContainer')
   private mapContainer!: ElementRef<HTMLElement>;
 
   private map?: Map;
-
-  constructor(
-    @Inject(PLATFORM_ID)
-    private readonly platformId: object,
-  ) {}
-
+  
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
