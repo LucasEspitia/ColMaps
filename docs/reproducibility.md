@@ -1894,6 +1894,26 @@ npm test -- --watch=false
 
 This command provides the non-interactive execution required for automated CI validation.
 
+#### 12.1.1 Frontend Linting
+
+Unlike the testing environment, ESLint was not configured in the initial Angular project. Therefore, Angular ESLint was added using the official Angular schematic:
+
+```bash
+npx ng add angular-eslint@22
+```
+
+This introduced static analysis for both TypeScript source files and Angular HTML templates, integrating linting directly with the Angular CLI.
+
+The existing frontend code was adapted to satisfy the configured rules.
+
+Linting is executed using from `frontend`:
+
+```bash
+npm run lint
+```
+
+The configuration was successfully validated alongside the frontend tests and build, establishing the three checks required for the CI pipeline: **lint, test, and build**.
+
 ### 12.2 Backend Testing
 
 The NestJS backend was initially configured with Jest and `ts-jest`. However, MikroORM 7 uses native ECMAScript Modules (ESM), which introduced compatibility issues with the existing CommonJS-based Jest configuration.
@@ -1949,10 +1969,10 @@ Additionally, the ESLint commands were separated to ensure that automated valida
 The backend was successfully validated using:
 
 ```bash
-npm test --prefix backend
-npm run test:e2e --prefix backend
-npm run lint --prefix backend
-npm run build --prefix backend
+npm test
+npm run test:e2e
+npm run lint
+npm run build
 ```
 
 All four commands completed successfully, establishing a reproducible testing and validation baseline for the upcoming CI pipeline.
