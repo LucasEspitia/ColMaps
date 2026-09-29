@@ -1893,3 +1893,66 @@ npm test -- --watch=false
 ```
 
 This command provides the non-interactive execution required for automated CI validation.
+
+### 12.2 Backend Testing
+
+The NestJS backend was initially configured with Jest and `ts-jest`. However, MikroORM 7 uses native ECMAScript Modules (ESM), which introduced compatibility issues with the existing CommonJS-based Jest configuration.
+
+To maintain a consistent testing framework across ColMaps, Jest was replaced with Vitest. This also provides a modern testing environment with native ESM support and integration with Vite's transformation ecosystem.
+
+#### 12.2.1 Vitest Configuration
+
+Vitest was installed as a development dependency, and the following configuration files were introduced:
+
+- `backend/vitest.config.ts` — Unit tests.
+- `backend/vitest.e2e.config.ts` — HTTP endpoint tests.
+
+The unit test configuration uses the Node.js environment and discovers tests through:
+
+```typescript
+include: ["src/**/*.spec.ts"];
+```
+
+The HTTP test configuration uses SWC through `unplugin-swc` to preserve the decorator metadata required by NestJS dependency injection:
+
+```typescript
+plugins: [swc.vite()];
+```
+
+Both configurations allow tests to execute independently of the development server.
+
+#### 12.2.2 Dependency and Script Updates
+
+The Jest-related dependencies and configuration were removed, including `jest`, `ts-jest`, `@types/jest`, and the previous Jest configuration.
+
+The backend testing scripts were updated to use Vitest:
+
+```json
+"test": "vitest run",
+"test:watch": "vitest",
+"test:cov": "vitest run --coverage",
+"test:debug": "vitest --inspect-brk --no-file-parallelism",
+"test:e2e": "vitest run --config vitest.e2e.config.ts"
+```
+
+The `@vitest/coverage-v8` provider was added for coverage reporting.
+
+Additionally, the ESLint commands were separated to ensure that automated validation does not modify source files:
+
+```json
+"lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+"lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+```
+
+#### 12.2.3 Verification
+
+The backend was successfully validated using:
+
+```bash
+npm test --prefix backend
+npm run test:e2e --prefix backend
+npm run lint --prefix backend
+npm run build --prefix backend
+```
+
+All four commands completed successfully, establishing a reproducible testing and validation baseline for the upcoming CI pipeline.

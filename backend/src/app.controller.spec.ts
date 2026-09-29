@@ -1,22 +1,30 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi } from 'vitest';
+import { EntityManager } from '@mikro-orm/postgresql';
+
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 
 describe('AppController', () => {
-  let appController: AppController;
+  it('should return the database health status', async () => {
+    const execute = vi.fn().mockResolvedValue([{ postgis_version: '3.6.0' }]);
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
+    const em = {
+      getConnection: () => ({
+        execute,
+      }),
+    } as unknown as EntityManager;
 
-    appController = app.get<AppController>(AppController);
-  });
+    const controller = new AppController(em);
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    const result = await controller.getHealth();
+
+    expect(result).toEqual({
+      status: 'ok',
+      database: 'connected',
+      postgis: '3.6.0',
     });
+
+    expect(execute).toHaveBeenCalledWith(
+      'SELECT PostGIS_Version() AS postgis_version',
+    );
   });
 });
