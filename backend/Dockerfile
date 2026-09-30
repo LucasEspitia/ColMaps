@@ -4,7 +4,7 @@ WORKDIR /app/backend
 # Install project dependencies.
 COPY package*.json ./
 
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 
 # Copy application source.
 COPY . .

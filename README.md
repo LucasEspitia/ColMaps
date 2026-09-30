@@ -8,6 +8,34 @@ The project uses Colombia as a case study, providing an interactive platform for
 
 Rather than developing new routing or geospatial algorithms, the project focuses on **software engineering practices for modern Web GIS systems**, including performance optimization, modular architecture, accessibility, automated testing, and continuous validation.
 
+## Local Docker builds
+
+Copy `.env.example` to `.env` when configuring a fresh checkout. The example sets
+`COMPOSE_PARALLEL_LIMIT=1` and `COMPOSE_BAKE=false` so Compose builds one service
+at a time with its standard builder.
+
+For an explicit sequential build, independent of the builder selected in your shell:
+
+```bash
+npm run docker:build
+npm run docker:up
+```
+
+`docker:build` builds `data-pipeline`, `data-import`, `backend`, then `frontend`,
+stopping on the first failure. `docker:up` runs that build and starts the stack
+with `--no-build`; existing `depends_on` conditions control startup readiness.
+The `db` service uses a published PostGIS image and has no local build.
+
+Dependency layers are cached because the Dockerfiles copy dependency manifests
+before application source. Frontend and backend also retain npm downloads with
+BuildKit cache mounts. Changing a manifest invalidates its dependency layer;
+changing only source files preserves it. Cache requires the same builder and
+retained cache data; avoid `--no-cache` and cache pruning when checking reuse.
+
+To inspect reuse, run `docker compose --parallel 1 --progress plain build` twice
+without edits and look for `CACHED` on dependency installation steps in the second
+run. Named runtime volumes are separate from the Docker build cache.
+
 ## Project Goals
 
 The main goals of ColMaps are to:

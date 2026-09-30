@@ -7,7 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "docker:build": "docker compose --parallel 1 build data-pipeline && docker compose --parallel 1 build data-import && docker compose --parallel 1 build backend && docker compose --parallel 1 build frontend",
+    "docker:up": "npm run docker:build && docker compose --parallel 1 up -d --no-build"
   },
   "repository": {
     "type": "git",

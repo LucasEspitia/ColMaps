@@ -1836,6 +1836,48 @@ The following functionality was verified:
 
 The resulting configuration allows Angular and NestJS to run together in a containerized development environment while retaining their respective watch modes.
 
+### 11.5 Build resource optimization
+
+Building multiple Docker images simultaneously can generate significant CPU, memory, and disk I/O usage, particularly during the initial setup when dependencies and base images have not yet been cached. Since ColMaps contains multiple independently built services, Docker Compose is configured to use a conservative build strategy.
+
+The following variables are defined in the root `.env` file:
+
+```env
+COMPOSE_PARALLEL_LIMIT=1
+COMPOSE_BAKE=false
+```
+
+`COMPOSE_PARALLEL_LIMIT=1` limits Compose operations to one concurrent operation. This reduces peak resource consumption during the initial setup and makes the reproducibility process more suitable for machines with limited hardware resources.
+
+`COMPOSE_BAKE=false` disables Docker Compose Bake integration, keeping the build process based on the standard Compose build workflow used by the project.
+
+#### Dependency caching
+
+The Node.js services also use Docker BuildKit cache mounts for npm:
+
+```dockerfile
+COPY package*.json ./
+
+RUN --mount=type=cache,target=/root/.npm npm ci
+
+COPY . .
+```
+
+The dependency manifests are copied before the application source so that Docker can reuse the dependency installation layer while `package.json` and `package-lock.json` remain unchanged.
+
+Additionally, the BuildKit cache mount preserves npm's download cache between builds. If the dependency layer must be rebuilt, previously downloaded packages can therefore be reused instead of being retrieved again from the registry.
+
+This results in two complementary caching mechanisms:
+
+- **Docker layer cache** avoids repeating unchanged build steps.
+- **BuildKit cache mounts** reuse package-manager download caches when a dependency installation step must run again.
+
+The same strategy is applied to both the frontend and backend Node.js images. Source-code changes therefore do not normally require dependency reinstallation.
+
+During development, source directories are mounted into their respective containers and both Angular and NestJS run in watch mode. Consequently, ordinary source-code changes are handled through hot reload and do not require rebuilding the Docker images.
+
+These optimizations do not change the resulting application or its dependencies. They only reduce repeated work and peak resource usage, making both local development and the reproducible setup process more efficient.
+
 > **Optional — Windows Development Performance Optimization (WSL2)**
 >
 > During initial development, the repository was located in a OneDrive-synchronized directory on the Windows NTFS filesystem and mounted into Linux containers.
