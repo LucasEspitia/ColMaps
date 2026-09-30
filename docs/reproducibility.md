@@ -1924,8 +1924,8 @@ To maintain a consistent testing framework across ColMaps, Jest was replaced wit
 
 Vitest was installed as a development dependency, and the following configuration files were introduced:
 
-- `backend/vitest.config.ts` — Unit tests.
-- `backend/vitest.e2e.config.ts` — HTTP endpoint tests.
+- `backend/vitest.config.mts` — Unit tests.
+- `backend/vitest.e2e.config.mts` — HTTP endpoint tests.
 
 The unit test configuration uses the Node.js environment and discovers tests through:
 
@@ -1952,7 +1952,7 @@ The backend testing scripts were updated to use Vitest:
 "test:watch": "vitest",
 "test:cov": "vitest run --coverage",
 "test:debug": "vitest --inspect-brk --no-file-parallelism",
-"test:e2e": "vitest run --config vitest.e2e.config.ts"
+"test:e2e": "vitest run --config vitest.e2e.config.mts"
 ```
 
 The `@vitest/coverage-v8` provider was added for coverage reporting.
