@@ -2053,3 +2053,57 @@ This configuration ensures that only staged frontend and backend source files ar
 The pre-commit hook intentionally performs linting only. Tests and builds are not executed at this stage in order to keep commits fast and avoid unnecessary delays during development.
 
 The complete validation process remains the responsibility of the CI pipeline, which independently executes linting, tests, and builds in GitHub Actions.
+
+### 13.3 Local Pre-push Validation
+
+A Husky pre-push hook was added to perform a broader validation before changes are sent to the remote repository.
+
+Unlike the pre-commit hook, which only runs linting against staged files, the pre-push hook executes the main test and build commands for both applications.
+
+The hook is defined in:
+
+```text
+.husky/pre-push
+```
+
+with the following configuration:
+
+```bash
+#!/bin/sh
+set -e
+
+echo "Running pre-push validation..."
+
+echo "Frontend tests..."
+npm test --prefix frontend -- --watch=false
+
+echo "Frontend build..."
+npm run build --prefix frontend
+
+echo "Backend tests..."
+npm test --prefix backend
+
+echo "Backend HTTP tests..."
+npm run test:e2e --prefix backend
+
+echo "Backend build..."
+npm run build --prefix backend
+
+echo "Pre-push validation passed."
+```
+
+The set -e option causes the script to stop immediately if any command fails. As a result, a failing test or build prevents the Git push from continuing.
+The pre-push validation checks:
+
+- frontend unit tests;
+- frontend production build;
+- backend unit tests;
+- backend HTTP tests;
+- backend build.
+
+Linting is not repeated at this stage because it is already handled by the pre-commit hook, while the complete validation is executed again by GitHub Actions in an independent CI environment.
+This creates three complementary validation layers:
+
+- pre-commit: fast linting of staged files;
+- pre-push: local tests and builds;
+- CI: complete validation in an independent environment.
