@@ -2210,3 +2210,27 @@ Each layer has a different purpose:
 - GitHub Actions repeats the complete validation in an independent Linux environment.
 
 The remote CI pipeline remains the authoritative validation layer because local Git hooks can be bypassed and depend on the developer's local environment.
+
+## 14. Accessibility
+
+### 14.1 Styles and Color Palettes
+
+ColMaps defines a centralized semantic design-token system for colors, interaction states, surfaces, borders, focus indicators, and typography scaling. The initial color palette was selected with accessibility and sufficient color contrast in mind, while keeping a visual identity associated with Colombia and geographic exploration.
+
+The styling system uses a single source of truth for the application's visual tokens. Tailwind CSS consumes these tokens through its theme system, while Taiga UI components are connected to the same tokens through a dedicated theme bridge. This prevents native application elements and third-party UI components from developing independent color schemes or interaction states.
+
+Interactive states such as hover, pressed, and focus are also defined at the token level. This allows accessibility-related themes to propagate consistently across both custom and Taiga UI components without requiring component-specific color definitions.
+
+A high-contrast theme is already included as an alternative accessibility mode. Additional color-vision adaptations and other accessibility preferences will be incorporated progressively as the interface develops.
+
+The current design-token and theme configuration is maintained in `frontend/src/styles.css`.
+
+### 14.2. Accessible Components and Keyboard Navigation
+
+Accessibility is considered from the early stages of component development rather than being treated as a final validation step. Components are implemented using semantic HTML and appropriate ARIA attributes, such as `aria-label` where additional accessible names or descriptions are required.
+
+As each component is introduced, its keyboard accessibility is checked, including navigation using the `Tab` key, visible focus indicators, and interaction without relying exclusively on a mouse or pointer.
+
+This process is performed continuously during development so that accessibility issues can be identified while components are being implemented rather than after the complete interface has been built.
+
+As a final validation step, the completed interface will also be tested using a screen reader (Windows Narrator) to verify that the navigation structure, controls, labels, and relevant interface information are understandable when accessed through assistive technology.

@@ -1,3 +1,242 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+/* =========================================================
+   ColMaps Design Tokens
+   Single source of truth
+   ========================================================= */
+
+:root {
+  /* ---------------------------------------------------------
+     Brand
+     --------------------------------------------------------- */
+
+  --cm-primary: #1f5d42;
+  --cm-primary-hover: #174832;
+  --cm-primary-pressed: #123a28;
+  --cm-on-primary: #ffffff;
+
+  --cm-secondary: #216a8a;
+  --cm-secondary-hover: #1b5973;
+  --cm-secondary-pressed: #164960;
+  --cm-on-secondary: #ffffff;
+
+  --cm-accent: #e0a82e;
+  --cm-accent-hover: #c99525;
+  --cm-accent-pressed: #b18420;
+  --cm-on-accent: #1d2421;
+
+  /* ---------------------------------------------------------
+     Backgrounds
+     --------------------------------------------------------- */
+
+  --cm-background: #f7f3e8;
+  --cm-on-background: #1d2421;
+
+  --cm-surface: #ffffff;
+  --cm-surface-hover: #f3f4f3;
+  --cm-surface-pressed: #e8ebe9;
+  --cm-on-surface: #1d2421;
+
+  /* ---------------------------------------------------------
+     Text
+     --------------------------------------------------------- */
+
+  --cm-text: #1d2421;
+  --cm-text-muted: #5f6b65;
+
+  /* ---------------------------------------------------------
+     UI
+     --------------------------------------------------------- */
+
+  --cm-border: #6f7773;
+  --cm-border-hover: #4f5954;
+  --cm-focus: #216a8a;
+
+  /* ---------------------------------------------------------
+     Accessibility
+     --------------------------------------------------------- */
+
+  --cm-font-scale: 1;
+
+  /* ---------------------------------------------------------
+     Shape
+     --------------------------------------------------------- */
+
+  --cm-radius-sm: 0.5rem;
+  --cm-radius-md: 0.75rem;
+  --cm-radius-lg: 1rem;
+}
+
+/* =========================================================
+   Tailwind Theme Bridge
+   ========================================================= */
+
+@theme inline {
+  /* Colors */
+
+  --color-cm-primary: var(--cm-primary);
+  --color-cm-primary-hover: var(--cm-primary-hover);
+
+  --color-cm-secondary: var(--cm-secondary);
+  --color-cm-secondary-hover: var(--cm-secondary-hover);
+
+  --color-cm-accent: var(--cm-accent);
+  --color-cm-accent-hover: var(--cm-accent-hover);
+
+  --color-cm-background: var(--cm-background);
+  --color-cm-on-background: var(--cm-on-background);
+
+  --color-cm-surface: var(--cm-surface);
+  --color-cm-surface-hover: var(--cm-surface-hover);
+
+  --color-cm-text: var(--cm-text);
+  --color-cm-text-muted: var(--cm-text-muted);
+
+  --color-cm-border: var(--cm-border);
+  --color-cm-focus: var(--cm-focus);
+
+  /* Radius */
+
+  --radius-cm-sm: var(--cm-radius-sm);
+  --radius-cm-md: var(--cm-radius-md);
+  --radius-cm-lg: var(--cm-radius-lg);
+}
+
+/* =========================================================
+   Taiga UI Theme Bridge
+   ========================================================= */
+
+tui-root[tuiTheme='light'] {
+  /* ---------------------------------------------------------
+     Base backgrounds
+     --------------------------------------------------------- */
+
+  --tui-background-base: var(--cm-background);
+  --tui-background-base-alt: var(--cm-surface);
+
+  /* ---------------------------------------------------------
+     Neutral appearance
+     Used by Taiga secondary/neutral-style controls
+     --------------------------------------------------------- */
+
+  --tui-background-neutral-1: var(--cm-surface);
+  --tui-background-neutral-1-hover: var(--cm-surface-hover);
+  --tui-background-neutral-1-pressed: var(--cm-surface-pressed);
+
+  /* ---------------------------------------------------------
+     Primary appearance
+     --------------------------------------------------------- */
+
+  --tui-background-accent-1: var(--cm-primary);
+  --tui-background-accent-1-hover: var(--cm-primary-hover);
+  --tui-background-accent-1-pressed: var(--cm-primary-pressed);
+
+  --tui-text-primary-on-accent-1: var(--cm-on-primary);
+
+  /* ---------------------------------------------------------
+     Secondary / accent appearance
+     --------------------------------------------------------- */
+
+  --tui-background-accent-2: var(--cm-secondary);
+  --tui-background-accent-2-hover: var(--cm-secondary-hover);
+  --tui-background-accent-2-pressed: var(--cm-secondary-pressed);
+
+  --tui-text-primary-on-accent-2: var(--cm-on-secondary);
+
+  /* ---------------------------------------------------------
+     Text
+     --------------------------------------------------------- */
+
+  --tui-text-primary: var(--cm-text);
+  --tui-text-secondary: var(--cm-text-muted);
+
+  --tui-text-action: var(--cm-secondary);
+  --tui-text-action-hover: var(--cm-secondary-hover);
+
+  /* ---------------------------------------------------------
+     Borders / focus
+     --------------------------------------------------------- */
+
+  --tui-border-normal: var(--cm-border);
+  --tui-border-hover: var(--cm-border-hover);
+  --tui-border-focus: var(--cm-focus);
+
+  /* ---------------------------------------------------------
+     Shape
+     --------------------------------------------------------- */
+
+  --tui-radius-s: var(--cm-radius-sm);
+  --tui-radius-m: var(--cm-radius-md);
+  --tui-radius-l: var(--cm-radius-lg);
+}
+
+/* =========================================================
+   Global Reset
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: calc(16px * var(--cm-font-scale));
+}
+
+body {
+  min-height: 100vh;
+  background: var(--cm-background);
+  color: var(--cm-text);
+}
+
+/* =========================================================
+   Accessibility: Keyboard Focus
+   ========================================================= */
+
+:focus-visible {
+  outline: 2px solid var(--cm-focus);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   Accessibility: High Contrast
+   ========================================================= */
+
+html[data-theme='high-contrast'] {
+  --cm-primary: #000000;
+  --cm-primary-hover: #262626;
+  --cm-primary-pressed: #404040;
+  --cm-on-primary: #ffffff;
+
+  --cm-secondary: #003049;
+  --cm-secondary-hover: #002338;
+  --cm-secondary-pressed: #001a29;
+  --cm-on-secondary: #ffffff;
+
+  --cm-accent: #ffd600;
+  --cm-accent-hover: #e6c100;
+  --cm-accent-pressed: #ccab00;
+  --cm-on-accent: #000000;
+
+  --cm-background: #ffffff;
+  --cm-on-background: #000000;
+
+  --cm-surface: #ffffff;
+  --cm-surface-hover: #f0f0f0;
+  --cm-surface-pressed: #e0e0e0;
+  --cm-on-surface: #000000;
+
+  --cm-text: #000000;
+  --cm-text-muted: #262626;
+
+  --cm-border: #000000;
+  --cm-border-hover: #000000;
+  --cm-focus: #003049;
+}
