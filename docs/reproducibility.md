@@ -2003,3 +2003,49 @@ The workflow uses GitHub-hosted Ubuntu runners and read-only repository permissi
 **Verification:** The initial GitHub Actions execution completed successfully, with both frontend and backend jobs passing all configured checks.
 
 The pipeline currently validates application code without requiring running Docker containers or a PostgreSQL instance. Database integration testing, accessibility checks, performance measurements, and automated deployment will be introduced separately.
+
+### 13.2 Local Pre-commit Validation
+
+To provide faster feedback before changes are committed, Husky and lint-staged were added at the repository root.
+
+Husky manages Git hooks, while lint-staged executes validation only against files currently staged for commit. This avoids running full-project checks for every commit and keeps the local development workflow lightweight.
+
+The root `package.json` contains the shared development tooling configuration:
+
+````json
+"devDependencies": {
+  "husky": "^9.1.7",
+  "lint-staged": "^17.6.0"
+},
+"lint-staged": {
+  "frontend/**/*.{ts,html}": [
+    "npm --prefix frontend run lint:files --"
+  ],
+  "backend/**/*.ts": [
+    "npm --prefix backend run lint:files --"
+  ]
+}
+
+Both applications expose a lightweight file-oriented lint command:
+
+```json
+"lint:files": "eslint"
+````
+
+The pre-commit hook is defined in:
+
+```text
+.husky/pre-commit
+```
+
+with the following command:
+
+```bash
+npx list-staged
+```
+
+This configuration ensures that only staged frontend and backend source files are checked before a commit is created.
+
+The pre-commit hook intentionally performs linting only. Tests and builds are not executed at this stage in order to keep commits fast and avoid unnecessary delays during development.
+
+The complete validation process remains the responsibility of the CI pipeline, which independently executes linting, tests, and builds in GitHub Actions.
