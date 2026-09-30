@@ -2107,3 +2107,64 @@ This creates three complementary validation layers:
 - pre-commit: fast linting of staged files;
 - pre-push: local tests and builds;
 - CI: complete validation in an independent environment.
+
+### 13.4 Validation Workflow Overview
+
+The local and remote validation mechanisms form a layered workflow that progressively increases the depth of verification.
+
+```text
+git add .
+   ↓
+Changes are staged
+   ↓
+git commit
+   ↓
+Husky pre-commit
+   ↓
+lint-staged
+   ↓
+ESLint checks only staged frontend/backend files
+   ↓
+Commit created
+   ↓
+git push
+   ↓
+Husky pre-push
+   ↓
+Frontend unit tests
+   ↓
+Frontend build
+   ↓
+Backend unit tests
+   ↓
+Backend HTTP tests
+   ↓
+Backend build
+   ↓
+Push to GitHub
+   ↓
+GitHub Actions
+   ↓
+Frontend CI job
+   ├─ npm ci
+   ├─ lint
+   ├─ unit tests
+   └─ build
+
+Backend CI job
+   ├─ npm ci
+   ├─ lint
+   ├─ unit tests
+   ├─ HTTP tests
+   └─ build
+   ↓
+Validation completed
+```
+
+Each layer has a different purpose:
+
+- pre-commit provides fast feedback on staged source files;
+- pre-push prevents locally broken tests or builds from reaching the remote repository;
+- GitHub Actions repeats the complete validation in an independent Linux environment.
+
+The remote CI pipeline remains the authoritative validation layer because local Git hooks can be bypassed and depend on the developer's local environment.
