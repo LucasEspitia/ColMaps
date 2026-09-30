@@ -88,6 +88,7 @@
 
   --color-cm-surface: var(--cm-surface);
   --color-cm-surface-hover: var(--cm-surface-hover);
+  --color-cm-surface-pressed: var(--cm-surface-pressed);
 
   --color-cm-text: var(--cm-text);
   --color-cm-text-muted: var(--cm-text-muted);

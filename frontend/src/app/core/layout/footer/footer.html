@@ -1,0 +1,71 @@
+<footer class="border-t border-cm-border bg-cm-surface text-cm-text" aria-label="Site footer">
+  <div class="container">
+    <div class="grid gap-10 py-10 md:grid-cols-3 md:items-start">
+      <!-- Brand -->
+      <div class="space-y-3 md:justify-self-start">
+        <h1 class="text-xl font-semibold">ColMaps</h1>
+        <p class="max-w-sm text-sm leading-6 text-cm-text-muted">
+          High-performance GIS prototype for tourism exploration in Colombia.
+        </p>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="md:justify-self-center" aria-label="Footer navigation">
+        <h2 class="cm-footer-heading">Explore</h2>
+
+        <ul class="space-y-2">
+          <li>
+            <a routerLink="/" class="cm-footer-link"> Home </a>
+          </li>
+
+          <li>
+            <a routerLink="/search" class="cm-footer-link"> Try It </a>
+          </li>
+
+          <li>
+            <a routerLink="/map" class="cm-footer-link"> General Map </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Information / accessibility -->
+      <div class="md:justify-self-end md:text-right">
+        <h2 class="cm-footer-heading">Information</h2>
+
+        <ul class="space-y-2">
+          <li>
+            <a routerLink="/about" class="cm-footer-link"> About ColMaps </a>
+          </li>
+
+          <li>
+            <button type="button" class="cm-footer-link" aria-label="Open accessibility settings">
+              Accessibility
+            </button>
+          </li>
+
+          <li>
+            <button
+              type="button"
+              class="cm-footer-link"
+              aria-label="Return to the top of the page"
+              (click)="scrollToTop()"
+            >
+              Back to top ↑
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-cm-border">
+    <div class="container">
+      <div
+        class="flex flex-col gap-2 py-4 text-sm text-cm-text-muted md:flex-row md:items-center md:justify-between"
+      >
+        <p>© 2026 ColMaps</p>
+        <p class="md:text-right">Slovak University of Technology in Bratislava (STU)</p>
+      </div>
+    </div>
+  </div>
+</footer>

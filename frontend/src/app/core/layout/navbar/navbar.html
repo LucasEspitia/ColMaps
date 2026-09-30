@@ -1,0 +1,60 @@
+<nav
+  class="flex items-center min-h-18 border-b border-cm-border bg-cm-surface text-cm-on-surface"
+  aria-label="Main navigation"
+>
+  <div class="container h-full flex items-center justify-between px-6 py-4 md:px-8">
+    <a
+      routerLink="/"
+      class="rounded-cm-md px-3 py-2 text-xl font-bold text-cm-primary no-underline transition-colors"
+      aria-label="ColMaps home"
+    >
+      ColMaps
+    </a>
+
+    <div class="flex items-center gap-2">
+      <a
+        routerLink="/"
+        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="cm-nav-link"
+      >
+        Home
+      </a>
+
+      <a
+        routerLink="/search"
+        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
+        class="cm-nav-link"
+      >
+        Try It
+      </a>
+
+      <a
+        routerLink="/map"
+        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
+        class="cm-nav-link"
+      >
+        General Map
+      </a>
+
+      <a
+        routerLink="/about"
+        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
+        class="cm-nav-link"
+      >
+        About
+      </a>
+
+      <button
+        tuiButton
+        type="button"
+        appearance="secondary"
+        size="m"
+        iconStart="@tui.accessibility"
+        aria-label="Open accessibility settings"
+      >
+        Accessibility
+      </button>
+    </div>
+  </div>
+</nav>

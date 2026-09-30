@@ -1,0 +1,9 @@
+@reference "../../../../styles.css";
+
+@layer components {
+  .cm-nav-link {
+    @apply rounded-cm-md px-3 py-2 text-base font-medium text-cm-text no-underline transition-colors;
+    @apply hover:bg-cm-surface-hover hover:text-cm-primary;
+    @apply active:bg-cm-surface-pressed;
+  }
+}
