@@ -1976,3 +1976,30 @@ npm run build
 ```
 
 All four commands completed successfully, establishing a reproducible testing and validation baseline for the upcoming CI pipeline.
+
+## 13. Continuous Integration (CI)
+
+Continuous Integration is implemented using GitHub Actions to automatically validate application changes in an independent Linux environment.
+
+The initial pipeline focuses on source-code quality, automated testing, and successful compilation. Deployment and additional quality metrics will be incorporated in subsequent development stages.
+
+### 13.1 Basic CI Pipeline
+
+The workflow is defined in `.github/workflows/ci.yml` and is triggered by pushes and pull requests targeting the `main` branch.
+
+Two independent jobs validate the frontend and backend in parallel:
+
+| Component | Validation sequence                    |
+| --------- | -------------------------------------- |
+| Frontend  | Lint → Unit tests → Build              |
+| Backend   | Lint → Unit tests → HTTP tests → Build |
+
+Both jobs use the Node.js version declared in the repository's `.nvmrc` file.
+
+Dependencies are installed using `npm ci`, ensuring consistency with the committed lockfiles. Separate npm caches are maintained for each application to reduce repeated dependency downloads.
+
+The workflow uses GitHub-hosted Ubuntu runners and read-only repository permissions.
+
+**Verification:** The initial GitHub Actions execution completed successfully, with both frontend and backend jobs passing all configured checks.
+
+The pipeline currently validates application code without requiring running Docker containers or a PostgreSQL instance. Database integration testing, accessibility checks, performance measurements, and automated deployment will be introduced separately.
