@@ -1,0 +1,36 @@
+{
+  "name": "colmaps",
+  "version": "1.0.0",
+  "description": "> A high-performance and accessible Web GIS prototype for exploring tourist routes and points of interest in Colombia.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LucasEspitia/ColoMaps.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/LucasEspitia/ColoMaps/issues"
+  },
+  "homepage": "https://github.com/LucasEspitia/ColoMaps#readme",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,html}": [
+      "npm --prefix frontend run lint:files --"
+    ],
+    "backend/**/*.ts": [
+      "npm --prefix backend run lint:files --"
+    ]
+  }
+}
