@@ -2041,7 +2041,11 @@ The pre-commit hook is defined in:
 with the following command:
 
 ```bash
-npx list-staged
+#!/bin/sh
+set -e
+echo "Running pre-commit validation..."
+npx lint-staged
+echo "Pre-commit validation passed."
 ```
 
 This configuration ensures that only staged frontend and backend source files are checked before a commit is created.
