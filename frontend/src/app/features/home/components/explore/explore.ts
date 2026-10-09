@@ -6,7 +6,6 @@ import { TuiButton } from '@taiga-ui/core';
   selector: 'app-explore',
   imports: [RouterLink, TuiButton],
   templateUrl: './explore.html',
-  styleUrl: './explore.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExploreComponent {}
