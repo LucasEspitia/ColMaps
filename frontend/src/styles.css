@@ -96,6 +96,19 @@
   --color-cm-border: var(--cm-border);
   --color-cm-focus: var(--cm-focus);
 
+  --color-cm-primary-pressed: var(--cm-primary-pressed);
+  --color-cm-on-primary: var(--cm-on-primary);
+
+  --color-cm-secondary-pressed: var(--cm-secondary-pressed);
+  --color-cm-on-secondary: var(--cm-on-secondary);
+
+  --color-cm-accent-pressed: var(--cm-accent-pressed);
+  --color-cm-on-accent: var(--cm-on-accent);
+
+  --color-cm-on-surface: var(--cm-on-surface);
+
+  --color-cm-border-hover: var(--cm-border-hover);
+
   /* Radius */
 
   --radius-cm-sm: var(--cm-radius-sm);
@@ -201,7 +214,7 @@ body {
   Class container to avoid over exanding the width of the content
   ========================================================= */
 .container {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0 1rem;
 }
