@@ -6,7 +6,7 @@
   }
 
   .cm-footer-link {
-    @apply inline-flex items-center rounded-cm-sm p-2 text-sm leading-5 font-normal text-cm-text no-underline transition-colors;
+    @apply inline-flex items-center rounded-cm-sm p-2 text-sm leading-5 font-normal text-cm-text no-underline transition-colors cursor-pointer;
     @apply hover:bg-cm-surface-hover hover:text-cm-secondary;
     @apply active:bg-cm-surface-pressed;
   }
