@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TuiButton } from '@taiga-ui/core';
 
@@ -7,5 +7,6 @@ import { TuiButton } from '@taiga-ui/core';
   imports: [RouterLink, TuiButton],
   templateUrl: './explore.html',
   styleUrl: './explore.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExploreComponent {}

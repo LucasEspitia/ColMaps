@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TuiButton } from '@taiga-ui/core';
 import { RouterLink } from '@angular/router';
 
@@ -7,5 +7,6 @@ import { RouterLink } from '@angular/router';
   imports: [RouterLink, TuiButton],
   templateUrl: './hero.html',
   styleUrl: './hero.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeroComponent {}
