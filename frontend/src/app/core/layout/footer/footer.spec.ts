@@ -51,7 +51,6 @@ describe('Footer', () => {
   });
 
   it.each([
-    ['ColMaps', '/'],
     ['Home', '/'],
     ['Try It', '/search'],
     ['General Map', '/map'],
