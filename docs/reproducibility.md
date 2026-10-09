@@ -116,6 +116,16 @@ npx ng add taiga-ui
 
 During the installation, no optional add-on packages are required at this stage. Additional packages such as charts or tables can be installed later if they become necessary for the application dashboard or other features.
 
+### Taiga Layou
+
+Taiga UI provides additional layout components through the @taiga-ui/layout package, including reusable card components used in the ColMaps frontend.
+
+Install the package using the same version as the existing Taiga UI dependencies to maintain compatibility:
+
+```bash
+npm install @taiga-ui/layout@5.20.0
+```
+
 #### LESS Preprocessor
 
 Taiga UI uses LESS files for some of its global theme styles.
