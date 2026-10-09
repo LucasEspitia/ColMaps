@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TuiButton } from '@taiga-ui/core';
 
 @Component({
   selector: 'app-explore',
-  imports: [],
+  imports: [RouterLink, TuiButton],
   templateUrl: './explore.html',
   styleUrl: './explore.css',
 })

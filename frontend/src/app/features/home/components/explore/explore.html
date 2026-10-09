@@ -1,1 +1,91 @@
-<p>explore works!</p>
+<section aria-labelledby="explore-title" class="bg-cm-background py-16 sm:py-24">
+  <div class="mx-auto w-full max-w-[1400px] px-6 sm:px-12 lg:px-20">
+    <!-- Section heading -->
+    <div class="mb-12 max-w-2xl">
+      <p class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-cm-primary">
+        Explore your way
+      </p>
+
+      <h2 id="explore-title" class="text-3xl font-bold tracking-tight text-cm-text sm:text-4xl">
+        Two ways to explore Colombia.
+      </h2>
+
+      <p class="mt-4 text-lg leading-relaxed text-cm-text-muted">
+        Find destinations that inspire you or explore Colombia from a geographic perspective.
+      </p>
+    </div>
+
+    <!-- Feature cards -->
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <!-- Search -->
+      <article
+        class="flex min-w-0 flex-col justify-between gap-10 rounded-cm-lg bg-cm-primary p-8 text-(--cm-on-primary) sm:p-10"
+      >
+        <div>
+          <div
+            aria-hidden="true"
+            class="mb-8 flex size-14 items-center justify-center rounded-cm-md bg-white/15"
+          >
+            <svg
+              class="size-7"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="m16 16 5 5" />
+            </svg>
+          </div>
+
+          <h3 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Find your next destination
+          </h3>
+
+          <p class="mt-4 max-w-md leading-relaxed text-white/90">
+            Search for destinations and points of interest across Colombia. Find remarkable places
+            and discover what makes each location unique.
+          </p>
+        </div>
+
+        <div>
+          <a routerLink="/search" tuiButton appearance="secondary" size="l"> Try It </a>
+        </div>
+      </article>
+
+      <!-- General Map -->
+      <article
+        class="flex min-w-0 flex-col justify-between gap-10 rounded-cm-lg bg-cm-secondary p-8 text-(--cm-on-secondary) sm:p-10"
+      >
+        <div>
+          <div
+            aria-hidden="true"
+            class="mb-8 flex size-14 items-center justify-center rounded-cm-md bg-white/15"
+          >
+            <svg
+              class="size-7"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z" />
+              <path d="M9 3v15M15 6v15" />
+            </svg>
+          </div>
+
+          <h3 class="text-2xl font-semibold tracking-tight sm:text-3xl">See the bigger picture</h3>
+
+          <p class="mt-4 max-w-md leading-relaxed text-white/90">
+            Explore Colombia through an interactive geographic map. Visualize places and discover
+            destinations from a new perspective.
+          </p>
+        </div>
+
+        <div>
+          <a routerLink="/map" tuiButton appearance="secondary" size="l"> General Map </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
