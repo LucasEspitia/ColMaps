@@ -1,0 +1,6 @@
+.hero-cta-primary {
+  --tui-background-accent-1: var(--cm-accent);
+  --tui-background-accent-1-hover: var(--cm-accent-hover);
+  --tui-background-accent-1-pressed: var(--cm-accent-pressed);
+  --tui-text-primary-on-accent-1: var(--cm-on-accent);
+}
