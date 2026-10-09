@@ -1981,6 +1981,8 @@ The HTTP test configuration uses SWC through `unplugin-swc` to preserve the deco
 plugins: [swc.vite()];
 ```
 
+Likewise, to avoid compilation errors, these files have been added to the 'tsconfig.build.json' to avoid unnecessary problems when compiling the application, since these are test files and should not pose a problem when building the application.
+
 Both configurations allow tests to execute independently of the development server.
 
 #### 12.2.2 Dependency and Script Updates
