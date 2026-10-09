@@ -2234,3 +2234,77 @@ As each component is introduced, its keyboard accessibility is checked, includin
 This process is performed continuously during development so that accessibility issues can be identified while components are being implemented rather than after the complete interface has been built.
 
 As a final validation step, the completed interface will also be tested using a screen reader (Windows Narrator) to verify that the navigation structure, controls, labels, and relevant interface information are understandable when accessed through assistive technology.
+
+## 15. Performance
+
+### 15.1 Image Optimization and Responsive Loading
+
+To reduce unnecessary network transfers and improve initial page loading performance, ColMaps implements an image optimization workflow using **Sharp**.
+
+Rather than serving the original high-resolution photographs directly, images are processed into multiple WebP variants suitable for different viewport sizes.
+
+#### Image Processing
+
+The original image is stored separately from the optimized assets:
+
+```text
+frontend/
+├── assets-source/
+│   └──
+├── scripts/
+│   └── optimize-images.mjs
+└── public/
+    └── images/
+        └── hero/
+            ├── cocora-640.webp
+            ├── cocora-1280.webp
+            └── cocora-1920.webp
+```
+
+The processing script uses Sharp to generate three image variants with widths of 640, 1280 and 1920 pixels.
+
+Images are converted to WebP using a quality setting of 78 and an encoding effort of 6.
+
+To reproduce the optimization process, execute:
+
+```bash
+cd frontend
+npm run images:optimize
+```
+
+The original source image must be available in `assets-source/hero-cocora.jpg`.
+
+#### Responsive Image Delivery
+
+The Angular frontend uses the native HTML `<picture>` element with `srcset` and `sizes` to allow the browser to select an appropriate image resolution.
+
+```html
+<picture>
+  <source type="image/webp" srcset="/images/hero/cocora-640.webp 640w, /images/hero/cocora-1280.webp 1280w, /images/hero/cocora-1920.webp 1920w" sizes="100vw" />
+
+  <img src="/images/hero/cocora-1280.webp" alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />
+</picture>
+```
+
+For the Hero image, eager loading and high fetch priority are used because the image is a likely Largest Contentful Paint (LCP) candidate. Lazy loading is reserved for non-critical images appearing further down the page.
+
+The implementation relies on native browser functionality without introducing additional JavaScript image-loading libraries.
+
+#### Reproducibility Considerations
+
+Image optimization is performed as a separate, repeatable preprocessing step rather than dynamically at runtime.
+
+Optimized images can be version-controlled and reused across deployments, avoiding unnecessary processing during container startup or application builds.
+
+This approach separates asset preparation from application execution and allows image-generation settings to be adjusted independently.
+
+#### Performance Validation
+
+The effect of these optimizations will be evaluated using Lighthouse and Core Web Vitals, particularly:
+
+- Largest Contentful Paint (LCP).
+- Total transferred image bytes.
+- Image loading behavior across different viewport sizes.
+- Cumulative Layout Shift (CLS).
+
+Performance improvements will be reported only after measurements have been collected.
