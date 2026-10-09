@@ -2251,72 +2251,83 @@ As a final validation step, the completed interface will also be tested using a 
 
 ### 15.1 Image Optimization and Responsive Loading
 
-To reduce unnecessary network transfers and improve initial page loading performance, ColMaps implements an image optimization workflow using **Sharp**.
+Images can significantly affect web performance due to their file sizes, resolution requirements, and loading behavior. To minimize unnecessary network transfers and improve resource prioritization, ColMaps implements an image optimization strategy based on **preprocessing, responsive delivery, and native browser loading mechanisms**.
 
-Rather than serving the original high-resolution photographs directly, images are processed into multiple WebP variants suitable for different viewport sizes.
+#### Image Preprocessing
 
-#### Image Processing
+ColMaps uses **Sharp** to preprocess images before they are served by the application.
 
-The original image is stored separately from the optimized assets:
+Original images are stored separately from optimized assets, while a dedicated script generates multiple image variants with different resolutions.
+
+The optimization process includes:
+
+- **Format conversion:** Images are converted to WebP to reduce file sizes while maintaining acceptable visual quality.
+- **Responsive resolutions:** Multiple image widths are generated to accommodate different viewport sizes and device pixel densities.
+- **Compression:** Image quality and encoding effort are configured to balance visual fidelity, file size, and processing time.
+- **Aspect ratio adjustments:** Images can be resized or cropped to match the dimensions required by their respective UI components.
+
+The current implementation uses a WebP quality setting of `78` and an encoding effort of `6`. Generated resolutions depend on the intended use of each image.
+
+The processing workflow is implemented in:
 
 ```text
 frontend/
-├── assets-source/
-│   └──
+├── assets-source/               # Original images
 ├── scripts/
-│   └── optimize-images.mjs
+│   └── optimize-images.mjs      # Image processing
 └── public/
-    └── images/
-        └── hero/
-            ├── cocora-640.webp
-            ├── cocora-1280.webp
-            └── cocora-1920.webp
+    └── images/                  # Optimized assets
 ```
 
-The processing script uses Sharp to generate three image variants with widths of 640, 1280 and 1920 pixels.
-
-Images are converted to WebP using a quality setting of 78 and an encoding effort of 6.
-
-To reproduce the optimization process, execute:
+To reproduce the optimization process:
 
 ```bash
 cd frontend
-npm run images:optimize
+node scripts/optimize-images.mjs
 ```
 
-The original source image must be available in `assets-source/hero-cocora.jpg`.
+The original source images must be available in `assets-source/`.
 
 #### Responsive Image Delivery
 
-The Angular frontend uses the native HTML `<picture>` element with `srcset` and `sizes` to allow the browser to select an appropriate image resolution.
+ColMaps uses native HTML image-loading features to optimize resource selection and delivery.
 
-```html
-<picture>
-  <source type="image/webp" srcset="/images/hero/cocora-640.webp 640w, /images/hero/cocora-1280.webp 1280w, /images/hero/cocora-1920.webp 1920w" sizes="100vw" />
+The `<picture>` element, together with `srcset` and `sizes`, allows the browser to select an appropriate image resolution based on viewport dimensions and device characteristics.
 
-  <img src="/images/hero/cocora-1280.webp" alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async" />
-</picture>
-```
+This avoids unnecessarily downloading high-resolution images on devices where smaller variants are sufficient.
 
-For the Hero image, eager loading and high fetch priority are used because the image is a likely Largest Contentful Paint (LCP) candidate. Lazy loading is reserved for non-critical images appearing further down the page.
+The implementation also distinguishes between critical and non-critical images:
 
-The implementation relies on native browser functionality without introducing additional JavaScript image-loading libraries.
+- **Eager loading (`loading="eager"`):** Used for images required during the initial page rendering.
+- **Lazy loading (`loading="lazy"`):** Defers loading of non-critical images until they approach the visible viewport.
+- **Fetch priority (`fetchpriority="high"`):** Applied selectively to critical images that are likely to influence Largest Contentful Paint (LCP).
+- **Asynchronous decoding (`decoding="async"`):** Allows image decoding to occur without unnecessarily blocking the presentation of other content.
+- **Explicit dimensions (`width` and `height`):** Help the browser reserve layout space and reduce the risk of Cumulative Layout Shift (CLS).
+
+These mechanisms rely on native browser capabilities and do not require additional JavaScript image-loading libraries.
+
+In the current implementation, priority loading is applied to the main landing-page imagery, while responsive delivery and lazy loading are used for secondary image collections.
 
 #### Reproducibility Considerations
 
-Image optimization is performed as a separate, repeatable preprocessing step rather than dynamically at runtime.
+Image optimization is implemented as a separate, repeatable preprocessing step rather than being performed dynamically at runtime.
 
-Optimized images can be version-controlled and reused across deployments, avoiding unnecessary processing during container startup or application builds.
+The original assets, processing script, and optimization parameters define how the image variants are generated.
 
-This approach separates asset preparation from application execution and allows image-generation settings to be adjusted independently.
+Optimized assets can be version-controlled and reused across deployments, avoiding unnecessary processing during application startup or container builds.
+
+This separation allows image optimization settings to be modified independently of the application logic while maintaining a consistent asset preparation workflow.
 
 #### Performance Validation
 
-The effect of these optimizations will be evaluated using Lighthouse and Core Web Vitals, particularly:
+The effectiveness of these techniques will be evaluated using Lighthouse, browser developer tools, and relevant Core Web Vitals.
 
-- Largest Contentful Paint (LCP).
-- Total transferred image bytes.
-- Image loading behavior across different viewport sizes.
-- Cumulative Layout Shift (CLS).
+The evaluation will focus on:
 
-Performance improvements will be reported only after measurements have been collected.
+- **Largest Contentful Paint (LCP):** Impact of image prioritization on initial rendering.
+- **Transferred image bytes:** Network resources required across different viewport sizes.
+- **Responsive image selection:** Verification that appropriate image variants are delivered.
+- **Cumulative Layout Shift (CLS):** Layout stability during image loading.
+- **Loading behavior:** Verification of eager and lazy loading strategies.
+
+Performance improvements will be reported based on measured results rather than assumed benefits.
