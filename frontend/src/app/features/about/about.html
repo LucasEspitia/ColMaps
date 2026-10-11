@@ -1,1 +1,150 @@
-<p>about works!</p>
+<div class="bg-cm-background px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+  <div class="mx-auto flex w-full max-w-[1240px] flex-col gap-8">
+    <!-- Introduction -->
+    <section
+      aria-labelledby="about-title"
+      class="rounded-cm-lg bg-cm-primary px-6 py-12 text-cm-on-primary sm:px-12 sm:py-16"
+    >
+      <p class="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-cm-accent">
+        About the project
+      </p>
+
+      <h1 id="about-title" class="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+        Exploring Colombia, through technology.
+      </h1>
+
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-white/90">
+        ColMaps is an academic web-based Geographic Information System focused on geographic
+        exploration, performance, accessibility and reproducible software engineering.
+      </p>
+    </section>
+
+    <!-- Project and academic context -->
+    <section aria-label="Project and academic information">
+      <div class="grid gap-6 md:grid-cols-2">
+        <article tuiCardLarge appearance="floating" class="min-w-0">
+          <div
+            aria-hidden="true"
+            class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-primary"
+          >
+            <tui-icon icon="@tui.map" class="size-6" />
+          </div>
+
+          <h2 class="text-2xl font-semibold text-cm-text">About ColMaps</h2>
+
+          <p class="leading-relaxed text-cm-text-muted">
+            ColMaps combines open geographic data with modern web technologies to support the
+            discovery of destinations across Colombia.
+          </p>
+
+          <p class="leading-relaxed text-cm-text-muted">
+            The project emphasizes modular architecture, efficient geographic visualization,
+            accessibility and reproducibility.
+          </p>
+        </article>
+
+        <article tuiCardLarge appearance="floating" class="min-w-0">
+          <div
+            aria-hidden="true"
+            class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
+          >
+            <tui-icon icon="@tui.graduation-cap" class="size-6" />
+          </div>
+
+          <h2 class="text-2xl font-semibold text-cm-text">Academic context</h2>
+
+          <p class="leading-relaxed text-cm-text-muted">
+            ColMaps is developed as a Bachelor's thesis at the Faculty of Informatics and
+            Information Technologies (FIIT), Slovak University of Technology in Bratislava (STU).
+          </p>
+
+          <div>
+            <a
+              href="https://www.fiit.stuba.sk/en/"
+              target="_blank"
+              rel="noopener noreferrer"
+              tuiButton
+              appearance="secondary"
+              size="m"
+            >
+              Visit FIIT STU
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- People -->
+    <section aria-labelledby="people-title">
+      <article tuiCardLarge appearance="floating" class="min-w-0">
+        <h2 id="people-title" class="text-2xl font-semibold text-cm-text">
+          The people behind ColMaps
+        </h2>
+
+        <!-- Author -->
+        <div class="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+          <div
+            aria-hidden="true"
+            class="flex size-20 shrink-0 items-center justify-center rounded-full bg-cm-background text-cm-primary"
+          >
+            <tui-icon icon="@tui.user-round" class="size-9" />
+            <!-- ToDo: Add author image when available
+            <img
+                src="/images/about/author.webp"
+                alt="Portrait of Lucas Espitia, ColMaps developer"
+                width="160"
+                height="160"
+                loading="lazy"
+                decoding="async"
+                class="size-20 rounded-full object-cover"
+            />
+                -->
+          </div>
+
+          <div>
+            <p class="text-sm font-medium text-cm-text-muted">Project author</p>
+
+            <h3 class="mt-1 text-xl font-semibold text-cm-text">Lucas Espitia</h3>
+
+            <p class="mt-2 leading-relaxed text-cm-text-muted">
+              Informatics student at FIIT STU, developing ColMaps as part of a Bachelor's thesis
+              project.
+            </p>
+          </div>
+        </div>
+
+        <hr class="my-2 border-cm-border/30" />
+
+        <!-- Supervisor -->
+        <div class="flex flex-col gap-2">
+          <p class="text-sm font-medium text-cm-text-muted">Academic supervisor</p>
+
+          <h3 class="text-xl font-semibold text-cm-text">Mgr. Pavle Dakić, PhD.</h3>
+
+          <p class="leading-relaxed text-cm-text-muted">
+            Academic supervision and guidance throughout the development of this Bachelor's thesis.
+          </p>
+        </div>
+      </article>
+    </section>
+
+    <!-- Contact -->
+    <section
+      aria-labelledby="contact-title"
+      class="flex flex-col items-center gap-5 rounded-cm-lg bg-cm-secondary px-6 py-12 text-center text-cm-on-secondary sm:px-12 sm:py-16"
+    >
+      <h2 id="contact-title" class="text-3xl font-bold tracking-tight sm:text-4xl">
+        Get in touch.
+      </h2>
+
+      <p class="max-w-lg text-lg leading-relaxed text-white/90">
+        Have a question about ColMaps, the technologies used, or the academic project? Feel free to
+        reach out.
+      </p>
+
+      <a href="mailto:xespitiacorredo@stuba.sk" tuiButton appearance="secondary" size="l">
+        Contact the author
+      </a>
+    </section>
+  </div>
+</div>
