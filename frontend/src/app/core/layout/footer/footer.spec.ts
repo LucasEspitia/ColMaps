@@ -1,3 +1,4 @@
+import { ViewportScroller } from '@angular/common';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -12,8 +13,11 @@ describe('Footer', () => {
   let fixture: ComponentFixture<Footer>;
   let element: HTMLElement;
   let router: Router;
+  let scrollToPosition: ReturnType<typeof vi.fn>;
 
   beforeEach(async () => {
+    scrollToPosition = vi.fn();
+
     await TestBed.configureTestingModule({
       imports: [Footer],
       providers: [
@@ -23,12 +27,19 @@ describe('Footer', () => {
           { path: 'map', component: TestPage },
           { path: 'about', component: TestPage },
         ]),
+        {
+          provide: ViewportScroller,
+          useValue: {
+            scrollToPosition,
+          },
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Footer);
     element = fixture.nativeElement;
     router = TestBed.inject(Router);
+
     await fixture.whenStable();
   });
 
@@ -42,10 +53,13 @@ describe('Footer', () => {
 
   it('should render the footer sections and credits', () => {
     expect(element.querySelector('footer')?.getAttribute('aria-label')).toBe('Site footer');
+
     expect(
       Array.from(element.querySelectorAll('h2'), (heading) => heading.textContent?.trim()),
     ).toEqual(['Explore', 'Information']);
+
     expect(element.querySelector('nav')?.getAttribute('aria-label')).toBe('Footer navigation');
+
     expect(element.textContent).toContain('© 2026 ColMaps');
     expect(element.textContent).toContain('Slovak University of Technology in Bratislava (STU)');
   });
@@ -59,12 +73,14 @@ describe('Footer', () => {
     // Start elsewhere so the home links must perform a real navigation too.
     await router.navigateByUrl(destination === '/about' ? '/map' : '/about');
     await fixture.whenStable();
+
     const link = Array.from(element.querySelectorAll('a')).find(
       (candidate) => candidate.textContent?.trim() === label,
     );
 
     expect(link).toBeDefined();
     expect(link!.getAttribute('href')).toBe(destination);
+
     link!.click();
     await fixture.whenStable();
 
@@ -82,15 +98,15 @@ describe('Footer', () => {
   });
 
   it('should scroll to the top when the back-to-top button is clicked', () => {
-    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
     const button = element.querySelector<HTMLButtonElement>(
       'button[aria-label="Return to the top of the page"]',
     );
 
     expect(button).not.toBeNull();
     expect(button?.type).toBe('button');
+
     button!.click();
 
-    expect(scrollTo).toHaveBeenCalledExactlyOnceWith({ top: 0, behavior: 'smooth' });
+    expect(scrollToPosition).toHaveBeenCalledExactlyOnceWith([0, 0]);
   });
 });
