@@ -1,49 +1,32 @@
-<nav
-  class="flex items-center min-h-18 border-b border-cm-border bg-cm-surface text-cm-on-surface"
-  aria-label="Main navigation"
+<!-- Main header -->
+<header
+  class="flex min-h-18 items-center border-b border-cm-border bg-cm-surface text-cm-on-surface"
 >
-  <div class="container h-full flex items-center justify-between px-6 py-4 md:px-8">
+  <div class="container flex h-full items-center justify-between px-6 py-4 md:px-8">
+    <!-- Brand -->
     <a
       routerLink="/"
       class="rounded-cm-md px-3 py-2 text-xl font-bold text-cm-primary no-underline transition-colors"
       aria-label="ColMaps home"
+      (click)="closeMenu()"
     >
       ColMaps
     </a>
 
-    <div class="flex items-center gap-2">
-      <a
-        routerLink="/"
-        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
-        [routerLinkActiveOptions]="{ exact: true }"
-        class="cm-nav-link"
-      >
-        Home
-      </a>
-
-      <a
-        routerLink="/search"
-        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
-        class="cm-nav-link"
-      >
-        Try It
-      </a>
-
-      <a
-        routerLink="/map"
-        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
-        class="cm-nav-link"
-      >
-        General Map
-      </a>
-
-      <a
-        routerLink="/about"
-        routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
-        class="cm-nav-link"
-      >
-        About
-      </a>
+    <!-- Desktop navigation and actions -->
+    <div class="hidden items-center gap-2 md:flex">
+      <nav aria-label="Main navigation" class="flex items-center gap-2">
+        @for (item of navigationItems; track item.route) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="cm-nav-link"
+          >
+            {{ item.label }}
+          </a>
+        }
+      </nav>
 
       <button
         tuiButton
@@ -56,5 +39,85 @@
         Accessibility
       </button>
     </div>
+
+    <!-- Mobile menu button -->
+    <div class="md:hidden">
+      <button
+        tuiButton
+        type="button"
+        appearance="secondary"
+        size="m"
+        iconStart="@tui.menu"
+        aria-label="Open navigation menu"
+        aria-controls="mobile-navigation"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="menuOpen.set(true)"
+      >
+        Menu
+      </button>
+    </div>
   </div>
-</nav>
+</header>
+
+<!-- Mobile navigation drawer -->
+<tui-drawer
+  *tuiPopup="menuOpen()"
+  id="mobile-navigation"
+  direction="start"
+  [overlay]="true"
+  class="w-[min(20rem,90vw)]"
+  (tuiClose)="closeMenu()"
+>
+  <!-- Drawer heading -->
+  <div class="flex items-center justify-between gap-4">
+    <span class="text-xl font-bold text-cm-primary"> ColMaps </span>
+
+    <button
+      tuiButton
+      type="button"
+      appearance="secondary"
+      size="s"
+      iconStart="@tui.x"
+      aria-label="Close navigation menu"
+      (click)="closeMenu()"
+    >
+      Close
+    </button>
+  </div>
+
+  <!-- Mobile navigation -->
+  <nav aria-label="Mobile navigation" class="mt-6">
+    <ul class="flex flex-col gap-2">
+      @for (item of navigationItems; track item.route) {
+        <li>
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="cm-nav-link flex min-h-12 items-center gap-3"
+            (click)="closeMenu()"
+          >
+            <tui-icon [icon]="item.icon" aria-hidden="true" class="size-5" />
+            <span>{{ item.label }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Accessibility action -->
+  <div class="mt-6 border-t border-cm-border/30 pt-6">
+    <button
+      tuiButton
+      type="button"
+      appearance="secondary"
+      size="m"
+      iconStart="@tui.accessibility"
+      aria-label="Open accessibility settings"
+      class="w-full"
+      (click)="closeMenu()"
+    >
+      Accessibility
+    </button>
+  </div>
+</tui-drawer>
