@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ViewportScroller } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -8,10 +9,9 @@ import { RouterLink } from '@angular/router';
   styleUrl: './footer.css',
 })
 export class Footer {
+  private viewportScroller = inject(ViewportScroller);
+
   scrollToTop(): void {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
+    this.viewportScroller.scrollToPosition([0, 0]);
   }
 }
