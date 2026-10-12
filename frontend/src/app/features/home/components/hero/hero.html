@@ -1,6 +1,6 @@
 <section
   aria-labelledby="hero-title"
-  class="relative isolate flex min-h-[70svh] items-center overflow-hidden bg-cm-primary text-white sm:min-h-[75svh]"
+  class="relative isolate flex min-h-[70svh] items-center overflow-hidden bg-cm-primary text-cm-on-primary sm:min-h-[75svh]"
 >
   <!-- Full-width responsive image -->
   <picture class="absolute inset-0 -z-10">
@@ -26,19 +26,19 @@
     />
   </picture>
 
-  <!-- Dark green overlay -->
+  <!-- Theme-aware brand overlay -->
   <div
     aria-hidden="true"
-    class="absolute inset-0 -z-10 bg-linear-to-r from-[color-mix(in_srgb,var(--cm-primary)_92%,black)] via-[color-mix(in_srgb,var(--cm-primary)_55%,transparent)] to-transparent"
+    class="absolute inset-0 -z-10 bg-linear-to-r from-cm-hero-overlay-start via-cm-hero-overlay-middle to-cm-hero-overlay-end"
   ></div>
 
   <!-- Content constrained to 1400px -->
   <div class="mx-auto w-full max-w-[1400px] px-6 py-16 sm:px-12 lg:px-20">
     <div class="max-w-2xl">
       <p
-        class="mb-5 flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.2em] text-white"
+        class="mb-5 flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.2em] text-cm-on-primary"
       >
-        <span aria-hidden="true" class="h-1 w-8 rounded-full bg-cm-accent"></span>
+        <span aria-hidden="true" class="h-1 w-8 rounded-full bg-cm-on-primary-accent"></span>
         Discover Colombia
       </p>
 
@@ -49,7 +49,7 @@
         Colombia is yours to explore.
       </h1>
 
-      <p class="mt-6 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg">
+      <p class="mt-6 max-w-xl text-base leading-relaxed text-cm-on-primary/90 sm:text-lg">
         Discover remarkable places, explore new destinations, and experience Colombia through
         ColMaps.
       </p>

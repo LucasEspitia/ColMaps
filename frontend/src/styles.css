@@ -14,6 +14,7 @@
   --cm-primary-hover: #174832;
   --cm-primary-pressed: #123a28;
   --cm-on-primary: #ffffff;
+  --cm-on-primary-accent: var(--cm-accent);
 
   --cm-secondary: #216a8a;
   --cm-secondary-hover: #1b5973;
@@ -58,6 +59,11 @@
 
   --cm-font-scale: 1;
 
+  /* Hero image overlay: keep the brand tint in the default theme. */
+  --cm-hero-overlay-start: color-mix(in srgb, var(--cm-primary) 92%, #000000);
+  --cm-hero-overlay-middle: color-mix(in srgb, var(--cm-primary) 55%, transparent);
+  --cm-hero-overlay-end: transparent;
+
   /* ---------------------------------------------------------
      Shape
      --------------------------------------------------------- */
@@ -98,6 +104,11 @@
 
   --color-cm-primary-pressed: var(--cm-primary-pressed);
   --color-cm-on-primary: var(--cm-on-primary);
+  --color-cm-on-primary-accent: var(--cm-on-primary-accent);
+
+  --color-cm-hero-overlay-start: var(--cm-hero-overlay-start);
+  --color-cm-hero-overlay-middle: var(--cm-hero-overlay-middle);
+  --color-cm-hero-overlay-end: var(--cm-hero-overlay-end);
 
   --color-cm-secondary-pressed: var(--cm-secondary-pressed);
   --color-cm-on-secondary: var(--cm-on-secondary);
@@ -127,6 +138,8 @@ tui-root[tuiTheme='light'] {
 
   --tui-background-base: var(--cm-background);
   --tui-background-base-alt: var(--cm-surface);
+  --tui-background-elevation-1: var(--cm-surface);
+  --tui-background-elevation-2: var(--cm-surface);
 
   /* ---------------------------------------------------------
      Neutral appearance
@@ -233,33 +246,56 @@ body {
    ========================================================= */
 
 html[data-theme='high-contrast'] {
-  --cm-primary: #000000;
-  --cm-primary-hover: #262626;
-  --cm-primary-pressed: #404040;
-  --cm-on-primary: #ffffff;
+  /* ---------------------------------------------------------
+     Brand
+     --------------------------------------------------------- */
 
-  --cm-secondary: #003049;
-  --cm-secondary-hover: #002338;
-  --cm-secondary-pressed: #001a29;
-  --cm-on-secondary: #ffffff;
+  --cm-primary: #ffffff;
+  --cm-primary-hover: #e0e0e0;
+  --cm-primary-pressed: #c0c0c0;
+  --cm-on-primary: #000000;
+  --cm-on-primary-accent: #000000;
 
-  --cm-accent: #ffd600;
-  --cm-accent-hover: #e6c100;
-  --cm-accent-pressed: #ccab00;
+  --cm-secondary: #ffff00;
+  --cm-secondary-hover: #e6e600;
+  --cm-secondary-pressed: #cccc00;
+  --cm-on-secondary: #000000;
+
+  /* Accent */
+  --cm-accent: #ffbf47;
+  --cm-accent-hover: #ffd477;
+  --cm-accent-pressed: #e6a52b;
   --cm-on-accent: #000000;
 
-  --cm-background: #ffffff;
-  --cm-on-background: #000000;
+  /* ---------------------------------------------------------
+     Backgrounds
+     --------------------------------------------------------- */
 
-  --cm-surface: #ffffff;
-  --cm-surface-hover: #f0f0f0;
-  --cm-surface-pressed: #e0e0e0;
-  --cm-on-surface: #000000;
+  --cm-background: #000000;
+  --cm-on-background: #ffffff;
 
-  --cm-text: #000000;
-  --cm-text-muted: #262626;
+  --cm-surface: #000000;
+  --cm-surface-hover: #242424;
+  --cm-surface-pressed: #383838;
+  --cm-on-surface: #ffffff;
 
-  --cm-border: #000000;
-  --cm-border-hover: #000000;
-  --cm-focus: #003049;
+  /* ---------------------------------------------------------
+     Text
+     --------------------------------------------------------- */
+
+  --cm-text: #ffffff;
+  --cm-text-muted: #e0e0e0;
+
+  /* ---------------------------------------------------------
+     UI
+     --------------------------------------------------------- */
+
+  --cm-border: #ffffff;
+  --cm-border-hover: #ffff00;
+  --cm-focus: #ffff00;
+
+  /* Keep the photograph visible, with stronger contrast behind the text. */
+  --cm-hero-overlay-start: color-mix(in srgb, var(--cm-primary) 94%, transparent);
+  --cm-hero-overlay-middle: color-mix(in srgb, var(--cm-primary) 88%, transparent);
+  --cm-hero-overlay-end: color-mix(in srgb, var(--cm-primary) 65%, transparent);
 }
