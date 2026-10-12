@@ -319,3 +319,12 @@ html[data-theme='high-contrast'] {
   --cm-hero-overlay-middle: color-mix(in srgb, var(--cm-primary) 88%, transparent);
   --cm-hero-overlay-end: color-mix(in srgb, var(--cm-primary) 65%, transparent);
 }
+
+/* =========================================================
+   Accessibility: underline links 
+   ========================================================= */
+/* Accessibility: underline all links */
+html[data-underline-links='true'] a[href] {
+  text-decoration-line: underline;
+  text-underline-offset: 0.2em;
+}
