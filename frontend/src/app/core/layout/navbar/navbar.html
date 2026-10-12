@@ -34,6 +34,7 @@
         size="m"
         iconStart="@tui.accessibility"
         aria-label="Open accessibility settings"
+        (click)="openAccessibility()"
       >
         Accessibility
       </button>
@@ -61,6 +62,11 @@
 <!-- Mobile navigation drawer -->
 <tui-drawer
   *tuiPopup="menuOpen()"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="mobile-navigation-title"
   id="mobile-navigation"
   direction="start"
   [overlay]="true"
@@ -69,7 +75,7 @@
 >
   <!-- Drawer heading -->
   <div class="flex items-center justify-between gap-4">
-    <span class="text-xl font-bold text-cm-primary"> ColMaps </span>
+    <span id="mobile-navigation-title" class="text-xl font-bold text-cm-primary"> ColMaps </span>
 
     <button
       tuiButton
@@ -77,6 +83,7 @@
       appearance="secondary"
       size="s"
       iconStart="@tui.x"
+      cdkFocusInitial
       aria-label="Close navigation menu"
       (click)="closeMenu()"
     >
@@ -114,7 +121,7 @@
       iconStart="@tui.accessibility"
       aria-label="Open accessibility settings"
       class="w-full"
-      (click)="closeMenu()"
+      (click)="openAccessibilityFromMenu()"
     >
       Accessibility
     </button>

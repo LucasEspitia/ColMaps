@@ -5,6 +5,7 @@ import { provideRouter, Router } from '@angular/router';
 import { vi } from 'vitest';
 
 import { Footer } from './footer';
+import { Accessibility } from '../../accessibility/accessibility.service';
 
 @Component({ template: '' })
 class TestPage {}
@@ -95,6 +96,14 @@ describe('Footer', () => {
     expect(button).not.toBeNull();
     expect(button?.type).toBe('button');
     expect(button?.disabled).toBe(false);
+  });
+
+  it('opens accessibility settings when the button is clicked', async () => {
+    element
+      .querySelector<HTMLButtonElement>('button[aria-label="Open accessibility settings"]')!
+      .click();
+    await fixture.whenStable();
+    expect(TestBed.inject(Accessibility).panelOpen()).toBe(true);
   });
 
   it('should scroll to the top when the back-to-top button is clicked', () => {

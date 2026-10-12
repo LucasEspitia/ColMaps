@@ -1,0 +1,184 @@
+<tui-drawer
+  *tuiPopup="accessibility.panelOpen()"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="accessibility-title"
+  direction="end"
+  [overlay]="true"
+  class="w-[min(26rem,100vw)]"
+  (tuiClose)="close()"
+>
+  <!-- Panel heading -->
+  <header class="flex w-full min-w-0 flex-col">
+    <div class="flex w-full items-center justify-between gap-4">
+      <h1 id="accessibility-title" class="text-2xl font-bold text-cm-text">Accessibility</h1>
+
+      <button
+        tuiButton
+        cdkFocusInitial
+        type="button"
+        appearance="secondary"
+        size="s"
+        iconStart="@tui.x"
+        aria-label="Close Accessibility settings"
+        (click)="close()"
+      >
+        Close
+      </button>
+    </div>
+
+    <p class="mt-2 text-sm leading-relaxed text-cm-text-muted">
+      Customize your experience while exploring ColMaps.
+    </p>
+  </header>
+
+  <div class="flex flex-col gap-8 py-6">
+    <!-- Typography -->
+    <fieldset class="min-w-0 space-y-5">
+      <legend>
+        <h2 class="text-lg font-semibold text-cm-text">Typography</h2>
+      </legend>
+
+      <div class="flex flex-col gap-2">
+        <label for="accessibility-text-scale" class="font-medium text-cm-text"> Text size </label>
+
+        <select
+          id="accessibility-text-scale"
+          class="min-h-11 w-full rounded-cm-md border border-cm-border bg-cm-surface px-3 text-cm-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
+          [ngModel]="accessibility.preferences().textScale"
+          (ngModelChange)="setTextScale($event)"
+        >
+          @for (scale of textScales; track scale) {
+            <option [ngValue]="scale">{{ scale }}%</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for="accessibility-text-spacing" class="font-medium text-cm-text">
+          Text spacing
+        </label>
+
+        <select
+          id="accessibility-text-spacing"
+          class="min-h-11 w-full rounded-cm-md border border-cm-border bg-cm-surface px-3 text-cm-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
+          [ngModel]="accessibility.preferences().textSpacing"
+          (ngModelChange)="setTextSpacing($event)"
+        >
+          <option value="normal">Normal</option>
+          <option value="increased">Increased</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <hr class="border-cm-border/30" />
+
+    <!-- Appearance -->
+    <fieldset class="min-w-0 space-y-5">
+      <legend>
+        <h2 class="text-lg font-semibold text-cm-text">Appearance</h2>
+      </legend>
+
+      <div class="flex flex-col gap-2">
+        <label for="accessibility-color-mode" class="font-medium text-cm-text">
+          Color palette
+        </label>
+
+        <select
+          id="accessibility-color-mode"
+          class="min-h-11 w-full rounded-cm-md border border-cm-border bg-cm-surface px-3 text-cm-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
+          [ngModel]="accessibility.preferences().colorVisionMode"
+          (ngModelChange)="setColorVisionMode($event)"
+        >
+          @for (mode of colorModes; track mode.value) {
+            <option [value]="mode.value">
+              {{ mode.label }}
+            </option>
+          }
+        </select>
+
+        <p class="text-sm leading-relaxed text-cm-text-muted">
+          Choose an alternative palette to help distinguish colors.
+        </p>
+      </div>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4">
+        <span class="flex min-w-0 flex-col gap-1">
+          <span class="font-medium text-cm-text"> High contrast </span>
+          <span class="text-sm text-cm-text-muted">
+            Increase visual contrast across the interface.
+          </span>
+        </span>
+
+        <input
+          tuiSwitch
+          type="checkbox"
+          class="shrink-0"
+          [ngModel]="accessibility.preferences().highContrast"
+          (ngModelChange)="accessibility.setHighContrast($event)"
+        />
+      </label>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4">
+        <span class="flex min-w-0 flex-col gap-1">
+          <span class="font-medium text-cm-text"> Underline links </span>
+          <span class="text-sm text-cm-text-muted"> Make links easier to identify. </span>
+        </span>
+
+        <input
+          tuiSwitch
+          type="checkbox"
+          class="shrink-0"
+          [ngModel]="accessibility.preferences().underlineLinks"
+          (ngModelChange)="accessibility.setUnderlineLinks($event)"
+        />
+      </label>
+    </fieldset>
+
+    <hr class="border-cm-border/30" />
+
+    <!-- Motion -->
+    <fieldset class="min-w-0 space-y-5">
+      <legend>
+        <h2 class="text-lg font-semibold text-cm-text">Motion</h2>
+      </legend>
+
+      <label class="flex cursor-pointer items-center justify-between gap-4">
+        <span class="flex min-w-0 flex-col gap-1">
+          <span class="font-medium text-cm-text"> Reduce motion </span>
+          <span class="text-sm text-cm-text-muted">
+            Minimize non-essential animations and transitions.
+          </span>
+        </span>
+
+        <input
+          tuiSwitch
+          type="checkbox"
+          class="shrink-0"
+          [ngModel]="accessibility.preferences().reducedMotion"
+          (ngModelChange)="accessibility.setReducedMotion($event)"
+        />
+      </label>
+    </fieldset>
+
+    <!-- Reset -->
+    <div class="border-t border-cm-border/30 pt-6">
+      <button
+        tuiButton
+        type="button"
+        appearance="secondary"
+        size="m"
+        class="w-full"
+        (click)="reset()"
+      >
+        Reset preferences
+      </button>
+    </div>
+
+    <p class="text-sm leading-relaxed text-cm-text-muted">
+      These preferences are stored in your browser. You can change or reset them at any time.
+    </p>
+  </div>
+</tui-drawer>
