@@ -59,6 +59,11 @@
 
   --cm-font-scale: 1;
 
+  --cm-text-spacing-line-height: 1.75;
+  --cm-text-spacing-letter: 0.12em;
+  --cm-text-spacing-word: 0.16em;
+  --cm-text-spacing-paragraph: 2em;
+
   /* Hero image overlay: keep the brand tint in the default theme. */
   --cm-hero-overlay-start: color-mix(in srgb, var(--cm-primary) 92%, #000000);
   --cm-hero-overlay-middle: color-mix(in srgb, var(--cm-primary) 55%, transparent);
@@ -239,6 +244,21 @@ body {
 :focus-visible {
   outline: 2px solid var(--cm-focus);
   outline-offset: 3px;
+}
+
+/* =========================================================
+   Accessibility: Increased Text Spacing
+   ========================================================= */
+
+/* Preference overrides must also reach Tailwind utilities and Taiga controls. */
+html[data-text-spacing='increased'] :where(body, body *) {
+  line-height: var(--cm-text-spacing-line-height) !important;
+  letter-spacing: max(var(--cm-text-spacing-letter), var(--tw-tracking, 0em)) !important;
+  word-spacing: var(--cm-text-spacing-word) !important;
+}
+
+html[data-text-spacing='increased'] p {
+  margin-block-end: var(--cm-text-spacing-paragraph) !important;
 }
 
 /* =========================================================
