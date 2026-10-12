@@ -36,7 +36,7 @@
   --cm-surface: #ffffff;
   --cm-surface-hover: #f3f4f3;
   --cm-surface-pressed: #e8ebe9;
-  --cm-on-surface: #1d2421;
+  --cm-on-surface: #dde6e2;
 
   /* ---------------------------------------------------------
      Text
@@ -50,7 +50,7 @@
      --------------------------------------------------------- */
 
   --cm-border: #6f7773;
-  --cm-border-hover: #4f5954;
+  --cm-border-hover: #f7f3e8;
   --cm-focus: #216a8a;
 
   /* ---------------------------------------------------------

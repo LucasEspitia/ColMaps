@@ -18,8 +18,9 @@
         @for (item of navigationItems; track item.route) {
           <a
             [routerLink]="item.route"
-            routerLinkActive="bg-cm-surface-hover font-semibold text-cm-primary"
+            routerLinkActive="cm-nav-link-active"
             [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
             class="cm-nav-link"
           >
             {{ item.label }}
