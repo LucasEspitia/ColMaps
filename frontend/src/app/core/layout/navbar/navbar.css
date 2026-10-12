@@ -6,4 +6,9 @@
     @apply hover:bg-cm-surface-hover hover:text-cm-secondary;
     @apply active:bg-cm-surface-pressed active:text-cm-secondary;
   }
+
+  .cm-nav-link-active {
+    @apply bg-cm-surface-hover font-semibold text-cm-primary;
+    @apply hover:text-cm-primary;
+  }
 }
