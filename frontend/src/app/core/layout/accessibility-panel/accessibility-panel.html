@@ -11,7 +11,7 @@
   (tuiClose)="close()"
 >
   <!-- Panel heading -->
-  <header class="flex w-full min-w-0 flex-col">
+  <div class="flex w-full min-w-0 flex-col">
     <div class="flex w-full items-center justify-between gap-4">
       <h1 id="accessibility-title" class="text-2xl font-bold text-cm-text">Accessibility</h1>
 
@@ -22,7 +22,7 @@
         appearance="secondary"
         size="s"
         iconStart="@tui.x"
-        aria-label="Close Accessibility settings"
+        aria-label="Close accessibility settings"
         (click)="close()"
       >
         Close
@@ -32,44 +32,69 @@
     <p class="mt-2 text-sm leading-relaxed text-cm-text-muted">
       Customize your experience while exploring ColMaps.
     </p>
-  </header>
+  </div>
 
-  <div class="flex flex-col gap-8 py-6">
+  <div class="flex min-w-0 flex-col gap-8 py-6">
     <!-- Typography -->
     <fieldset class="min-w-0 space-y-5">
       <legend>
         <h2 class="text-lg font-semibold text-cm-text">Typography</h2>
       </legend>
 
-      <div class="flex flex-col gap-2">
-        <label for="accessibility-text-scale" class="font-medium text-cm-text"> Text size </label>
+      <!-- Text size -->
+      <div class="min-w-0">
+        <label tuiLabel>
+          Text size
 
-        <select
-          id="accessibility-text-scale"
-          class="min-h-11 w-full rounded-cm-md border border-cm-border bg-cm-surface px-3 text-cm-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
-          [ngModel]="accessibility.preferences().textScale"
-          (ngModelChange)="setTextScale($event)"
-        >
-          @for (scale of textScales; track scale) {
-            <option [ngValue]="scale">{{ scale }}%</option>
-          }
-        </select>
+          <tui-textfield
+            tuiChevron
+            class="mt-2 w-full"
+            [stringify]="formatTextScale"
+            [tuiTextfieldCleaner]="false"
+          >
+            <input
+              tuiSelect
+              [ngModel]="accessibility.preferences().textScale"
+              (ngModelChange)="setTextScale($event)"
+            />
+
+            <ng-template #scaleOption let-item>
+              {{ formatTextScale(item) }}
+            </ng-template>
+
+            <tui-data-list-wrapper *tuiDropdown [items]="textScales" [itemContent]="scaleOption" />
+          </tui-textfield>
+        </label>
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label for="accessibility-text-spacing" class="font-medium text-cm-text">
+      <!-- Text spacing -->
+      <div class="min-w-0">
+        <label tuiLabel>
           Text spacing
-        </label>
 
-        <select
-          id="accessibility-text-spacing"
-          class="min-h-11 w-full rounded-cm-md border border-cm-border bg-cm-surface px-3 text-cm-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
-          [ngModel]="accessibility.preferences().textSpacing"
-          (ngModelChange)="setTextSpacing($event)"
-        >
-          <option value="normal">Normal</option>
-          <option value="increased">Increased</option>
-        </select>
+          <tui-textfield
+            tuiChevron
+            class="mt-2 w-full"
+            [stringify]="formatTextSpacing"
+            [tuiTextfieldCleaner]="false"
+          >
+            <input
+              tuiSelect
+              [ngModel]="accessibility.preferences().textSpacing"
+              (ngModelChange)="setTextSpacing($event)"
+            />
+
+            <ng-template #spacingOption let-item>
+              {{ formatTextSpacing(item) }}
+            </ng-template>
+
+            <tui-data-list-wrapper
+              *tuiDropdown
+              [items]="textSpacingOptions"
+              [itemContent]="spacingOption"
+            />
+          </tui-textfield>
+        </label>
       </div>
     </fieldset>
 
@@ -81,33 +106,46 @@
         <h2 class="text-lg font-semibold text-cm-text">Appearance</h2>
       </legend>
 
-      <div class="flex flex-col gap-2">
-        <label for="accessibility-color-mode" class="font-medium text-cm-text">
+      <!-- Color palette -->
+      <div class="min-w-0">
+        <label tuiLabel>
           Color palette
+
+          <tui-textfield
+            tuiChevron
+            class="mt-2 w-full"
+            [stringify]="formatColorMode"
+            [tuiTextfieldCleaner]="false"
+          >
+            <input
+              tuiSelect
+              [ngModel]="accessibility.preferences().colorVisionMode"
+              (ngModelChange)="setColorVisionMode($event)"
+            />
+
+            <ng-template #colorOption let-item>
+              {{ formatColorMode(item) }}
+            </ng-template>
+
+            <tui-data-list-wrapper
+              *tuiDropdown
+              [items]="colorModeValues"
+              [itemContent]="colorOption"
+            />
+          </tui-textfield>
         </label>
 
-        <select
-          id="accessibility-color-mode"
-          class="min-h-11 w-full rounded-cm-md border border-cm-border bg-cm-surface px-3 text-cm-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
-          [ngModel]="accessibility.preferences().colorVisionMode"
-          (ngModelChange)="setColorVisionMode($event)"
-        >
-          @for (mode of colorModes; track mode.value) {
-            <option [value]="mode.value">
-              {{ mode.label }}
-            </option>
-          }
-        </select>
-
-        <p class="text-sm leading-relaxed text-cm-text-muted">
+        <p class="mt-2 text-sm leading-relaxed text-cm-text-muted">
           Choose an alternative palette to help distinguish colors.
         </p>
       </div>
 
+      <!-- High contrast -->
       <label class="flex cursor-pointer items-center justify-between gap-4">
         <span class="flex min-w-0 flex-col gap-1">
           <span class="font-medium text-cm-text"> High contrast </span>
-          <span class="text-sm text-cm-text-muted">
+
+          <span class="text-sm leading-relaxed text-cm-text-muted">
             Increase visual contrast across the interface.
           </span>
         </span>
@@ -121,10 +159,14 @@
         />
       </label>
 
+      <!-- Underline links -->
       <label class="flex cursor-pointer items-center justify-between gap-4">
         <span class="flex min-w-0 flex-col gap-1">
           <span class="font-medium text-cm-text"> Underline links </span>
-          <span class="text-sm text-cm-text-muted"> Make links easier to identify. </span>
+
+          <span class="text-sm leading-relaxed text-cm-text-muted">
+            Make links easier to identify.
+          </span>
         </span>
 
         <input
@@ -145,10 +187,12 @@
         <h2 class="text-lg font-semibold text-cm-text">Motion</h2>
       </legend>
 
+      <!-- Reduce motion -->
       <label class="flex cursor-pointer items-center justify-between gap-4">
         <span class="flex min-w-0 flex-col gap-1">
           <span class="font-medium text-cm-text"> Reduce motion </span>
-          <span class="text-sm text-cm-text-muted">
+
+          <span class="text-sm leading-relaxed text-cm-text-muted">
             Minimize non-essential animations and transitions.
           </span>
         </span>
@@ -168,7 +212,7 @@
       <button
         tuiButton
         type="button"
-        appearance="secondary"
+        appearance="outline"
         size="m"
         class="w-full"
         (click)="reset()"

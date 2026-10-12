@@ -1,15 +1,28 @@
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TuiButton, TuiPopup, TuiClose } from '@taiga-ui/core';
-import { TuiDrawer, TuiSwitch } from '@taiga-ui/kit';
+import { TuiDropdown, TuiLabel, TuiTextfield, TuiButton, TuiPopup } from '@taiga-ui/core';
+import { TuiChevron, TuiDataListWrapper, TuiDrawer, TuiSelect, TuiSwitch } from '@taiga-ui/kit';
 
 import { Accessibility } from '../../accessibility/accessibility.service';
 import { ColorVisionMode, TextScale, TextSpacing } from '../../accessibility/accessibility.model';
 
 @Component({
   selector: 'app-accessibility-panel',
-  imports: [CdkTrapFocus, FormsModule, TuiButton, TuiPopup, TuiClose, TuiDrawer, TuiSwitch],
+  imports: [
+    CdkTrapFocus,
+    FormsModule,
+    TuiButton,
+    TuiPopup,
+    TuiDrawer,
+    TuiSwitch,
+    TuiDropdown,
+    TuiLabel,
+    TuiTextfield,
+    TuiChevron,
+    TuiDataListWrapper,
+    TuiSelect,
+  ],
   templateUrl: './accessibility-panel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,6 +40,18 @@ export class AccessibilityPanel {
     { value: 'blue-yellow', label: 'Blue-yellow differentiation' },
     { value: 'monochrome', label: 'Monochrome' },
   ];
+
+  readonly textSpacingOptions: readonly TextSpacing[] = ['normal', 'increased'];
+
+  readonly colorModeValues: readonly ColorVisionMode[] = this.colorModes.map((mode) => mode.value);
+
+  readonly formatTextScale = (value: TextScale): string => `${value}%`;
+
+  readonly formatTextSpacing = (value: TextSpacing): string =>
+    value === 'normal' ? 'Normal' : 'Increased';
+
+  readonly formatColorMode = (value: ColorVisionMode): string =>
+    this.colorModes.find((mode) => mode.value === value)?.label ?? value;
 
   setTextScale(value: TextScale): void {
     this.accessibility.setTextScale(value);
