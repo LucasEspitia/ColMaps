@@ -321,10 +321,208 @@ html[data-theme='high-contrast'] {
 }
 
 /* =========================================================
+   Red-green differentiation
+   ========================================================= */
+
+html[data-color-vision='red-green']:not([data-theme='high-contrast']) {
+  /* ---------------------------------------------------------
+     Brand
+     --------------------------------------------------------- */
+
+  --cm-primary: #124576;
+  --cm-primary-hover: #0e365f;
+  --cm-primary-pressed: #092a4c;
+  --cm-on-primary: #ffffff;
+  --cm-on-primary-accent: var(--cm-accent);
+
+  --cm-secondary: #62418b;
+  --cm-secondary-hover: #4c326e;
+  --cm-secondary-pressed: #382451;
+  --cm-on-secondary: #ffffff;
+
+  --cm-accent: #ffd477;
+  --cm-accent-hover: #efbc59;
+  --cm-accent-pressed: #dda641;
+  --cm-on-accent: #151820;
+
+  /* ---------------------------------------------------------
+     Backgrounds
+     --------------------------------------------------------- */
+
+  --cm-background: #f6f4ee;
+  --cm-on-background: #20232b;
+
+  --cm-surface: #ffffff;
+  --cm-surface-hover: #f1f2f5;
+  --cm-surface-pressed: #e5e8ef;
+  --cm-on-surface: #20232b;
+
+  /* ---------------------------------------------------------
+     Text
+     --------------------------------------------------------- */
+
+  --cm-text: #20232b;
+  --cm-text-muted: #4b5360;
+
+  /* ---------------------------------------------------------
+     UI
+     --------------------------------------------------------- */
+
+  --cm-border: #46515e;
+  --cm-border-hover: #124576;
+  --cm-focus: #124576;
+}
+
+/* =========================================================
+   Blue-yellow differentiation
+   ========================================================= */
+
+html[data-color-vision='blue-yellow']:not([data-theme='high-contrast']) {
+  /* ---------------------------------------------------------
+     Brand
+     --------------------------------------------------------- */
+
+  --cm-primary: #652340;
+  --cm-primary-hover: #531b34;
+  --cm-primary-pressed: #421529;
+  --cm-on-primary: #ffffff;
+  --cm-on-primary-accent: var(--cm-accent);
+
+  --cm-secondary: #185f4d;
+  --cm-secondary-hover: #104c3c;
+  --cm-secondary-pressed: #0b3c30;
+  --cm-on-secondary: #ffffff;
+
+  --cm-accent: #ffc3a3;
+  --cm-accent-hover: #eba788;
+  --cm-accent-pressed: #d58d70;
+  --cm-on-accent: #171217;
+
+  /* ---------------------------------------------------------
+     Backgrounds
+     --------------------------------------------------------- */
+
+  --cm-background: #f8f3f0;
+  --cm-on-background: #292026;
+
+  --cm-surface: #ffffff;
+  --cm-surface-hover: #f4eff1;
+  --cm-surface-pressed: #ece2e7;
+  --cm-on-surface: #292026;
+
+  /* ---------------------------------------------------------
+     Text
+     --------------------------------------------------------- */
+
+  --cm-text: #292026;
+  --cm-text-muted: #58505a;
+
+  /* ---------------------------------------------------------
+     UI
+     --------------------------------------------------------- */
+
+  --cm-border: #554950;
+  --cm-border-hover: #652340;
+  --cm-focus: #652340;
+}
+
+/* =========================================================
+   Monochrome
+   ========================================================= */
+
+html[data-color-vision='monochrome']:not([data-theme='high-contrast']) {
+  /* ---------------------------------------------------------
+     Brand
+     --------------------------------------------------------- */
+
+  --cm-primary: #292929;
+  --cm-primary-hover: #1a1a1a;
+  --cm-primary-pressed: #101010;
+  --cm-on-primary: #ffffff;
+  --cm-on-primary-accent: var(--cm-accent);
+
+  --cm-secondary: #424242;
+  --cm-secondary-hover: #303030;
+  --cm-secondary-pressed: #202020;
+  --cm-on-secondary: #ffffff;
+
+  --cm-accent: #dadada;
+  --cm-accent-hover: #c8c8c8;
+  --cm-accent-pressed: #b6b6b6;
+  --cm-on-accent: #171717;
+
+  /* ---------------------------------------------------------
+     Backgrounds
+     --------------------------------------------------------- */
+
+  --cm-background: #f5f5f5;
+  --cm-on-background: #1b1b1b;
+
+  --cm-surface: #ffffff;
+  --cm-surface-hover: #f0f0f0;
+  --cm-surface-pressed: #e5e5e5;
+  --cm-on-surface: #1b1b1b;
+
+  /* ---------------------------------------------------------
+     Text
+     --------------------------------------------------------- */
+
+  --cm-text: #1b1b1b;
+  --cm-text-muted: #505050;
+
+  /* ---------------------------------------------------------
+     UI
+     --------------------------------------------------------- */
+
+  --cm-border: #4c4c4c;
+  --cm-border-hover: #292929;
+  --cm-focus: #292929;
+}
+
+/* =========================================================
    Accessibility: underline links 
    ========================================================= */
-/* Accessibility: underline all links */
 html[data-underline-links='true'] a[href] {
   text-decoration-line: underline;
   text-underline-offset: 0.2em;
+}
+
+/* =========================================================
+   Accessibility — Reduced Motion
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   System preference
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------
+   User preference
+   --------------------------------------------------------- */
+
+html[data-reduced-motion='true'] {
+  scroll-behavior: auto !important;
+}
+
+html[data-reduced-motion='true'] *,
+html[data-reduced-motion='true'] *::before,
+html[data-reduced-motion='true'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
