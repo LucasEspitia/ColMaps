@@ -1,4 +1,5 @@
 import { DOCUMENT } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 
@@ -54,12 +55,18 @@ describe('Accessibility', () => {
     },
   );
 
-  it('loads valid preferences and applies them after rendering', () => {
+  it('applies stored preferences synchronously before the first render', () => {
     const service = createService(customPreferences);
     expect(service.preferences()).toEqual(customPreferences);
-    TestBed.tick();
     expectApplied(customPreferences);
     expect(storage.load).toHaveBeenCalledTimes(1);
+    expect(storage.save).not.toHaveBeenCalled();
+  });
+
+  it('applies preferences during SSR without writing the cookie', () => {
+    TestBed.overrideProvider(PLATFORM_ID, { useValue: 'server' });
+    createService(customPreferences);
+    expectApplied(customPreferences);
     expect(storage.save).not.toHaveBeenCalled();
   });
 

@@ -29,11 +29,8 @@ export class Accessibility {
   readonly panelOpen = this.panelOpenState.asReadonly();
 
   constructor() {
-    // Runs only in the browser after Angular renders.
-    // It does not execute during SSR.
-    afterNextRender(() => {
-      this.applyPreferences();
-    });
+    // Apply before the first render on both the server and the client.
+    this.applyPreferencesToDocument();
   }
 
   openPanel(fallback?: HTMLElement): void {
@@ -42,7 +39,7 @@ export class Accessibility {
     if (this.isBrowser) {
       const activeElement = this.document.activeElement;
       this.previouslyFocusedElement =
-        opener ?? (activeElement instanceof HTMLElement ? activeElement : null);
+        activeElement instanceof HTMLElement ? activeElement : null;
 
       this.fallbackFocusedElement = fallback ?? null;
     }
@@ -133,14 +130,10 @@ export class Accessibility {
     this.preferencesState.set(preferences);
 
     this.storage.save(preferences);
-    this.applyPreferences();
+    this.applyPreferencesToDocument();
   }
 
-  private applyPreferences(): void {
-    if (!this.isBrowser) {
-      return;
-    }
-
+  applyPreferencesToDocument(): void {
     const root = this.document.documentElement;
     const preferences = this.preferencesState();
 

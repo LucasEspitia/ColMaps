@@ -2266,7 +2266,41 @@ The AccessibilityStorage service uses Angular's REQUEST injection token to retri
 
 Stored preferences are validated before initialization, and browser-dependent style modifications are deferred using afterNextRender(). Cookies are configured with SameSite=Lax, conditional Secure, and a one-year expiration period.
 
-This approach preserves user preferences across visits while maintaining SSR compatibility without relying on browser-only storage mechanisms
+This approach preserves user preferences across visits while maintaining SSR compatibility without relying on browser-only storage mechanisms.
+
+### 14.5. SSR Theme Initialization and Hydration
+
+During development, an initial theme flash was observed when reloading the application: the default theme appeared briefly before the stored accessibility preferences were applied.
+
+To address this, preference initialization was integrated into the SSR lifecycle using Angular's `BEFORE_APP_SERIALIZED` hook. The server retrieves preferences from request cookies, validates them, and applies the corresponding CSS variables and HTML data attributes before delivering the rendered document.
+
+**Theme initialization flow:**
+
+```text
+HTTP Request + Cookies
+          |
+          v
+AccessibilityStorage (REQUEST)
+          |
+          v
+Preference Validation
+          |
+          v
+BEFORE_APP_SERIALIZED
+          |
+          v
+SSR HTML (CSS Variables + Data Attributes)
+          |
+          v
+Browser Rendering
+          |
+          v
+Angular Hydration
+```
+
+This ensures that the initial HTML already contains the user's accessibility configuration, avoiding reliance on client-side JavaScript for the initial theme. Subsequent preference changes remain managed by the accessibility service in the browser.
+
+The implementation was verified after restarting the Docker development environment, with no further theme flickering observed. Production-build validation remains a separate step.
 
 ## 15. Performance
 
