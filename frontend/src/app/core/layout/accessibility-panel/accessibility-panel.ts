@@ -1,8 +1,8 @@
-import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TuiDropdown, TuiLabel, TuiTextfield, TuiButton, TuiPopup } from '@taiga-ui/core';
 import { TuiChevron, TuiDataListWrapper, TuiDrawer, TuiSelect, TuiSwitch } from '@taiga-ui/kit';
+import { TuiAutoFocus } from '@taiga-ui/cdk';
 
 import { Accessibility } from '../../accessibility/accessibility.service';
 import { ColorVisionMode, TextScale, TextSpacing } from '../../accessibility/accessibility.model';
@@ -10,7 +10,7 @@ import { ColorVisionMode, TextScale, TextSpacing } from '../../accessibility/acc
 @Component({
   selector: 'app-accessibility-panel',
   imports: [
-    CdkTrapFocus,
+    TuiAutoFocus,
     FormsModule,
     TuiButton,
     TuiPopup,

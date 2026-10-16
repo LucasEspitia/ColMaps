@@ -5,6 +5,7 @@
   <div class="container flex h-full items-center justify-between px-6 py-4 md:px-8">
     <!-- Brand -->
     <a
+      id="header-home-link"
       routerLink="/"
       class="rounded-cm-md px-3 py-2 text-xl font-bold text-cm-primary no-underline transition-colors"
       (click)="closeMenu()"
@@ -44,6 +45,7 @@
     <!-- Mobile menu button -->
     <div class="md:hidden">
       <button
+        #mobileMenuTrigger
         tuiButton
         type="button"
         appearance="secondary"
@@ -115,6 +117,7 @@
   <!-- Accessibility action -->
   <div class="mt-6 border-t border-cm-border/30 pt-6">
     <button
+      #accessibilityOpener
       tuiButton
       type="button"
       appearance="secondary"
@@ -122,7 +125,7 @@
       iconStart="@tui.accessibility"
       aria-label="Open accessibility settings"
       class="w-full"
-      (click)="openAccessibilityFromMenu()"
+      (click)="openAccessibilityFromMenu(mobileMenuTrigger)"
     >
       Accessibility
     </button>

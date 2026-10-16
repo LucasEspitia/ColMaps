@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Service, inject, signal, afterNextRender, PLATFORM_ID } from '@angular/core';
+import { Service, inject, signal, afterNextRender, PLATFORM_ID, Injector } from '@angular/core';
 import { AccessibilityStorage } from './accessibility-storage';
 import {
   AccessibilityPreferences,
@@ -12,8 +12,12 @@ import {
 @Service()
 export class Accessibility {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly storage = inject(AccessibilityStorage);
   private readonly document = inject(DOCUMENT);
+  private readonly storage = inject(AccessibilityStorage);
+  private readonly injector = inject(Injector);
+
+  private previouslyFocusedElement: HTMLElement | null = null;
+  private fallbackFocusedElement: HTMLElement | null = null;
 
   private readonly preferencesState = signal<AccessibilityPreferences>(
     this.validatePreferences(this.storage.load()),
@@ -32,12 +36,57 @@ export class Accessibility {
     });
   }
 
-  openPanel(): void {
+  openPanel(fallback?: HTMLElement): void {
+    if (this.panelOpenState()) return;
+
+    if (this.isBrowser) {
+      const activeElement = this.document.activeElement;
+      this.previouslyFocusedElement =
+        opener ?? (activeElement instanceof HTMLElement ? activeElement : null);
+
+      this.fallbackFocusedElement = fallback ?? null;
+    }
     this.panelOpenState.set(true);
   }
 
   closePanel(): void {
+    if (!this.panelOpenState()) return;
+
     this.panelOpenState.set(false);
+
+    if (!this.isBrowser) return;
+
+    const previousElement = this.previouslyFocusedElement;
+    const fallbackElement = this.fallbackFocusedElement;
+
+    this.previouslyFocusedElement = null;
+    this.fallbackFocusedElement = null;
+
+    afterNextRender(
+      {
+        mixedReadWrite: () => {
+          if (this.panelOpenState()) return;
+
+          const target = this.canRestoreFocus(previousElement)
+            ? previousElement
+            : this.canRestoreFocus(fallbackElement)
+              ? fallbackElement
+              : null;
+
+          target?.focus({ preventScroll: true });
+        },
+      },
+      { injector: this.injector },
+    );
+  }
+
+  private canRestoreFocus(element: HTMLElement | null): element is HTMLElement {
+    return (
+      element !== null &&
+      element.isConnected &&
+      element.getClientRects().length > 0 &&
+      !element.closest('[inert], [aria-hidden="true"]')
+    );
   }
 
   setTextScale(value: TextScale): void {

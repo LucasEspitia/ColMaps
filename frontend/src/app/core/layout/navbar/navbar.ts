@@ -41,8 +41,8 @@ export class Navbar {
     this.accessibility.openPanel();
   }
 
-  openAccessibilityFromMenu(): void {
+  openAccessibilityFromMenu(fallback: HTMLElement): void {
+    this.accessibility.openPanel(fallback);
     this.closeMenu();
-    this.openAccessibility();
   }
 }

@@ -11,8 +11,15 @@ import { DEFAULT_ACCESSIBILITY_PREFERENCES } from '../../accessibility/accessibi
 
 @Component({
   imports: [AccessibilityPanel, TuiRoot],
-  template:
-    '<tui-root><button type="button" (click)="accessibility.openPanel()">Open settings</button><app-accessibility-panel /></tui-root>',
+  template: `
+    <tui-root>
+      <button id="accessibility-opener" type="button" (click)="accessibility.openPanel()">
+        Open settings
+      </button>
+
+      <app-accessibility-panel />
+    </tui-root>
+  `,
 })
 class TestHost {
   readonly accessibility = inject(Accessibility);
@@ -63,32 +70,66 @@ describe('AccessibilityPanel', () => {
 
   it('renders only when opened and closes using the Close button', async () => {
     expect(element.querySelector('tui-drawer')).toBeNull();
+
     await openPanel();
+
     expect(element.querySelector('#accessibility-title')?.textContent?.trim()).toBe(
       'Accessibility',
     );
-    element.querySelector<HTMLButtonElement>('header button')!.click();
+
+    const close = element.querySelector<HTMLButtonElement>('#accessibility-close');
+
+    expect(close).not.toBeNull();
+
+    close!.click();
     await fixture.whenStable();
+
     expect(service.panelOpen()).toBe(false);
     expect(element.querySelector('tui-drawer')).toBeNull();
   });
 
-  it('focuses Close and restores focus to the opener when dismissed', async () => {
-    const opener = element.querySelector<HTMLButtonElement>('button')!;
+  it('focuses Close and restores focus to the opener', async () => {
+    const opener = element.querySelector<HTMLButtonElement>('#accessibility-opener')!;
+
     opener.focus();
     opener.click();
+
     await fixture.whenStable();
+
     const drawer = element.querySelector<HTMLElement>('tui-drawer')!;
+    const close = drawer.querySelector<HTMLButtonElement>('#accessibility-close')!;
+
     expect(drawer.getAttribute('role')).toBe('dialog');
     expect(drawer.getAttribute('aria-modal')).toBe('true');
-    expect(
-      element.querySelector(`#${drawer.getAttribute('aria-labelledby')}`)?.textContent?.trim(),
-    ).toBe('Accessibility');
-    const close = drawer.querySelector<HTMLButtonElement>('button[cdkFocusInitial]')!;
+    expect(drawer.getAttribute('aria-labelledby')).toBe('accessibility-title');
+
     expect(document.activeElement).toBe(close);
+
     close.click();
     await fixture.whenStable();
+
+    expect(service.panelOpen()).toBe(false);
     expect(document.activeElement).toBe(opener);
+  });
+
+  it.each([
+    ['accessibility-high-contrast', 'highContrast'],
+    ['accessibility-underline-links', 'underlineLinks'],
+    ['accessibility-reduced-motion', 'reducedMotion'],
+  ] as const)('updates and persists %s', async (id, key) => {
+    await openPanel();
+
+    const input = element.querySelector<HTMLInputElement>(`#${id}`)!;
+
+    input.click();
+    await fixture.whenStable();
+
+    expect(service.preferences()).toEqual({
+      ...DEFAULT_ACCESSIBILITY_PREFERENCES,
+      [key]: true,
+    });
+
+    expect(save).toHaveBeenCalledExactlyOnceWith(service.preferences());
   });
 
   it.each([
@@ -97,58 +138,94 @@ describe('AccessibilityPanel', () => {
     ['accessibility-color-mode', 'Monochrome', 'colorVisionMode', 'monochrome'],
   ] as const)('updates and persists preferences through %s', async (id, label, key, value) => {
     await openPanel();
-    const select = element.querySelector<HTMLSelectElement>(`#${id}`)!;
-    const option = Array.from(select.options).find((item) => item.textContent?.trim() === label)!;
-    select.value = option.value;
-    select.dispatchEvent(new Event('change', { bubbles: true }));
+
+    const select = element.querySelector<HTMLInputElement>(`#${id}`);
+
+    expect(select).not.toBeNull();
+
+    select!.click();
     await fixture.whenStable();
-    expect(service.preferences()).toEqual({ ...DEFAULT_ACCESSIBILITY_PREFERENCES, [key]: value });
+
+    // Dropdown options may be rendered outside the fixture.
+    const option = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find(
+      (item) => item.textContent?.trim() === label,
+    );
+
+    expect(option).toBeDefined();
+
+    option!.click();
+    await fixture.whenStable();
+
+    expect(service.preferences()).toEqual({
+      ...DEFAULT_ACCESSIBILITY_PREFERENCES,
+      [key]: value,
+    });
+
     expect(save).toHaveBeenCalledExactlyOnceWith(service.preferences());
+
     expect(service.panelOpen()).toBe(true);
   });
 
-  it.each([
-    [0, 'highContrast'],
-    [1, 'underlineLinks'],
-    [2, 'reducedMotion'],
-  ] as const)('updates and persists switch %s', async (index, key) => {
+  it('updates text scale through tuiSelect', async () => {
     await openPanel();
-    element.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')[index].click();
+
+    const select = element.querySelector<HTMLInputElement>('#accessibility-text-scale')!;
+
+    select.click();
     await fixture.whenStable();
-    expect(service.preferences()).toEqual({ ...DEFAULT_ACCESSIBILITY_PREFERENCES, [key]: true });
+
+    const option = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find(
+      (item) => item.textContent?.trim() === '130%',
+    );
+
+    expect(option).toBeDefined();
+
+    option!.click();
+    await fixture.whenStable();
+
+    expect(service.preferences().textScale).toBe(130);
     expect(save).toHaveBeenCalledExactlyOnceWith(service.preferences());
   });
 
-  it('resets preferences and refreshes the controls without closing the panel', async () => {
+  it('resets preferences and refreshes controls without closing the panel', async () => {
     service.setTextScale(130);
     service.setHighContrast(true);
     service.setTextSpacing('increased');
     service.setColorVisionMode('monochrome');
+
     await openPanel();
     save.mockClear();
-    Array.from(element.querySelectorAll('button'))
-      .find((button) => button.textContent?.trim() === 'Reset preferences')!
-      .click();
+
+    element.querySelector<HTMLButtonElement>('#accessibility-reset')!.click();
+
     await fixture.whenStable();
+
     expect(service.preferences()).toEqual(DEFAULT_ACCESSIBILITY_PREFERENCES);
+
     expect(save).toHaveBeenCalledExactlyOnceWith(DEFAULT_ACCESSIBILITY_PREFERENCES);
+
     expect(service.panelOpen()).toBe(true);
-    expect(
-      element
-        .querySelector<HTMLSelectElement>('#accessibility-text-scale')!
-        .selectedOptions[0].textContent?.trim(),
-    ).toBe('100%');
-    expect(element.querySelector<HTMLSelectElement>('#accessibility-text-spacing')!.value).toBe(
-      'normal',
+
+    // Taiga UI Select inputs
+    expect(element.querySelector<HTMLInputElement>('#accessibility-text-scale')!.value).toBe(
+      '100%',
     );
-    expect(element.querySelector<HTMLSelectElement>('#accessibility-color-mode')!.value).toBe(
-      'default',
+
+    expect(element.querySelector<HTMLInputElement>('#accessibility-text-spacing')!.value).toBe(
+      'Normal',
     );
+
+    expect(element.querySelector<HTMLInputElement>('#accessibility-color-mode')!.value).toBe(
+      'Default colors',
+    );
+
+    // Switches
     expect(
-      Array.from(
-        element.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
-        (input) => input.checked,
-      ),
+      [
+        'accessibility-high-contrast',
+        'accessibility-underline-links',
+        'accessibility-reduced-motion',
+      ].map((id) => element.querySelector<HTMLInputElement>(`#${id}`)!.checked),
     ).toEqual([false, false, false]);
   });
 });

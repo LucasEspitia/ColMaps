@@ -2225,27 +2225,48 @@ The remote CI pipeline remains the authoritative validation layer because local 
 
 ## 14. Accessibility
 
-### 14.1 Styles and Color Palettes
+### 14.1. Styles and Color Palettes
 
-ColMaps defines a centralized semantic design-token system for colors, interaction states, surfaces, borders, focus indicators, and typography scaling. The initial color palette was selected with accessibility and sufficient color contrast in mind, while keeping a visual identity associated with Colombia and geographic exploration.
+ColMaps defines a centralized semantic design-token system for colors, interaction states, surfaces, borders, focus indicators, and typography scaling. The initial color palette was selected with accessibility and sufficient color contrast in mind, while maintaining a visual identity associated with Colombia and geographic exploration.
 
-The styling system uses a single source of truth for the application's visual tokens. Tailwind CSS consumes these tokens through its theme system, while Taiga UI components are connected to the same tokens through a dedicated theme bridge. This prevents native application elements and third-party UI components from developing independent color schemes or interaction states.
+The styling system uses a single source of truth for the application's visual tokens. Tailwind CSS consumes these tokens through its theme system, while Taiga UI components are connected through a dedicated theme bridge. This ensures visual consistency between native application elements and third-party components.
 
-Interactive states such as hover, pressed, and focus are also defined at the token level. This allows accessibility-related themes to propagate consistently across both custom and Taiga UI components without requiring component-specific color definitions.
+Interactive states such as hover, pressed, and focus are defined at the token level, allowing accessibility themes to propagate consistently without component-specific overrides.
 
-A high-contrast theme is already included as an alternative accessibility mode. Additional color-vision adaptations and other accessibility preferences will be incorporated progressively as the interface develops.
+The accessibility system includes high-contrast mode, color-vision adaptations, text scaling, increased text spacing, reduced motion, and underlined links. These preferences are managed centrally and applied through CSS custom properties and data attributes.
 
 The current design-token and theme configuration is maintained in `frontend/src/styles.css`.
 
 ### 14.2. Accessible Components and Keyboard Navigation
 
-Accessibility is considered from the early stages of component development rather than being treated as a final validation step. Components are implemented using semantic HTML and appropriate ARIA attributes, such as `aria-label` where additional accessible names or descriptions are required.
+Accessibility is integrated throughout component development rather than being treated exclusively as a final validation step. Components use semantic HTML and appropriate ARIA attributes, including accessible labels, dialog roles, and modal states where applicable.
 
-As each component is introduced, its keyboard accessibility is checked, including navigation using the `Tab` key, visible focus indicators, and interaction without relying exclusively on a mouse or pointer.
+Keyboard navigation is continuously verified using the `Tab`, `Enter`, and `Escape` keys, alongside visible focus indicators and logical navigation order. Interactive elements, including the navigation menu and accessibility panel, are designed to manage keyboard focus during opening and closing.
 
-This process is performed continuously during development so that accessibility issues can be identified while components are being implemented rather than after the complete interface has been built.
+This approach enables accessibility issues to be identified and corrected during implementation.
 
-As a final validation step, the completed interface will also be tested using a screen reader (Windows Narrator) to verify that the navigation structure, controls, labels, and relevant interface information are understandable when accessed through assistive technology.
+As a final validation step, the completed interface will be tested using Windows Narrator to evaluate navigation structure, controls, labels, and information presented through assistive technology.
+
+### 14.3. SSR Compatibility and Focus Management
+
+Browser-dependent operations are protected using `isPlatformBrowser()` and Angular's post-render lifecycle mechanisms to maintain Server-Side Rendering (SSR) compatibility.
+
+Two keyboard navigation issues were addressed:
+
+- **Scroll to Top:** Scrolling alone did not restore keyboard focus, interrupting subsequent `Tab` navigation. Focus is now programmatically transferred to the header after scrolling.
+- **Accessibility Panel:** Closing the panel could disconnect keyboard focus, especially on mobile when the originating element was removed from the DOM. The accessibility service preserves the previously focused element and restores focus to a logical fallback when necessary.
+
+These mechanisms preserve keyboard navigation continuity while avoiding browser-dependent DOM operations during server rendering.
+
+### 14.4. Cookie-Based Session Persistence
+
+Accessibility preferences are persisted using functional cookies, ensuring compatibility with Server-Side Rendering (SSR).
+
+The AccessibilityStorage service uses Angular's REQUEST injection token to retrieve preferences from incoming HTTP cookies during server rendering, while document.cookie is used for reading and updating preferences in the browser.
+
+Stored preferences are validated before initialization, and browser-dependent style modifications are deferred using afterNextRender(). Cookies are configured with SameSite=Lax, conditional Secure, and a one-year expiration period.
+
+This approach preserves user preferences across visits while maintaining SSR compatibility without relying on browser-only storage mechanisms
 
 ## 15. Performance
 

@@ -1,23 +1,24 @@
 <tui-drawer
   *tuiPopup="accessibility.panelOpen()"
-  cdkTrapFocus
-  [cdkTrapFocusAutoCapture]="true"
+  tuiFocusTrap
   role="dialog"
   aria-modal="true"
   aria-labelledby="accessibility-title"
+  aria-describedby="accessibility-description"
   direction="end"
   [overlay]="true"
   class="w-[min(26rem,100vw)]"
   (tuiClose)="close()"
 >
   <!-- Panel heading -->
-  <div class="flex w-full min-w-0 flex-col">
+  <header class="flex w-full min-w-0 flex-col">
     <div class="flex w-full items-center justify-between gap-4">
       <h1 id="accessibility-title" class="text-2xl font-bold text-cm-text">Accessibility</h1>
 
       <button
+        id="accessibility-close"
         tuiButton
-        cdkFocusInitial
+        tuiAutoFocus
         type="button"
         appearance="secondary"
         size="s"
@@ -29,10 +30,10 @@
       </button>
     </div>
 
-    <p class="mt-2 text-sm leading-relaxed text-cm-text-muted">
+    <p id="accessibility-description" class="mt-2 text-sm leading-relaxed text-cm-text-muted">
       Customize your experience while exploring ColMaps.
     </p>
-  </div>
+  </header>
 
   <div class="flex min-w-0 flex-col gap-8 py-6">
     <!-- Typography -->
@@ -53,6 +54,7 @@
             [tuiTextfieldCleaner]="false"
           >
             <input
+              id="accessibility-text-scale"
               tuiSelect
               [ngModel]="accessibility.preferences().textScale"
               (ngModelChange)="setTextScale($event)"
@@ -79,6 +81,7 @@
             [tuiTextfieldCleaner]="false"
           >
             <input
+              id="accessibility-text-spacing"
               tuiSelect
               [ngModel]="accessibility.preferences().textSpacing"
               (ngModelChange)="setTextSpacing($event)"
@@ -118,6 +121,7 @@
             [tuiTextfieldCleaner]="false"
           >
             <input
+              id="accessibility-color-mode"
               tuiSelect
               [ngModel]="accessibility.preferences().colorVisionMode"
               (ngModelChange)="setColorVisionMode($event)"
@@ -151,6 +155,7 @@
         </span>
 
         <input
+          id="accessibility-high-contrast"
           tuiSwitch
           type="checkbox"
           class="shrink-0"
@@ -170,6 +175,7 @@
         </span>
 
         <input
+          id="accessibility-underline-links"
           tuiSwitch
           type="checkbox"
           class="shrink-0"
@@ -198,6 +204,7 @@
         </span>
 
         <input
+          id="accessibility-reduced-motion"
           tuiSwitch
           type="checkbox"
           class="shrink-0"
@@ -210,6 +217,7 @@
     <!-- Reset -->
     <div class="border-t border-cm-border/30 pt-6">
       <button
+        id="accessibility-reset"
         tuiButton
         type="button"
         appearance="outline"
