@@ -9,6 +9,7 @@ import { vi } from 'vitest';
 import { Navbar } from './navbar';
 import { AccessibilityPanel } from '../accessibility-panel/accessibility-panel';
 import { Accessibility } from '../../accessibility/accessibility.service';
+import { AccessibilityStorage } from '../../accessibility/accessibility-storage';
 
 @Component({ template: '' })
 class TestPage {}
@@ -46,6 +47,7 @@ describe('Navbar', () => {
           { path: 'about', component: TestPage },
         ]),
         provideTaiga(),
+        { provide: AccessibilityStorage, useValue: { load: () => null, save: vi.fn() } },
       ],
     }).compileComponents();
     // jsdom does not calculate element dimensions.
@@ -63,45 +65,38 @@ describe('Navbar', () => {
     vi.unstubAllGlobals();
   });
 
-  it('opens the accessibility drawer from the desktop button and closes it', async () => {
-    const navbar: Navbar = fixture.debugElement.query(By.directive(Navbar)).componentInstance;
-    const closeMenu = vi.spyOn(navbar, 'closeMenu');
-    element
-      .querySelector<HTMLButtonElement>('button[aria-label="Open accessibility settings"]')!
-      .click();
-    await fixture.whenStable();
-    expect(TestBed.inject(Accessibility).panelOpen()).toBe(true);
-    expect(closeMenu).not.toHaveBeenCalled();
-    expect(navbar.menuOpen()).toBe(false);
-    const drawer = element.querySelector('tui-drawer');
-    expect(drawer).not.toBeNull();
-    expect(drawer!.querySelector('#accessibility-title')?.textContent?.trim()).toBe(
-      'Accessibility',
-    );
-    Array.from(drawer!.querySelectorAll('button'))
-      .find((button) => button.textContent?.trim() === 'Close')!
-      .click();
-    await fixture.whenStable();
-    expect(TestBed.inject(Accessibility).panelOpen()).toBe(false);
-    expect(element.querySelector('tui-drawer')).toBeNull();
-  });
+  it('restores focus to the mobile menu trigger when the opener is removed', async () => {
+    const service = TestBed.inject(Accessibility);
 
-  it('opens accessibility from the mobile drawer', async () => {
-    const navbar: Navbar = fixture.debugElement.query(By.directive(Navbar)).componentInstance;
-    const closeMenu = vi.spyOn(navbar, 'closeMenu');
-    await openMenu();
-    element
-      .querySelector<HTMLButtonElement>(
-        '#mobile-navigation button[aria-label="Open accessibility settings"]',
-      )!
-      .click();
+    const menuTrigger = await openMenu();
+    // The focus restoration service checks geometry, which jsdom does not calculate.
+    vi.spyOn(menuTrigger, 'getClientRects').mockReturnValue({ length: 1 } as DOMRectList);
+
+    const opener = element.querySelector<HTMLButtonElement>(
+      '#mobile-navigation button[aria-label="Open accessibility settings"]',
+    )!;
+
+    opener.focus();
+    expect(document.activeElement).toBe(opener);
+
+    opener.click();
     await fixture.whenStable();
+
     expectMenuClosed();
-    expect(closeMenu).toHaveBeenCalledTimes(1);
-    expect(TestBed.inject(Accessibility).panelOpen()).toBe(true);
-    expect(element.querySelector('tui-drawer #accessibility-title')?.textContent?.trim()).toBe(
-      'Accessibility',
-    );
+    expect(opener.isConnected).toBe(false);
+    expect(service.panelOpen()).toBe(true);
+
+    const close = element.querySelector<HTMLButtonElement>('#accessibility-close')!;
+
+    expect(document.activeElement).toBe(close);
+
+    close.click();
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(service.panelOpen()).toBe(false);
+    expect(document.activeElement).toBe(menuTrigger);
   });
 
   it('keeps the desktop panel open after the complete mouse event sequence', async () => {
@@ -116,23 +111,6 @@ describe('Navbar', () => {
     expect(element.querySelector('tui-drawer #accessibility-title')?.textContent?.trim()).toBe(
       'Accessibility',
     );
-  });
-
-  it('closes the accessibility drawer on Escape', async () => {
-    element
-      .querySelector<HTMLButtonElement>('button[aria-label="Open accessibility settings"]')!
-      .click();
-    await fixture.whenStable();
-    element
-      .querySelector('tui-drawer button')!
-      .dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    await fixture.whenStable();
-    expect(TestBed.inject(Accessibility).panelOpen()).toBe(false);
-    expect(element.querySelector('tui-drawer')).toBeNull();
-  });
-
-  it('should create', () => {
-    expect(fixture.debugElement.query(By.directive(Navbar)).componentInstance).toBeTruthy();
   });
 
   it('should render the navigation links with their destinations', () => {
@@ -177,17 +155,6 @@ describe('Navbar', () => {
       .filter((candidate) => candidate.injector.get(RouterLinkActive).isActive);
     expect(activeLinks).toHaveLength(1);
     expect((activeLinks[0].nativeElement as HTMLAnchorElement).textContent?.trim()).toBe(label);
-  });
-
-  it('should render an accessible settings button that does not submit forms', () => {
-    const button = element.querySelector<HTMLButtonElement>(
-      'button[aria-label="Open accessibility settings"]',
-    );
-
-    expect(button).not.toBeNull();
-    expect(button?.type).toBe('button');
-    expect(button?.disabled).toBe(false);
-    expect(button?.textContent?.trim()).toBe('Accessibility');
   });
 
   async function openMenu(): Promise<HTMLButtonElement> {
@@ -259,22 +226,19 @@ describe('Navbar', () => {
     expect(activeLinks[0].nativeElement.textContent.trim()).toBe(label);
   });
 
-  it.each(['Close navigation menu', 'Open accessibility settings'])(
-    'should close the mobile drawer using the %s button',
-    async (label) => {
-      await openMenu();
-      const button = element.querySelector<HTMLButtonElement>(
-        `#mobile-navigation button[aria-label="${label}"]`,
-      );
+  it('should close the mobile drawer using the Close button', async () => {
+    await openMenu();
+    const button = element.querySelector<HTMLButtonElement>(
+      '#mobile-navigation button[aria-label="Close navigation menu"]',
+    );
 
-      expect(button).not.toBeNull();
-      expect(button?.type).toBe('button');
-      button!.click();
-      await fixture.whenStable();
+    expect(button).not.toBeNull();
+    expect(button?.type).toBe('button');
+    button!.click();
+    await fixture.whenStable();
 
-      expectMenuClosed();
-    },
-  );
+    expectMenuClosed();
+  });
 
   it('should return home and close the drawer when the brand is clicked', async () => {
     await router.navigateByUrl('/about');

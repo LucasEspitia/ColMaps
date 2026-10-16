@@ -23,6 +23,9 @@ import { ColorVisionMode, TextScale, TextSpacing } from '../../accessibility/acc
     TuiDataListWrapper,
     TuiSelect,
   ],
+  host: {
+    '(document:keydown.escape)': 'onEscape($event)',
+  },
   templateUrl: './accessibility-panel.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -71,5 +74,14 @@ export class AccessibilityPanel {
 
   reset(): void {
     this.accessibility.resetPreferences();
+  }
+
+  protected onEscape(event: Event): void {
+    if (!this.accessibility.panelOpen()) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.accessibility.closePanel();
   }
 }

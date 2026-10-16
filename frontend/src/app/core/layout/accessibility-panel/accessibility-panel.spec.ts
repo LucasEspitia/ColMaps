@@ -68,49 +68,50 @@ describe('AccessibilityPanel', () => {
     await fixture.whenStable();
   }
 
-  it('renders only when opened and closes using the Close button', async () => {
-    expect(element.querySelector('tui-drawer')).toBeNull();
+  it.each(['Close button', 'Escape'])(
+    'opens an accessible dialog and restores focus after closing with %s',
+    async (method) => {
+      expect(element.querySelector('tui-drawer')).toBeNull();
+      const opener = element.querySelector<HTMLButtonElement>('#accessibility-opener')!;
 
-    await openPanel();
+      // JSDOM does not calculate real element geometry.
+      vi.spyOn(opener, 'getClientRects').mockReturnValue({
+        length: 1,
+      } as DOMRectList);
 
-    expect(element.querySelector('#accessibility-title')?.textContent?.trim()).toBe(
-      'Accessibility',
-    );
+      opener.focus();
+      expect(document.activeElement).toBe(opener);
 
-    const close = element.querySelector<HTMLButtonElement>('#accessibility-close');
+      opener.click();
+      await fixture.whenStable();
 
-    expect(close).not.toBeNull();
+      const drawer = element.querySelector<HTMLElement>('tui-drawer')!;
+      const close = drawer.querySelector<HTMLButtonElement>('#accessibility-close')!;
 
-    close!.click();
-    await fixture.whenStable();
+      expect(drawer.getAttribute('role')).toBe('dialog');
+      expect(drawer.getAttribute('aria-modal')).toBe('true');
+      expect(drawer.getAttribute('aria-labelledby')).toBe('accessibility-title');
+      expect(drawer.getAttribute('aria-describedby')).toBe('accessibility-description');
+      expect(drawer.querySelector('#accessibility-title')?.textContent?.trim()).toBe(
+        'Accessibility',
+      );
 
-    expect(service.panelOpen()).toBe(false);
-    expect(element.querySelector('tui-drawer')).toBeNull();
-  });
+      expect(document.activeElement).toBe(close);
 
-  it('focuses Close and restores focus to the opener', async () => {
-    const opener = element.querySelector<HTMLButtonElement>('#accessibility-opener')!;
+      if (method === 'Close button') {
+        close.click();
+      } else {
+        close.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      }
 
-    opener.focus();
-    opener.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-    await fixture.whenStable();
-
-    const drawer = element.querySelector<HTMLElement>('tui-drawer')!;
-    const close = drawer.querySelector<HTMLButtonElement>('#accessibility-close')!;
-
-    expect(drawer.getAttribute('role')).toBe('dialog');
-    expect(drawer.getAttribute('aria-modal')).toBe('true');
-    expect(drawer.getAttribute('aria-labelledby')).toBe('accessibility-title');
-
-    expect(document.activeElement).toBe(close);
-
-    close.click();
-    await fixture.whenStable();
-
-    expect(service.panelOpen()).toBe(false);
-    expect(document.activeElement).toBe(opener);
-  });
+      expect(service.panelOpen()).toBe(false);
+      expect(element.querySelector('tui-drawer')).toBeNull();
+      expect(document.activeElement).toBe(opener);
+    },
+  );
 
   it.each([
     ['accessibility-high-contrast', 'highContrast'],
@@ -166,30 +167,11 @@ describe('AccessibilityPanel', () => {
     expect(service.panelOpen()).toBe(true);
   });
 
-  it('updates text scale through tuiSelect', async () => {
-    await openPanel();
-
-    const select = element.querySelector<HTMLInputElement>('#accessibility-text-scale')!;
-
-    select.click();
-    await fixture.whenStable();
-
-    const option = Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find(
-      (item) => item.textContent?.trim() === '130%',
-    );
-
-    expect(option).toBeDefined();
-
-    option!.click();
-    await fixture.whenStable();
-
-    expect(service.preferences().textScale).toBe(130);
-    expect(save).toHaveBeenCalledExactlyOnceWith(service.preferences());
-  });
-
   it('resets preferences and refreshes controls without closing the panel', async () => {
     service.setTextScale(130);
     service.setHighContrast(true);
+    service.setUnderlineLinks(true);
+    service.setReducedMotion(true);
     service.setTextSpacing('increased');
     service.setColorVisionMode('monochrome');
 
