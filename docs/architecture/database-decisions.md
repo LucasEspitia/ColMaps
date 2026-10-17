@@ -16,6 +16,16 @@
 - **Evidence:** In the tested Medellín viewport query, median SQL execution decreased from **21.646 ms** (`osm_features`) to **4.785 ms** (`pois`), a **77.90% reduction**. The earlier three-subcategory experimental table achieved 1.816 ms. See the [benchmark and limitations](../reproducibility/benchmarks/poi-read-model.md).
 - **Trade-offs:** `pois` stores representative **points rather than complete source geometries**, and does not duplicate all original tags. `osm_features` remains available for detail or geometry-sensitive operations. The intermediate import and refresh add time and storage. The benchmark covers one viewport; full A–C result equivalence and broader workloads remain to be verified. Direct PBF-to-POI import may be reassessed once application requirements are settled.
 
+## Decision: POI Coordinate Reference System Migration
+
+**From `EPSG:3857` to `EPSG:4326`**
+
+The initial POI schema adopted EPSG:3857, consistent with the osm2pgsql import configuration. During API development, it became apparent that GeoJSON responses required coordinate transformation to EPSG:4326 according to GIS best practices and to comply with the GeoJSON coordinate reference system requirements.
+
+To simplify the API and avoid repeated transformations during data retrieval, the POI read model was migrated to EPSG:4326. The original OSM feature geometries remain unchanged.
+
+The migration is preserved as part of the database evolution history, documenting the architectural refinement and maintaining reproducibility across existing and fresh installations
+
 ### Reproducible database sequence
 
 1. Import the prepared PBF into `public.osm_features` using [`import_osm.py`](../../database/scripts/import_osm.py).

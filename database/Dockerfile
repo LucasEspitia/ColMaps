@@ -31,5 +31,6 @@ CMD ["sh", "-ec", "\
          PGDATABASE=\"$DB_NAME\" \
          PGPASSWORD=\"$DB_PASSWORD\" && \
   psql -X -v ON_ERROR_STOP=1 -f migrations/001_create_pois.sql && \
+  psql -X -v ON_ERROR_STOP=1 -f migrations/002_pois_marker_4326.sql && \
   python scripts/build_pois.py --direct \
 "]

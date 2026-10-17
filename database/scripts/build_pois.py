@@ -255,7 +255,10 @@ SELECT
   c.categories[1] AS primary_category,
   c.categories,
   c.subcategory,
-  ST_PointOnSurface(f.geom)::geometry(Point, 3857) AS marker_geom
+  ST_Transform(
+    ST_PointOnSurface(f.geom),
+    4326
+  )::geometry(Point, 4326) AS marker_geom
 FROM classified AS c
 JOIN public.osm_features AS f
   ON f.osm_type = c.osm_type AND f.osm_id = c.osm_id;
@@ -275,7 +278,7 @@ BEGIN
   IF EXISTS (
     SELECT 1 FROM colmaps_pois_stage
     WHERE marker_geom IS NULL OR ST_IsEmpty(marker_geom)
-      OR ST_SRID(marker_geom) <> 3857
+      OR ST_SRID(marker_geom) <> 4326
       OR NOT (primary_category = ANY(categories))
   ) THEN
     RAISE EXCEPTION 'POI staging data failed geometry/category validation';
