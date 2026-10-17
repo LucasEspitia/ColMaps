@@ -30,6 +30,7 @@ The repository separates frontend, backend, spatial storage and data processing.
 
 - [Frontend decisions](frontend-decisions.md): rendering, features, lazy loading, map workers, themes, accessibility, images and testing.
 - [Backend decisions](backend-decisions.md): REST boundaries, bbox validation, spatial SQL and GeoJSON contracts.
-- [Data decisions](data-decisions.md): source snapshot, dataset-dependent filtering, geometry storage and import lifecycle.
+- [Data decisions](data-decisions.md): source snapshot, dataset-dependent filtering, preparation environments and reusable artifacts.
+- [Database decisions](database-decisions.md): mixed geometry storage, the precomputed POI read model and its benchmark evidence.
 
 The former architecture document's hypothetical `shared`, guards, interceptors and separate layout tree have been replaced by the actual feature and `core` structure. Historical bundle measurements are retained with their limitations in the frontend decisions.

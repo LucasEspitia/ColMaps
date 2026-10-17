@@ -26,6 +26,7 @@ Expected recorded versions are `v24.19.0` and `11.17.0`; NVM alone does not enfo
 - [Data pipeline and import](data-pipeline.md): dependencies, Windows setup/workarounds, notebooks, dataset acquisition, filtering, import commands, verification and limitations.
 - [Application setup](application-setup.md): environment configuration, Compose, host execution, workers, images, tests, hooks, CI and historical setup decisions.
 - [Architecture](../architecture/README.md): current responsibilities and decisions, kept separate from reproduction steps.
+- [Database decisions](../architecture/database-decisions.md): storage and POI read-model decisions, with links to the database sequence and benchmark evidence.
 
 The fixed input and checksum reproduce the analyzed source dataset. Individual filtering decisions are **not universally transferable**: another region or changed snapshot may require new exploration and validation. Notebooks 01–04 retain the detailed research reasoning; their original numbered link labels are preserved in the pipeline guide. No Jupyter Book resource or separate bibliography was linked by the two original documents.
 

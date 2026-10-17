@@ -11,6 +11,7 @@ Rather than developing new routing or geospatial algorithms, the project focuses
 ## Technical documentation
 
 - [Implemented architecture and decisions](docs/architecture/README.md)
+- [Database decisions](docs/architecture/database-decisions.md)
 - [Reproducibility workflow](docs/reproducibility/README.md)
 - [Data preparation and import](docs/reproducibility/data-pipeline.md)
 - [Application setup and validation](docs/reproducibility/application-setup.md)
