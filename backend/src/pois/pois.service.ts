@@ -18,7 +18,9 @@ export class PoisService {
         geometry: row.geometry,
         properties: {
           name: row.name,
-          tags: row.tags,
+          category: row.primary_category,
+          categories: row.categories,
+          subcategory: row.subcategory,
         },
       })),
     };

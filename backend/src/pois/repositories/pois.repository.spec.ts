@@ -43,7 +43,9 @@ describe('PoisRepository', () => {
         osm_type: 'node',
         osm_id: '123',
         name: 'Museo del Oro',
-        tags: { tourism: 'museum' },
+        primary_category: 'museums_culture',
+        categories: ['museums_culture', 'attractions'],
+        subcategory: 'museum',
         geometry: {
           type: 'Point',
           coordinates: [-74.07, 4.6],

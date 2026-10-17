@@ -13,26 +13,28 @@ export class PoisRepository {
 
     return this.em.execute<PoiRow[]>(
       `
+      WITH bounds AS (
+        SELECT ST_Transform(
+          ST_MakeEnvelope(?, ?, ?, ?, 4326),
+          3857
+        ) AS area
+      )
       SELECT
-        osm_type::text AS osm_type,
-        osm_id::text AS osm_id,
-        name,
-        tags,
+        p.osm_type::text AS osm_type,
+        p.osm_id::text AS osm_id,
+        p.name,
+        p.primary_category,
+        p.categories,
+        p.subcategory,
         ST_AsGeoJSON(
-          ST_Transform(ST_PointOnSurface(geom), 4326),
+          ST_Transform(p.marker_geom, 4326),
           6
         )::jsonb AS geometry
-      FROM public.osm_features
-      WHERE geom IS NOT NULL
-        AND NOT ST_IsEmpty(geom)
-        AND ST_Intersects(
-          geom,
-          ST_Transform(
-            ST_MakeEnvelope(?, ?, ?, ?, 4326),
-            3857
-          )
-        )
-      ORDER BY osm_type, osm_id
+      FROM public.pois p
+      CROSS JOIN bounds b
+      WHERE p.marker_geom && b.area
+        AND ST_Intersects(p.marker_geom, b.area)
+      ORDER BY p.osm_type, p.osm_id
       LIMIT 200
       `,
       [west, south, east, north],

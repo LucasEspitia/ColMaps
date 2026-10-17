@@ -1,8 +1,12 @@
+import type { FeatureCategory } from '../contracts/feature-category';
+
 export interface PoiRow {
   osm_type: string;
   osm_id: string;
   name: string | null;
-  tags: Record<string, string>;
+  primary_category: FeatureCategory;
+  categories: FeatureCategory[];
+  subcategory: string;
   geometry: {
     type: 'Point';
     coordinates: [number, number];
@@ -15,7 +19,9 @@ export interface PoiFeature {
   geometry: PoiRow['geometry'];
   properties: {
     name: PoiRow['name'];
-    tags: PoiRow['tags'];
+    category: PoiRow['primary_category'];
+    categories: PoiRow['categories'];
+    subcategory: PoiRow['subcategory'];
   };
 }
 
