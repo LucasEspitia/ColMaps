@@ -8,6 +8,15 @@ The project uses Colombia as a case study, providing an interactive platform for
 
 Rather than developing new routing or geospatial algorithms, the project focuses on **software engineering practices for modern Web GIS systems**, including performance optimization, modular architecture, accessibility, automated testing, and continuous validation.
 
+## Technical documentation
+
+- [Implemented architecture and decisions](docs/architecture/README.md)
+- [Reproducibility workflow](docs/reproducibility/README.md)
+- [Data preparation and import](docs/reproducibility/data-pipeline.md)
+- [Application setup and validation](docs/reproducibility/application-setup.md)
+
+The architecture and technology sections below include project goals and planned capabilities; the implemented architecture guide distinguishes their current status.
+
 ## Local Docker builds
 
 Copy `.env.example` to `.env` when configuring a fresh checkout. The example sets
