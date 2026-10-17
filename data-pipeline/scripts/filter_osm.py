@@ -1,5 +1,6 @@
 import argparse
 import subprocess
+import shutil
 from pathlib import Path
 
 
@@ -18,6 +19,18 @@ NOTEBOOKS = [
     NOTEBOOKS_DIR / "04_prepare_osm_dataset.ipynb",
 ]
 
+def publish_rules() -> None:
+    """Publish validated rules alongside the processed dataset."""
+    source_dir = DATA_PIPELINE_DIR / "filters"
+
+    for filename in (
+        "02_validated_feature_scope.csv",
+        "03_preparation_rules.json",
+    ):
+        shutil.copy2(
+            source_dir / filename,
+            OUTPUT_PBF_PATH.parent / filename,
+        )
 
 def print_progress(current: int, total: int, notebook_name: str) -> None:
     """Display the current notebook pipeline progress."""
@@ -106,6 +119,8 @@ def run_pipeline(force: bool = False) -> None:
         )
 
     print_progress(total, total, "Pipeline completed")
+    
+    publish_rules()
 
     print(
         f"\nFiltering pipeline completed successfully.\n"
