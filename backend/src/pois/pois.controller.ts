@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 
 import { PoisService } from './pois.service';
 
@@ -18,5 +18,10 @@ export class PoisController {
     @Query('categories', ParseCategoriesPipe) categories: FeatureCategory[],
   ) {
     return this.poisService.findWithin(bbox, categories);
+  }
+
+  @Get('/:osmType/:osmId')
+  findById(@Param('osmType') osmType: string, @Param('osmId') osmId: string) {
+    return this.poisService.findById(osmType, osmId);
   }
 }

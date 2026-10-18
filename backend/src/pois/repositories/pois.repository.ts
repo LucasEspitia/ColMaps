@@ -1,13 +1,76 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
+
 import type { Bbox } from '../types/bbox.type';
-import type { PoiRow } from '../types/poi.types';
+import type { PoiDetailRow, PoiRow } from '../types/poi.types';
 import { FeatureCategory } from '../contracts/feature-category';
 
 @Injectable()
 export class PoisRepository {
   constructor(private readonly em: EntityManager) {}
+  // * Find POIs by OSM type and ID
+  async findById(osmType: string, osmId: string): Promise<PoiDetailRow | null> {
+    const rows = await this.em.execute<PoiDetailRow[]>(
+      `
+    SELECT
+      p.osm_type::text AS osm_type,
+      p.osm_id::text AS osm_id,
+      p.name,
+      p.primary_category,
+      p.categories,
+      p.subcategory,
 
+      ST_X(p.marker_geom) AS longitude,
+      ST_Y(p.marker_geom) AS latitude,
+
+      f.tags->>'description' AS description,
+
+      NULLIF(
+        CONCAT_WS(
+          ', ',
+          NULLIF(
+            CONCAT_WS(
+              ' ',
+              f.tags->>'addr:street',
+              f.tags->>'addr:housenumber'
+            ),
+            ''
+          ),
+          f.tags->>'addr:city'
+        ),
+        ''
+      ) AS address,
+
+      COALESCE(
+        f.tags->>'website',
+        f.tags->>'contact:website'
+      ) AS website,
+
+      COALESCE(
+        f.tags->>'phone',
+        f.tags->>'contact:phone'
+      ) AS phone,
+
+      f.tags->>'opening_hours' AS opening_hours,
+      f.tags->>'wheelchair' AS wheelchair
+
+    FROM public.pois p
+
+    LEFT JOIN public.osm_features f
+      ON f.osm_type = p.osm_type
+      AND f.osm_id = p.osm_id
+
+    WHERE p.osm_type = ?
+      AND p.osm_id = ?::bigint
+
+    LIMIT 1
+    `,
+      [osmType, osmId],
+    );
+    return rows[0] ?? null;
+  }
+
+  // * Find POIs within a bounding box and optional categories
   async findWithin(
     bbox: Bbox,
     categories: FeatureCategory[] = [],

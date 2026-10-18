@@ -1,5 +1,16 @@
 import type { FeatureCategory } from '../contracts/feature-category';
 
+export interface PoiDetailRow extends PoiRow {
+  longitude: number;
+  latitude: number;
+  description: string | null;
+  address: string | null;
+  website: string | null;
+  phone: string | null;
+  opening_hours: string | null;
+  wheelchair: string | null;
+}
+
 export interface PoiRow {
   osm_type: string;
   osm_id: string;
