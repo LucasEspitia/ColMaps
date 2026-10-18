@@ -4,12 +4,15 @@ import type { EntityManager } from '@mikro-orm/postgresql';
 import { PoisRepository } from './pois.repository';
 import type { Bbox } from '../types/bbox.type';
 import type { PoiRow } from '../types/poi.types';
+import type { FeatureCategory } from '../contracts/feature-category';
 
 describe('PoisRepository', () => {
   let repository: PoisRepository;
 
   const executeMock =
-    vi.fn<(sql: string, params: number[]) => Promise<PoiRow[]>>();
+    vi.fn<
+      (sql: string, params: (number | FeatureCategory[])[]) => Promise<PoiRow[]>
+    >();
 
   const bbox: Bbox = [-74.2, 4.5, -73.9, 4.8];
 
@@ -34,7 +37,20 @@ describe('PoisRepository', () => {
 
     expect(sql).toContain('ST_MakeEnvelope(?, ?, ?, ?, 4326)');
     expect(sql).toContain('ST_Intersects(');
+    expect(sql).not.toContain('AND p.categories');
     expect(params).toEqual([...bbox]);
+  });
+
+  it('should parameterize the category overlap filter when categories are provided', async () => {
+    executeMock.mockResolvedValue([]);
+    const categories: FeatureCategory[] = ['museums_culture', 'attractions'];
+
+    await repository.findWithin(bbox, categories);
+
+    expect(executeMock).toHaveBeenCalledOnce();
+    const [sql, params] = executeMock.mock.calls[0];
+    expect(sql).toContain('AND p.categories && ARRAY[?]::text[]');
+    expect(params).toEqual([...bbox, categories]);
   });
 
   it('should return POI rows from the database', async () => {

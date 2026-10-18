@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
-
 import type { Bbox } from '../types/bbox.type';
 import type { PoiRow } from '../types/poi.types';
+import { FeatureCategory } from '../contracts/feature-category';
 
 @Injectable()
 export class PoisRepository {
   constructor(private readonly em: EntityManager) {}
 
-  async findWithin(bbox: Bbox): Promise<PoiRow[]> {
+  async findWithin(
+    bbox: Bbox,
+    categories: FeatureCategory[] = [],
+  ): Promise<PoiRow[]> {
     const [west, south, east, north] = bbox;
+
+    const categoryFilter = categories.length
+      ? 'AND p.categories && ARRAY[?]::text[]'
+      : '';
 
     return this.em.execute<PoiRow[]>(
       `
@@ -28,10 +35,13 @@ export class PoisRepository {
         CROSS JOIN bounds b
         WHERE p.marker_geom && b.area
           AND ST_Intersects(p.marker_geom, b.area)
+          ${categoryFilter}
         ORDER BY p.osm_type, p.osm_id
         LIMIT 200
         `,
-      [west, south, east, north],
+      categories.length
+        ? [west, south, east, north, categories]
+        : [west, south, east, north],
     );
   }
 }

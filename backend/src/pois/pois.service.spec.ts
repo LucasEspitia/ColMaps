@@ -10,7 +10,7 @@ describe('PoisService', () => {
 
   const bbox: Bbox = [-74.2, 4.5, -73.9, 4.8];
 
-  const findWithinMock = vi.fn<(bbox: Bbox) => Promise<PoiRow[]>>();
+  const findWithinMock = vi.fn<PoisRepository['findWithin']>();
 
   beforeEach(() => {
     findWithinMock.mockReset();
@@ -42,7 +42,7 @@ describe('PoisService', () => {
 
     const result = await service.findWithin(bbox);
 
-    expect(findWithinMock).toHaveBeenCalledExactlyOnceWith(bbox);
+    expect(findWithinMock).toHaveBeenCalledExactlyOnceWith(bbox, []);
 
     expect(result).toEqual({
       type: 'FeatureCollection',
@@ -68,7 +68,11 @@ describe('PoisService', () => {
   it('should return an empty FeatureCollection when no POIs are found', async () => {
     findWithinMock.mockResolvedValue([]);
 
-    const result = await service.findWithin(bbox);
+    const result = await service.findWithin(bbox, ['museums_culture']);
+
+    expect(findWithinMock).toHaveBeenCalledExactlyOnceWith(bbox, [
+      'museums_culture',
+    ]);
 
     expect(result).toEqual({
       type: 'FeatureCollection',

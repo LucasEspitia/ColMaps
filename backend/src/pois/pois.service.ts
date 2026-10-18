@@ -2,13 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { PoisRepository } from './repositories/pois.repository';
 import type { Bbox } from './types/bbox.type';
 import type { PoiFeatureCollection } from './types/poi.types';
+import { FeatureCategory } from './contracts/feature-category';
 
 @Injectable()
 export class PoisService {
   constructor(private readonly poisRepository: PoisRepository) {}
 
-  async findWithin(bbox: Bbox): Promise<PoiFeatureCollection> {
-    const rows = await this.poisRepository.findWithin(bbox);
+  async findWithin(
+    bbox: Bbox,
+    categories: FeatureCategory[] = [],
+  ): Promise<PoiFeatureCollection> {
+    const rows = await this.poisRepository.findWithin(bbox, categories);
 
     return {
       type: 'FeatureCollection',
