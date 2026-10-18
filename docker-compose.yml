@@ -92,6 +92,7 @@ services:
     container_name: colmaps-frontend
 
     environment:
+      BACKEND_URL: http://backend:3000
       NODE_ENV: development
       NG_ALLOWED_HOSTS: localhost
 
