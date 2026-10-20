@@ -17,6 +17,27 @@ export const FEATURE_CATEGORY_IDS = [
 
 export type FeatureCategory = (typeof FEATURE_CATEGORY_IDS)[number];
 
+export interface PoiSummary {
+  id: string;
+  name: string | null;
+
+  category: FeatureCategory;
+  categories: FeatureCategory[];
+
+  subcategory: string;
+
+  coordinates: [number, number];
+}
+
+export interface PoiDetail extends PoiSummary {
+  description?: string | null;
+  address?: string | null;
+  website?: string | null;
+  phone?: string | null;
+  openingHours?: string | null;
+  wheelchair?: string | null;
+}
+
 export interface PoiProperties {
   name: string | null;
   category: FeatureCategory;

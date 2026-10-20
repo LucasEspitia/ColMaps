@@ -1,10 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import type { Observable } from 'rxjs';
+import { throwError, type Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../../../core/config/api.config';
-import type { Bbox, FeatureCategory, PoiFeatureCollection } from './poi.types';
-
+import type { Bbox, FeatureCategory, PoiFeatureCollection, PoiDetail } from './poi.types';
 @Injectable({
   providedIn: 'root',
 })
@@ -22,5 +21,17 @@ export class PoiService {
     }
 
     return this.http.get<PoiFeatureCollection>(this.endpoint, { params });
+  }
+
+  getById(id: string): Observable<PoiDetail> {
+    const match = /^([NWR])\/(\d+)$/.exec(id);
+
+    if (!match) {
+      return throwError(() => new Error(`Invalid POI ID: ${id}`));
+    }
+
+    const [, osmType, osmId] = match;
+
+    return this.http.get<PoiDetail>(`${this.apiUrl}/${osmType}/${osmId}`);
   }
 }

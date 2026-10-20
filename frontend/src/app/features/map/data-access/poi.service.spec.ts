@@ -45,4 +45,21 @@ describe('PoiService', () => {
     expect(request.request.params.get('categories')).toBe('museums_culture,attractions');
     request.flush({ type: 'FeatureCollection', features: [] });
   });
+
+  it('should request the detail route for an OSM identity', () => {
+    service.getById('N/334407033').subscribe();
+
+    const request = http.expectOne(() => true);
+    request.flush({ id: 'N/334407033' });
+    expect(request.request.method).toBe('GET');
+    expect(request.request.url).toBe('/api/pois/N/334407033');
+  });
+
+  it('should reject a malformed identity without an HTTP request', () => {
+    const error = vi.fn();
+    service.getById('invalid-id').subscribe({ error });
+
+    expect(error).toHaveBeenCalledExactlyOnceWith(new Error('Invalid POI ID: invalid-id'));
+    http.expectNone(() => true);
+  });
 });
