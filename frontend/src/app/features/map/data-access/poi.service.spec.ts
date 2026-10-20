@@ -30,7 +30,7 @@ describe('PoiService', () => {
     const received = vi.fn();
     service.getWithin(bbox).subscribe(received);
 
-    const request = http.expectOne((req) => req.url === '/api/pois');
+    const request = http.expectOne((req) => req.url === '/api/poi');
     expect(request.request.method).toBe('GET');
     expect(request.request.params.get('bbox')).toBe('-74.2,4.5,-73.9,4.8');
     expect(request.request.params.has('categories')).toBe(false);
@@ -41,7 +41,7 @@ describe('PoiService', () => {
   it('should serialize selected categories as a comma-separated query parameter', () => {
     service.getWithin(bbox, ['museums_culture', 'attractions']).subscribe();
 
-    const request = http.expectOne((req) => req.url === '/api/pois');
+    const request = http.expectOne((req) => req.url === '/api/poi');
     expect(request.request.params.get('categories')).toBe('museums_culture,attractions');
     request.flush({ type: 'FeatureCollection', features: [] });
   });
@@ -52,14 +52,17 @@ describe('PoiService', () => {
     const request = http.expectOne(() => true);
     request.flush({ id: 'N/334407033' });
     expect(request.request.method).toBe('GET');
-    expect(request.request.url).toBe('/api/pois/N/334407033');
+    expect(request.request.url).toBe('/api/poi/N/334407033');
   });
 
-  it('should reject a malformed identity without an HTTP request', () => {
-    const error = vi.fn();
-    service.getById('invalid-id').subscribe({ error });
+  it.each(['invalid-id', 'N/0', 'N/01'])(
+    'should reject malformed identity %s without an HTTP request',
+    (id) => {
+      const error = vi.fn();
+      service.getById(id).subscribe({ error });
 
-    expect(error).toHaveBeenCalledExactlyOnceWith(new Error('Invalid POI ID: invalid-id'));
-    http.expectNone(() => true);
-  });
+      expect(error).toHaveBeenCalledExactlyOnceWith(new Error('Invalid POI ID'));
+      http.expectNone(() => true);
+    },
+  );
 });
