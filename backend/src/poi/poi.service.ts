@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { PoisRepository } from './repositories/pois.repository';
+import { PoiRepository } from './repositories/pois.repository';
 import { toPoiDetail, toPoiFeatureCollection } from './mappers/poi.mapper';
 
 import type { FeatureCategory } from './contracts/feature-category';
@@ -13,8 +13,8 @@ import type { Bbox } from './types/bbox.type';
 import type { PoiFeatureCollection } from './types/poi.types';
 
 @Injectable()
-export class PoisService {
-  constructor(private readonly poisRepository: PoisRepository) {}
+export class PoiService {
+  constructor(private readonly poiRepository: PoiRepository) {}
 
   async findById(osmType: string, osmId: string): Promise<PoiDetail> {
     const validType = /^[NWR]$/.test(osmType);
@@ -26,7 +26,7 @@ export class PoisService {
       throw new BadRequestException('Invalid OSM identity');
     }
 
-    const row = await this.poisRepository.findById(osmType, osmId);
+    const row = await this.poiRepository.findById(osmType, osmId);
 
     if (!row) {
       throw new NotFoundException('POI not found');
@@ -39,7 +39,7 @@ export class PoisService {
     bbox: Bbox,
     categories: FeatureCategory[] = [],
   ): Promise<PoiFeatureCollection> {
-    const rows = await this.poisRepository.findWithin(bbox, categories);
+    const rows = await this.poiRepository.findWithin(bbox, categories);
 
     return toPoiFeatureCollection(rows);
   }

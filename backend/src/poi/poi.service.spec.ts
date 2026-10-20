@@ -1,18 +1,18 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { PoisService } from './pois.service';
-import type { PoisRepository } from './repositories/pois.repository';
+import { PoiService } from './poi.service';
+import type { PoiRepository } from './repositories/pois.repository';
 import type { Bbox } from './types/bbox.type';
 import type { PoiDetailRow, PoiRow } from './types/poi.types';
 
-describe('PoisService', () => {
-  let service: PoisService;
+describe('PoiService', () => {
+  let service: PoiService;
 
   const bbox: Bbox = [-74.2, 4.5, -73.9, 4.8];
 
-  const findWithinMock = vi.fn<PoisRepository['findWithin']>();
-  const findByIdMock = vi.fn<PoisRepository['findById']>();
+  const findWithinMock = vi.fn<PoiRepository['findWithin']>();
+  const findByIdMock = vi.fn<PoiRepository['findById']>();
 
   beforeEach(() => {
     findWithinMock.mockReset();
@@ -21,9 +21,9 @@ describe('PoisService', () => {
     const repository = {
       findWithin: findWithinMock,
       findById: findByIdMock,
-    } as unknown as PoisRepository;
+    } as unknown as PoiRepository;
 
-    service = new PoisService(repository);
+    service = new PoiService(repository);
   });
 
   describe('findWithin', () => {

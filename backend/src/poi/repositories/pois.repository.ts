@@ -6,7 +6,7 @@ import type { PoiDetailRow, PoiRow } from '../types/poi.types';
 import { FeatureCategory } from '../contracts/feature-category';
 
 @Injectable()
-export class PoisRepository {
+export class PoiRepository {
   constructor(private readonly em: EntityManager) {}
   // * Find POIs by OSM type and ID
   async findById(osmType: string, osmId: string): Promise<PoiDetailRow | null> {

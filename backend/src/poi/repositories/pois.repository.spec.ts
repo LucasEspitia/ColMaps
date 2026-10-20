@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EntityManager } from '@mikro-orm/postgresql';
 
-import { PoisRepository } from './pois.repository';
+import { PoiRepository } from './pois.repository';
 
 import type { Bbox } from '../types/bbox.type';
 import type { PoiDetailRow, PoiRow } from '../types/poi.types';
 import type { FeatureCategory } from '../contracts/feature-category';
 
 describe('PoisRepository', () => {
-  let repository: PoisRepository;
+  let repository: PoiRepository;
 
   type QueryParams = (number | string | FeatureCategory[])[];
   type QueryRows = PoiRow[] | PoiDetailRow[];
@@ -25,7 +25,7 @@ describe('PoisRepository', () => {
       execute: executeMock,
     } as unknown as EntityManager;
 
-    repository = new PoisRepository(em);
+    repository = new PoiRepository(em);
   });
 
   describe('findWithin', () => {

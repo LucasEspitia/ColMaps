@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { PoisController } from './pois.controller';
+import { PoiController } from './poi.controller';
 import type { PoiDetail } from './contracts/poi-detail';
-import type { PoisService } from './pois.service';
+import type { PoiService } from './poi.service';
 import type { Bbox } from './types/bbox.type';
 import type { PoiFeatureCollection } from './types/poi.types';
 import { FeatureCategory } from './contracts/feature-category';
 
-describe('PoisController', () => {
+describe('PoiController', () => {
   it('should delegate the bbox to the service and return its result', async () => {
     const bbox: Bbox = [-74.2, 4.5, -73.9, 4.8];
     const categories: FeatureCategory[] = ['attractions', 'museums_culture'];
@@ -28,9 +28,9 @@ describe('PoisController', () => {
 
     const service = {
       findWithin,
-    } as unknown as PoisService;
+    } as unknown as PoiService;
 
-    const controller = new PoisController(service);
+    const controller = new PoiController(service);
 
     const result = await controller.findWithin(bbox, categories);
 
@@ -57,14 +57,14 @@ describe('PoisController', () => {
       wheelchair: 'yes',
     };
 
-    const findById = vi.fn<PoisService['findById']>();
+    const findById = vi.fn<PoiService['findById']>();
     findById.mockResolvedValue(expected);
 
     const service = {
       findById,
-    } as unknown as PoisService;
+    } as unknown as PoiService;
 
-    const controller = new PoisController(service);
+    const controller = new PoiController(service);
 
     const result = await controller.findById(osmType, osmId);
 

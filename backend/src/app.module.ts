@@ -6,7 +6,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import mikroOrmConfig from '../mikro-orm.config';
 
 import { AppController } from './app.controller';
-import { PoisModule } from './pois/pois.module';
+import { PoiModule } from './poi/poi.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { PoisModule } from './pois/pois.module';
 
     MikroOrmModule.forRoot(mikroOrmConfig),
 
-    PoisModule,
+    PoiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
