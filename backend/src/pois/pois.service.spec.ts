@@ -12,7 +12,6 @@ describe('PoisService', () => {
   const bbox: Bbox = [-74.2, 4.5, -73.9, 4.8];
 
   const findWithinMock = vi.fn<PoisRepository['findWithin']>();
-
   const findByIdMock = vi.fn<PoisRepository['findById']>();
 
   beforeEach(() => {
@@ -27,85 +26,92 @@ describe('PoisService', () => {
     service = new PoisService(repository);
   });
 
-  it('should transform POI rows into a GeoJSON FeatureCollection', async () => {
-    const rows: PoiRow[] = [
-      {
-        osm_type: 'node',
-        osm_id: '123',
-        name: 'Museo del Oro',
-        primary_category: 'museums_culture',
-        categories: ['museums_culture', 'attractions'],
-        subcategory: 'museum',
-        geometry: {
-          type: 'Point',
-          coordinates: [-74.07, 4.6],
-        },
-      },
-    ];
-
-    findWithinMock.mockResolvedValue(rows);
-
-    const result = await service.findWithin(bbox);
-
-    expect(findWithinMock).toHaveBeenCalledExactlyOnceWith(bbox, []);
-
-    expect(result).toEqual({
-      type: 'FeatureCollection',
-      features: [
+  describe('findWithin', () => {
+    it('should transform POI rows into a GeoJSON FeatureCollection', async () => {
+      const rows: PoiRow[] = [
         {
-          type: 'Feature',
-          id: 'node/123',
-          geometry: {
-            type: 'Point',
-            coordinates: [-74.07, 4.6],
-          },
-          properties: {
-            name: 'Museo del Oro',
-            category: 'museums_culture',
-            categories: ['museums_culture', 'attractions'],
-            subcategory: 'museum',
-          },
-        },
-      ],
-    });
-  });
-
-  it('should return an empty FeatureCollection when no POIs are found', async () => {
-    findWithinMock.mockResolvedValue([]);
-
-    const result = await service.findWithin(bbox, ['museums_culture']);
-
-    expect(findWithinMock).toHaveBeenCalledExactlyOnceWith(bbox, [
-      'museums_culture',
-    ]);
-
-    expect(result).toEqual({
-      type: 'FeatureCollection',
-      features: [],
-    });
-  });
-
-  describe('findById', () => {
-    it.each(['N', 'W', 'R'])(
-      'should map the detail for OSM type %s',
-      async (osmType) => {
-        const row: PoiDetailRow = {
-          osm_type: osmType,
-          osm_id: '9223372036854775807',
+          osm_type: 'N',
+          osm_id: '123',
           name: 'Museo del Oro',
           primary_category: 'museums_culture',
           categories: ['museums_culture', 'attractions'],
           subcategory: 'museum',
-          geometry: { type: 'Point', coordinates: [-74.07, 4.6] },
-          longitude: -74.07,
-          latitude: 4.6,
-          description: 'Gold museum',
-          address: null,
-          website: 'https://example.com',
-          phone: null,
-          opening_hours: 'Tu-Su 09:00-18:00',
-          wheelchair: 'yes',
+          geometry: {
+            type: 'Point',
+            coordinates: [-74.07, 4.6],
+          },
+        },
+      ];
+
+      findWithinMock.mockResolvedValue(rows);
+
+      const result = await service.findWithin(bbox);
+
+      expect(findWithinMock).toHaveBeenCalledExactlyOnceWith(bbox, []);
+
+      expect(result).toEqual({
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            id: 'N/123',
+            geometry: {
+              type: 'Point',
+              coordinates: [-74.07, 4.6],
+            },
+            properties: {
+              name: 'Museo del Oro',
+              category: 'museums_culture',
+              categories: ['museums_culture', 'attractions'],
+              subcategory: 'museum',
+            },
+          },
+        ],
+      });
+    });
+
+    it('should return an empty FeatureCollection when no POIs are found', async () => {
+      findWithinMock.mockResolvedValue([]);
+
+      const result = await service.findWithin(bbox, ['museums_culture']);
+
+      expect(findWithinMock).toHaveBeenCalledExactlyOnceWith(bbox, [
+        'museums_culture',
+      ]);
+
+      expect(result).toEqual({
+        type: 'FeatureCollection',
+        features: [],
+      });
+    });
+  });
+
+  describe('findById', () => {
+    const baseRow: PoiDetailRow = {
+      osm_type: 'N',
+      osm_id: '9223372036854775807',
+      name: 'Museo del Oro',
+      primary_category: 'museums_culture',
+      categories: ['museums_culture', 'attractions'],
+      subcategory: 'museum',
+      longitude: -74.07,
+      latitude: 4.6,
+      tags: {
+        description: 'Gold museum',
+        website: 'https://example.com',
+        opening_hours: 'Tu-Su 09:00-18:00',
+        wheelchair: 'yes',
+      },
+    };
+
+    it.each(['N', 'W', 'R'])(
+      'should return the mapped detail for OSM type %s',
+      async (osmType) => {
+        const row: PoiDetailRow = {
+          ...baseRow,
+          osm_type: osmType,
         };
+
         findByIdMock.mockResolvedValue(row);
 
         const result = await service.findById(osmType, row.osm_id);
@@ -114,22 +120,69 @@ describe('PoisService', () => {
           osmType,
           row.osm_id,
         );
+
         expect(result).toEqual({
           id: `${osmType}/${row.osm_id}`,
-          name: row.name,
-          category: row.primary_category,
-          categories: row.categories,
-          subcategory: row.subcategory,
+          name: 'Museo del Oro',
+          category: 'museums_culture',
+          categories: ['museums_culture', 'attractions'],
+          subcategory: 'museum',
           coordinates: [-74.07, 4.6],
-          description: row.description,
+
+          description: 'Gold museum',
           address: null,
-          website: row.website,
+          website: 'https://example.com',
           phone: null,
-          openingHours: row.opening_hours,
+          email: null,
+          facebook: null,
+
+          openingHours: 'Tu-Su 09:00-18:00',
           wheelchair: 'yes',
+          image: null,
+
+          brand: null,
+          operator: null,
+          stars: null,
+          rooms: null,
+
+          internetAccess: null,
+          internetAccessFee: null,
+          reservation: null,
+          smoking: null,
+
+          airConditioning: null,
+          bar: null,
+          acceptsCreditCards: null,
+          acceptsDebitCards: null,
         });
       },
     );
+
+    it('should return null metadata fields when tags are missing', async () => {
+      const row: PoiDetailRow = {
+        ...baseRow,
+        tags: null,
+      };
+
+      findByIdMock.mockResolvedValue(row);
+
+      const result = await service.findById(row.osm_type, row.osm_id);
+
+      expect(result.id).toBe('N/9223372036854775807');
+      expect(result.name).toBe('Museo del Oro');
+      expect(result.coordinates).toEqual([-74.07, 4.6]);
+
+      expect(result.description).toBeNull();
+      expect(result.address).toBeNull();
+      expect(result.website).toBeNull();
+      expect(result.phone).toBeNull();
+      expect(result.image).toBeNull();
+      expect(result.stars).toBeNull();
+      expect(result.rooms).toBeNull();
+      expect(result.airConditioning).toBeNull();
+
+      expect(findByIdMock).toHaveBeenCalledExactlyOnceWith('N', row.osm_id);
+    });
 
     it.each([
       ['node', '123'],
@@ -149,16 +202,18 @@ describe('PoisService', () => {
         await expect(service.findById(osmType, osmId)).rejects.toThrow(
           BadRequestException,
         );
+
         expect(findByIdMock).not.toHaveBeenCalled();
       },
     );
 
-    it('should throw when the POI does not exist', async () => {
+    it('should throw NotFoundException when the POI does not exist', async () => {
       findByIdMock.mockResolvedValue(null);
 
       await expect(service.findById('N', '1')).rejects.toThrow(
         NotFoundException,
       );
+
       expect(findByIdMock).toHaveBeenCalledExactlyOnceWith('N', '1');
     });
   });

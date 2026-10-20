@@ -12,61 +12,33 @@ export class PoisRepository {
   async findById(osmType: string, osmId: string): Promise<PoiDetailRow | null> {
     const rows = await this.em.execute<PoiDetailRow[]>(
       `
-    SELECT
-      p.osm_type::text AS osm_type,
-      p.osm_id::text AS osm_id,
-      p.name,
-      p.primary_category,
-      p.categories,
-      p.subcategory,
+        SELECT
+          p.osm_type::text AS osm_type,
+          p.osm_id::text AS osm_id,
+          p.name,
+          p.primary_category,
+          p.categories,
+          p.subcategory,
 
-      ST_X(p.marker_geom) AS longitude,
-      ST_Y(p.marker_geom) AS latitude,
+          ST_X(p.marker_geom) AS longitude,
+          ST_Y(p.marker_geom) AS latitude,
 
-      f.tags->>'description' AS description,
+          f.tags AS tags
 
-      NULLIF(
-        CONCAT_WS(
-          ', ',
-          NULLIF(
-            CONCAT_WS(
-              ' ',
-              f.tags->>'addr:street',
-              f.tags->>'addr:housenumber'
-            ),
-            ''
-          ),
-          f.tags->>'addr:city'
-        ),
-        ''
-      ) AS address,
+        FROM public.pois p
 
-      COALESCE(
-        f.tags->>'website',
-        f.tags->>'contact:website'
-      ) AS website,
+        LEFT JOIN public.osm_features f
+          ON f.osm_type = p.osm_type
+          AND f.osm_id = p.osm_id
 
-      COALESCE(
-        f.tags->>'phone',
-        f.tags->>'contact:phone'
-      ) AS phone,
+        WHERE p.osm_type = ?
+          AND p.osm_id = ?::bigint
 
-      f.tags->>'opening_hours' AS opening_hours,
-      f.tags->>'wheelchair' AS wheelchair
-
-    FROM public.pois p
-
-    LEFT JOIN public.osm_features f
-      ON f.osm_type = p.osm_type
-      AND f.osm_id = p.osm_id
-
-    WHERE p.osm_type = ?
-      AND p.osm_id = ?::bigint
-
-    LIMIT 1
-    `,
+        LIMIT 1
+      `,
       [osmType, osmId],
     );
+
     return rows[0] ?? null;
   }
 

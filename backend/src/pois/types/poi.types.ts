@@ -1,33 +1,34 @@
 import type { FeatureCategory } from '../contracts/feature-category';
 
-export interface PoiDetailRow extends PoiRow {
-  longitude: number;
-  latitude: number;
-  description: string | null;
-  address: string | null;
-  website: string | null;
-  phone: string | null;
-  opening_hours: string | null;
-  wheelchair: string | null;
-}
-
-export interface PoiRow {
+interface PoiBaseRow {
   osm_type: string;
   osm_id: string;
   name: string | null;
+
   primary_category: FeatureCategory;
   categories: FeatureCategory[];
   subcategory: string;
+}
+
+export interface PoiRow extends PoiBaseRow {
   geometry: {
     type: 'Point';
     coordinates: [number, number];
   };
 }
 
+export interface PoiDetailRow extends PoiBaseRow {
+  longitude: number;
+  latitude: number;
+
+  tags: Record<string, unknown> | null;
+}
+
 export interface PoiFeature {
   type: 'Feature';
   id: string;
   geometry: PoiRow['geometry'];
+
   properties: {
     name: PoiRow['name'];
     category: PoiRow['primary_category'];
