@@ -6,6 +6,7 @@ import {
   inject,
   NgZone,
   viewChild,
+  output,
 } from '@angular/core';
 
 import { GeoJSONSource, Map, setWorkerUrl } from 'maplibre-gl';
@@ -13,6 +14,7 @@ import { Subscription } from 'rxjs';
 
 import { PoiService } from '../../data-access/poi.service';
 import type { Bbox } from '../../data-access/poi.types';
+import { PoiSelection } from '../../models/poi-selection';
 
 @Component({
   selector: 'app-map-canvas',
@@ -31,6 +33,8 @@ export class MapCanvas {
   private map?: Map;
   private poiRequest?: Subscription;
 
+  readonly poiSelected = output<PoiSelection>();
+
   constructor() {
     afterNextRender({
       write: () => {
@@ -48,6 +52,14 @@ export class MapCanvas {
     });
   }
 
+  private getPoiSelectionFromProperties(properties: Record<string, unknown>): PoiSelection {
+    return {
+      id: typeof properties['poiId'] === 'string' ? properties['poiId'] : '',
+      name: typeof properties['name'] === 'string' ? properties['name'] : null,
+      category: String(properties['category'] ?? ''),
+    };
+  }
+
   private initializeMap(): void {
     this.map = new Map({
       container: this.mapContainer().nativeElement,
@@ -59,6 +71,20 @@ export class MapCanvas {
     this.map.on('load', () => {
       this.initializePoiLayer();
       this.loadPois();
+
+      this.map?.on('click', 'poi-points', (event) => {
+        const properties = event.features?.[0]?.properties;
+
+        if (!properties || typeof properties['poiId'] !== 'string') {
+          return;
+        }
+
+        const selection = this.getPoiSelectionFromProperties(properties);
+
+        this.zone.run(() => {
+          this.poiSelected.emit(selection);
+        });
+      });
     });
 
     this.map.on('moveend', () => {
@@ -101,10 +127,21 @@ export class MapCanvas {
 
     this.poiRequest = this.poiService.getWithin(bbox).subscribe({
       next: (collection) => {
+        const mapCollection = {
+          ...collection,
+          features: collection.features.map((feature) => ({
+            ...feature,
+            properties: {
+              ...feature.properties,
+              poiId: feature.id,
+            },
+          })),
+        };
+
         const source = this.map?.getSource('pois');
 
         if (source instanceof GeoJSONSource) {
-          void source.setData(collection).catch((error: unknown) => {
+          void source.setData(mapCollection).catch((error: unknown) => {
             console.error('Failed to update POI layer:', error);
           });
         }

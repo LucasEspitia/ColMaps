@@ -16,7 +16,10 @@ vi.mock('maplibre-gl', () => ({
 
 describe('MapCanvas', () => {
   let fixture: ComponentFixture<MapCanvas>;
-  let events: Record<string, () => void>;
+  interface ClickEvent {
+    features?: { properties?: Record<string, unknown> }[];
+  }
+  let events: Record<string, (event?: ClickEvent) => void>;
   let source: GeoJSONSource;
   const getWithin = vi.fn<PoiService['getWithin']>();
   const map = {
@@ -38,9 +41,15 @@ describe('MapCanvas', () => {
     events = {};
     source = Object.create(GeoJSONSource.prototype) as GeoJSONSource;
     source.setData = vi.fn().mockResolvedValue(undefined);
-    map.on.mockImplementation((event: string, callback: () => void) => {
-      events[event] = callback;
-    });
+    map.on.mockImplementation(
+      (
+        event: string,
+        layerOrCallback: string | ((event?: ClickEvent) => void),
+        callback?: (event?: ClickEvent) => void,
+      ) => {
+        events[event] = typeof layerOrCallback === 'function' ? layerOrCallback : callback!;
+      },
+    );
     map.getSource.mockReturnValue(undefined);
     map.addSource.mockImplementation(() => map.getSource.mockReturnValue(source));
     vi.mocked(Map).mockImplementation(function () {
@@ -80,9 +89,70 @@ describe('MapCanvas', () => {
       }),
     );
     expect(getWithin).toHaveBeenCalledExactlyOnceWith([-74.2, 4.5, -73.9, 4.8]);
-    const collection: PoiFeatureCollection = { type: 'FeatureCollection', features: [] };
+    const collection: PoiFeatureCollection = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          id: 'N/123',
+          geometry: { type: 'Point', coordinates: [-74.07, 4.6] },
+          properties: {
+            name: 'Museo',
+            category: 'museums_culture',
+            categories: ['museums_culture'],
+            subcategory: 'museum',
+          },
+        },
+      ],
+    };
     response.next(collection);
-    expect(source.setData).toHaveBeenCalledExactlyOnceWith(collection);
+    expect(source.setData).toHaveBeenCalledExactlyOnceWith({
+      ...collection,
+      features: [
+        {
+          ...collection.features[0],
+          properties: { ...collection.features[0].properties, poiId: 'N/123' },
+        },
+      ],
+    });
+    expect(collection.features[0].properties).not.toHaveProperty('poiId');
+  });
+
+  it('should emit the clicked POI identity and summary', () => {
+    render();
+    const selected = vi.fn();
+    fixture.componentInstance.poiSelected.subscribe(selected);
+    events['load']();
+
+    expect(map.on).toHaveBeenCalledWith('click', 'poi-points', expect.any(Function));
+    events['click']({
+      features: [{ properties: { poiId: 'N/123', name: 'Museo', category: 'museums_culture' } }],
+    });
+
+    expect(selected).toHaveBeenCalledExactlyOnceWith({
+      id: 'N/123',
+      name: 'Museo',
+      category: 'museums_culture',
+    });
+  });
+
+  it('should ignore clicks without a valid POI identity', () => {
+    render();
+    const selected = vi.fn();
+    fixture.componentInstance.poiSelected.subscribe(selected);
+    events['load']();
+
+    for (const event of [
+      {},
+      { features: [] },
+      { features: [{}] },
+      { features: [{ properties: {} }] },
+      { features: [{ properties: { poiId: 123 } }] },
+    ]) {
+      events['click'](event);
+    }
+
+    expect(selected).not.toHaveBeenCalled();
   });
 
   it('should cancel stale requests on movement and release resources on destruction', () => {

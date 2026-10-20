@@ -6,6 +6,6 @@
   </header>
 
   <div class="relative h-[70dvh] min-h-[420px] overflow-hidden rounded-2xl border shadow-sm">
-    <app-map-canvas class="block h-full w-full" />
+    <app-map-canvas class="block h-full w-full" (poiSelected)="onPoiSelected($event)" />
   </div>
 </section>
