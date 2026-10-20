@@ -1,0 +1,25 @@
+<article
+  class="w-full rounded-cm-lg border border-cm-border bg-cm-surface p-4 text-cm-on-surface"
+  aria-label="Selected point of interest"
+>
+  <div class="flex items-start justify-between gap-4">
+    <div class="min-w-0">
+      <h2 class="text-lg font-semibold">
+        {{ poi().name || 'Unnamed place' }}
+      </h2>
+
+      <p class="mt-1 text-sm text-cm-text-muted">
+        {{ poi().category }}
+      </p>
+    </div>
+
+    <button
+      tuiButtonX
+      type="button"
+      appearance="secondary"
+      size="s"
+      aria-label="Close place details"
+      (click)="closed.emit()"
+    ></button>
+  </div>
+</article>
