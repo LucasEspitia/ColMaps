@@ -1,10 +1,19 @@
 <tui-root tuiTheme="light">
-  <app-navbar />
-  <app-accessibility-panel />
+  <div
+    class="flex min-h-dvh flex-col bg-cm-background text-cm-text"
+    [class.h-dvh]="isFullscreen()"
+    [class.overflow-hidden]="isFullscreen()"
+  >
+    <app-navbar class="shrink-0" />
 
-  <main class="min-h-screen bg-cm-background text-cm-text">
-    <router-outlet />
-  </main>
+    <app-accessibility-panel />
 
-  <app-footer />
+    <main class="min-h-0 flex-1" [class.overflow-hidden]="isFullscreen()">
+      <router-outlet />
+    </main>
+
+    @if (!isFullscreen()) {
+      <app-footer />
+    }
+  </div>
 </tui-root>

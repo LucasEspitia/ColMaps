@@ -15,6 +15,9 @@ export const routes: Routes = [
     path: 'map',
     title: 'Map | ColMaps',
     loadComponent: () => import('./features/map/map').then((m) => m.MapComponent),
+    data: {
+      fullscreen: true,
+    },
   },
   {
     path: 'about',
