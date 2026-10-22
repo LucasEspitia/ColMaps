@@ -3,7 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { throwError, type Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../../../core/config/api.config';
-import type { Bbox, FeatureCategory, PoiFeatureCollection, PoiDetail } from './poi.types';
+import type { Bbox, PoiFeatureCollection, PoiDetail } from './poi.types';
+import type { FeatureCategory } from '../../../shared/poi/feature-category';
 @Injectable({
   providedIn: 'root',
 })

@@ -4,6 +4,7 @@ import { GeoJSONSource, Map, setWorkerUrl } from 'maplibre-gl';
 
 import { MapCanvas } from './map-canvas';
 import { PoiService } from '../../data-access/poi.service';
+import type { FeatureCategory } from '../../../../shared/poi/feature-category';
 import type { PoiFeatureCollection } from '../../data-access/poi.types';
 
 vi.mock('maplibre-gl', () => ({
@@ -88,7 +89,7 @@ describe('MapCanvas', () => {
         source: 'pois',
       }),
     );
-    expect(getWithin).toHaveBeenCalledExactlyOnceWith([-74.2, 4.5, -73.9, 4.8]);
+    expect(getWithin).toHaveBeenCalledExactlyOnceWith([-74.2, 4.5, -73.9, 4.8], []);
     const collection: PoiFeatureCollection = {
       type: 'FeatureCollection',
       features: [
@@ -116,6 +117,70 @@ describe('MapCanvas', () => {
       ],
     });
     expect(collection.features[0].properties).not.toHaveProperty('poiId');
+  });
+
+  it('should use the latest categories on load without requesting POIs before the source exists', () => {
+    fixture = TestBed.createComponent(MapCanvas);
+    fixture.componentRef.setInput('categories', ['museums_culture']);
+    fixture.detectChanges();
+    const categories: FeatureCategory[] = ['nature', 'viewpoints'];
+    fixture.componentRef.setInput('categories', categories);
+    fixture.detectChanges();
+
+    expect(getWithin).not.toHaveBeenCalled();
+
+    events['load']();
+
+    expect(getWithin).toHaveBeenCalledExactlyOnceWith([-74.2, 4.5, -73.9, 4.8], categories);
+  });
+
+  it('should reload on category changes, cancel stale requests and preserve filters on movement', () => {
+    const unfiltered = new Subject<PoiFeatureCollection>();
+    const filtered = new Subject<PoiFeatureCollection>();
+    const moved = new Subject<PoiFeatureCollection>();
+    const cleared = new Subject<PoiFeatureCollection>();
+    getWithin
+      .mockReturnValueOnce(unfiltered)
+      .mockReturnValueOnce(filtered)
+      .mockReturnValueOnce(moved)
+      .mockReturnValueOnce(cleared);
+    render();
+    events['load']();
+    expect(unfiltered.observed).toBe(true);
+
+    const categories: FeatureCategory[] = ['museums_culture', 'nature'];
+    fixture.componentRef.setInput('categories', categories);
+    fixture.detectChanges();
+
+    expect(unfiltered.observed).toBe(false);
+    expect(filtered.observed).toBe(true);
+    expect(getWithin).toHaveBeenCalledTimes(2);
+    expect(getWithin).toHaveBeenLastCalledWith([-74.2, 4.5, -73.9, 4.8], categories);
+
+    events['moveend']();
+
+    expect(filtered.observed).toBe(false);
+    expect(moved.observed).toBe(true);
+    expect(getWithin).toHaveBeenCalledTimes(3);
+    expect(getWithin).toHaveBeenLastCalledWith([-74.2, 4.5, -73.9, 4.8], categories);
+
+    fixture.componentRef.setInput('categories', []);
+    fixture.detectChanges();
+
+    expect(moved.observed).toBe(false);
+    expect(cleared.observed).toBe(true);
+    expect(getWithin).toHaveBeenCalledTimes(4);
+    expect(getWithin).toHaveBeenLastCalledWith([-74.2, 4.5, -73.9, 4.8], []);
+
+    unfiltered.next({ type: 'FeatureCollection', features: [] });
+    filtered.next({ type: 'FeatureCollection', features: [] });
+    moved.next({ type: 'FeatureCollection', features: [] });
+    expect(source.setData).not.toHaveBeenCalled();
+    cleared.next({ type: 'FeatureCollection', features: [] });
+    expect(source.setData).toHaveBeenCalledExactlyOnceWith({
+      type: 'FeatureCollection',
+      features: [],
+    });
   });
 
   it('should emit the clicked POI identity and summary', () => {

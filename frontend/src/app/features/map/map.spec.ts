@@ -9,11 +9,20 @@ import { By } from '@angular/platform-browser';
 import { MapCanvas } from './components/map-canvas/map-canvas';
 import { PoiPreview } from './components/poi-preview/poi-preview';
 import { MapComponent } from './map';
+import { MapToolbar } from './components/map-toolbar/map-toolbar';
+import type { FeatureCategory } from '../../shared/poi/feature-category';
 import type { PoiSelection } from './models/poi-selection';
 
 @Component({ selector: 'app-map-canvas', template: '' })
 class MapCanvasStub {
+  readonly categories = input<readonly FeatureCategory[]>([]);
   readonly poiSelected = output<PoiSelection>();
+}
+
+@Component({ selector: 'app-map-toolbar', template: '' })
+class MapToolbarStub {
+  readonly selectedCategories = input.required<readonly FeatureCategory[]>();
+  readonly categoriesChanged = output<FeatureCategory[]>();
 }
 
 @Component({ selector: 'app-poi-preview', template: '' })
@@ -34,9 +43,35 @@ describe('MapComponent', () => {
       providers: [{ provide: PoiService, useValue: { getById } }],
     });
     TestBed.overrideComponent(MapComponent, {
-      remove: { imports: [MapCanvas, PoiPreview] },
-      add: { imports: [MapCanvasStub, PoiPreviewStub] },
+      remove: { imports: [MapCanvas, PoiPreview, MapToolbar] },
+      add: { imports: [MapCanvasStub, PoiPreviewStub, MapToolbarStub] },
     });
+  });
+
+  it('should synchronize category selection and clearing between the toolbar and canvas', () => {
+    const fixture = TestBed.createComponent(MapComponent);
+    fixture.detectChanges();
+    const toolbar = fixture.debugElement.query(By.directive(MapToolbarStub))
+      .componentInstance as MapToolbarStub;
+    const canvas = fixture.debugElement.query(By.directive(MapCanvasStub))
+      .componentInstance as MapCanvasStub;
+
+    expect(toolbar.selectedCategories()).toEqual([]);
+    expect(canvas.categories()).toEqual([]);
+
+    const categories: FeatureCategory[] = ['museums_culture', 'nature'];
+    toolbar.categoriesChanged.emit(categories);
+    fixture.detectChanges();
+
+    expect(toolbar.selectedCategories()).toEqual(categories);
+    expect(canvas.categories()).toEqual(categories);
+
+    toolbar.categoriesChanged.emit([]);
+    fixture.detectChanges();
+
+    expect(toolbar.selectedCategories()).toEqual([]);
+    expect(canvas.categories()).toEqual([]);
+    expect(getById).not.toHaveBeenCalled();
   });
 
   it('should show the selected POI preview and reset selection and state when closed', () => {
@@ -45,8 +80,6 @@ describe('MapComponent', () => {
     const fixture = TestBed.createComponent(MapComponent);
     fixture.detectChanges();
 
-    const page = fixture.nativeElement as HTMLElement;
-    expect(page.querySelector('h1')?.textContent).toBe('Explore Colombia');
     const canvases = fixture.debugElement.queryAll(By.directive(MapCanvasStub));
     expect(canvases).toHaveLength(1);
     expect(fixture.debugElement.query(By.directive(PoiPreviewStub))).toBeNull();

@@ -4,7 +4,9 @@ import { catchError, map, of, startWith, switchMap } from 'rxjs';
 
 import { MapCanvas } from './components/map-canvas/map-canvas';
 import { PoiPreview } from './components/poi-preview/poi-preview';
+import { MapToolbar } from './components/map-toolbar/map-toolbar';
 
+import type { FeatureCategory } from '../../shared/poi/feature-category';
 import type { PoiDetailState } from './models/poi-detail-state';
 import { PoiSelection } from './models/poi-selection';
 
@@ -12,13 +14,18 @@ import { PoiService } from './data-access/poi.service';
 
 @Component({
   selector: 'app-map',
-  imports: [MapCanvas, PoiPreview],
+  imports: [MapCanvas, PoiPreview, MapToolbar],
   templateUrl: './map.html',
+  host: {
+    class: 'block h-full min-h-0 w-full',
+  },
 })
 export class MapComponent {
   private readonly poiService = inject(PoiService);
 
   protected readonly selectedPoi = signal<PoiSelection | null>(null);
+
+  protected readonly selectedCategories = signal<FeatureCategory[]>([]);
 
   protected readonly poiDetailState = toSignal(
     toObservable(this.selectedPoi).pipe(
@@ -46,5 +53,9 @@ export class MapComponent {
 
   protected closePoiPreview(): void {
     this.selectedPoi.set(null);
+  }
+
+  protected onCategoriesChanged(categories: FeatureCategory[]): void {
+    this.selectedCategories.set(categories);
   }
 }

@@ -1,0 +1,16 @@
+:host .cm-filter-chip[data-appearance='custom'] {
+  background: var(--cm-surface);
+  color: var(--cm-on-surface);
+  border: 1px solid var(--cm-border);
+  box-shadow: var(--cm-shadow-sm, none);
+}
+
+:host .cm-filter-chip {
+  min-block-size: 2.75rem;
+  max-inline-size: 100%;
+}
+
+:host .cm-remove-filter {
+  min-inline-size: 2.75rem;
+  min-block-size: 2.75rem;
+}

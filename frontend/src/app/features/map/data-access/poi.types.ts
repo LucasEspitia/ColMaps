@@ -1,22 +1,5 @@
 import type { Feature, FeatureCollection, Point } from 'geojson';
-
-export const FEATURE_CATEGORY_IDS = [
-  'attractions',
-  'museums_culture',
-  'history_heritage',
-  'viewpoints',
-  'nature',
-  'parks_recreation',
-  'food_drink',
-  'accommodation',
-  'entertainment',
-  'markets_shopping',
-  'health_pharmacy',
-  'transport_travel',
-] as const;
-
-export type FeatureCategory = (typeof FEATURE_CATEGORY_IDS)[number];
-
+import type { FeatureCategory } from '../../../shared/poi/feature-category';
 export interface PoiSummary {
   id: string;
   name: string | null;

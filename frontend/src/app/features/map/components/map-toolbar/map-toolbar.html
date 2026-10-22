@@ -1,0 +1,161 @@
+<div
+  class="relative flex max-w-full flex-col items-start gap-2"
+  (tuiActiveZoneChange)="onActiveZoneChange($event)"
+>
+  <!-- Floating control dock -->
+  <div
+    class="inline-flex max-w-full items-center rounded-cm-lg border border-cm-border bg-cm-surface p-1.5 shadow-cm-md"
+  >
+    <button
+      #categoriesTrigger
+      tuiButton
+      type="button"
+      appearance="primary"
+      size="m"
+      iconStart="@tui.sliders-horizontal"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="open() ? 'poi-category-panel' : null"
+      [attr.aria-label]="
+        'Categories: filter points of interest, ' + selectedCategories().length + ' selected'
+      "
+      (click)="toggleDropdown()"
+    >
+      Categories
+
+      @if (selectedCategories().length > 0) {
+        ({{ selectedCategories().length }})
+      }
+    </button>
+  </div>
+
+  <!-- Inline disclosure panel -->
+  @if (open()) {
+    <section
+      id="poi-category-panel"
+      role="region"
+      aria-labelledby="poi-category-heading"
+      class="@container absolute left-0 top-full z-30 mt-2 flex w-[min(32rem,calc(100vw-2rem))] max-h-[min(52dvh,30rem)] flex-col overflow-hidden rounded-cm-lg border border-cm-border bg-cm-surface p-4 text-cm-on-surface shadow-cm-md"
+    >
+      <!-- Header -->
+      <header class="mb-4 flex shrink-0 items-start justify-between gap-3">
+        <div class="space-y-1">
+          <h1 id="poi-category-heading" class="text-base font-semibold">Explore by category</h1>
+
+          <p class="text-xs text-cm-text-muted">Choose the places you want to discover</p>
+        </div>
+
+        <button
+          type="button"
+          class="min-h-11 shrink-0 rounded-cm-sm px-2 py-1 text-xs font-medium text-cm-primary hover:bg-cm-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus disabled:opacity-50"
+          [disabled]="selectedCategories().length === 0"
+          (click)="clearFilters()"
+        >
+          Clear all
+        </button>
+      </header>
+
+      <!-- Scrollable categories -->
+      <tui-scrollbar class="min-h-0 flex-1 overscroll-contain" role="group" aria-label="Categories">
+        <div class="grid grid-cols-1 gap-2 py-1 pl-1 pr-3 @min-[23.5rem]:grid-cols-2">
+          @for (category of categories; track category.id) {
+            <button
+              type="button"
+              class="flex min-h-14 w-full items-center gap-2 rounded-cm-md border p-2.5 text-left transition-colors hover:bg-cm-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
+              [class.border-cm-primary]="isSelected(category.id)"
+              [class.bg-cm-surface-pressed]="isSelected(category.id)"
+              [class.border-cm-border]="!isSelected(category.id)"
+              [class.bg-cm-surface]="!isSelected(category.id)"
+              [attr.aria-pressed]="isSelected(category.id)"
+              (click)="toggleCategory(category.id)"
+            >
+              <!-- Icon -->
+              <span
+                class="grid size-9 shrink-0 place-items-center rounded-cm-sm"
+                [class.bg-cm-primary]="isSelected(category.id)"
+                [class.text-cm-on-primary]="isSelected(category.id)"
+                [class.bg-cm-surface-hover]="!isSelected(category.id)"
+                [class.text-cm-text-muted]="!isSelected(category.id)"
+              >
+                <tui-icon [icon]="category.icon" aria-hidden="true" />
+              </span>
+
+              <!-- Label -->
+              <span class="min-w-0 flex-1 text-xs font-medium">
+                {{ category.label }}
+              </span>
+
+              <!-- Selected indicator -->
+              @if (isSelected(category.id)) {
+                <tui-icon
+                  icon="@tui.check-circle-2"
+                  class="shrink-0 text-cm-primary"
+                  aria-hidden="true"
+                />
+              }
+            </button>
+          }
+        </div>
+      </tui-scrollbar>
+
+      <!-- Footer -->
+      <footer
+        class="mt-4 flex shrink-0 items-center justify-between gap-3 border-t border-cm-border pt-3"
+      >
+        <span class="text-xs text-cm-text-muted"> {{ selectedCategories().length }} selected </span>
+
+        <button tuiButton type="button" appearance="primary" size="m" (click)="closeDropdown()">
+          Done
+        </button>
+      </footer>
+    </section>
+  }
+
+  <!-- Screen reader announcement -->
+  <span class="sr-only" role="status">
+    {{ selectedCategories().length }} category filters selected
+  </span>
+
+  <!-- Active filters -->
+  @if (!open() && activeCategories().length > 0) {
+    <div
+      class="flex max-w-full flex-wrap items-center gap-1.5"
+      role="group"
+      aria-label="Active category filters"
+    >
+      @for (category of visibleCategories(); track category.id) {
+        <span tuiChip size="s" appearance="custom" class="cm-filter-chip max-w-full">
+          <span class="inline-flex min-w-0 items-center gap-2">
+            <tui-icon [icon]="category.icon" class="shrink-0" aria-hidden="true" />
+
+            <span class="truncate text-xs font-medium">
+              {{ category.label }}
+            </span>
+          </span>
+
+          <button
+            tuiIconButton
+            type="button"
+            iconStart="@tui.x"
+            appearance="icon"
+            class="cm-remove-filter"
+            [attr.aria-label]="'Remove ' + category.label + ' filter'"
+            (click.stop)="removeCategory(category.id)"
+          >
+            Remove {{ category.label }} filter
+          </button>
+        </span>
+      }
+
+      @if (hiddenCategoryCount() > 0) {
+        <button
+          type="button"
+          class="min-h-11 rounded-full border border-cm-border bg-cm-surface px-3 text-xs font-medium text-cm-on-surface shadow-cm-sm hover:bg-cm-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
+          [attr.aria-label]="'Show all ' + activeCategories().length + ' selected categories'"
+          (click)="showAllCategories()"
+        >
+          +{{ hiddenCategoryCount() }} more
+        </button>
+      }
+    </div>
+  }
+</div>

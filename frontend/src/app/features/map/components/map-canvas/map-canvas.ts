@@ -7,6 +7,8 @@ import {
   NgZone,
   viewChild,
   output,
+  input,
+  effect,
 } from '@angular/core';
 
 import { GeoJSONSource, Map, setWorkerUrl } from 'maplibre-gl';
@@ -15,6 +17,7 @@ import { Subscription } from 'rxjs';
 import { PoiService } from '../../data-access/poi.service';
 import type { Bbox } from '../../data-access/poi.types';
 import { PoiSelection } from '../../models/poi-selection';
+import { FeatureCategory } from '../../../../shared/poi/feature-category';
 
 @Component({
   selector: 'app-map-canvas',
@@ -33,9 +36,17 @@ export class MapCanvas {
   private map?: Map;
   private poiRequest?: Subscription;
 
+  readonly categories = input<readonly FeatureCategory[]>([]);
+
   readonly poiSelected = output<PoiSelection>();
 
   constructor() {
+    effect(() => {
+      // Reactive dependency: Executes again after change
+      this.categories();
+      this.loadPois();
+    });
+
     afterNextRender({
       write: () => {
         setWorkerUrl('/maplibre/maplibre-gl-worker.mjs');
@@ -125,7 +136,7 @@ export class MapCanvas {
 
     this.poiRequest?.unsubscribe();
 
-    this.poiRequest = this.poiService.getWithin(bbox).subscribe({
+    this.poiRequest = this.poiService.getWithin(bbox, [...this.categories()]).subscribe({
       next: (collection) => {
         const mapCollection = {
           ...collection,
