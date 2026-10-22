@@ -1,5 +1,10 @@
+import { Component } from '@angular/core';
+import { provideRouter, Router } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DiscoverComponent } from './discover';
+
+@Component({ template: '' })
+class MapPageStub {}
 
 describe('DiscoverComponent', () => {
   let component: DiscoverComponent;
@@ -9,6 +14,7 @@ describe('DiscoverComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DiscoverComponent],
+      providers: [provideRouter([{ path: 'map', component: MapPageStub }])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DiscoverComponent);
@@ -74,6 +80,28 @@ describe('DiscoverComponent', () => {
         expect(srcset).toContain(`${image}-640.webp 640w`);
         expect(srcset).toContain(`${image}-960.webp 960w`);
       });
+    });
+  });
+
+  describe('Map navigation', () => {
+    it.each([
+      ['Culture & Heritage', 'museums_culture,history_heritage'],
+      ['Nature & Adventure', 'nature,parks_recreation,viewpoints'],
+      ['Cities & Urban Life', 'food_drink,entertainment,markets_shopping'],
+      ['Hidden Gems', null],
+    ])('should open the map with the filters for %s', async (title, categories) => {
+      const router = TestBed.inject(Router);
+      const link = [...nativeElement.querySelectorAll<HTMLAnchorElement>('article a')].find(
+        (candidate) => candidate.querySelector('h3')?.textContent?.trim() === title,
+      );
+      expect(link).toBeDefined();
+
+      link!.click();
+      await fixture.whenStable();
+
+      const url = router.parseUrl(router.url);
+      expect(router.url.split('?')[0]).toBe('/map');
+      expect(url.queryParams).toEqual(categories ? { categories } : {});
     });
   });
 
