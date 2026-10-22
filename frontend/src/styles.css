@@ -53,6 +53,13 @@
   --cm-focus: #216a8a;
 
   /* ---------------------------------------------------------
+     Shadow
+     --------------------------------------------------------- */
+
+  --cm-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.12);
+  --cm-shadow-md: 0 4px 8px rgb(0 0 0 / 0.16), 0 12px 28px rgb(0 0 0 / 0.2);
+
+  /* ---------------------------------------------------------
      Accessibility
      --------------------------------------------------------- */
 
@@ -124,6 +131,10 @@
 
   --color-cm-border-hover: var(--cm-border-hover);
 
+  /* Shadow */
+  --shadow-cm-sm: var(--cm-shadow-sm);
+  --shadow-cm-md: var(--cm-shadow-md);
+
   /* Radius */
 
   --radius-cm-sm: var(--cm-radius-sm);
@@ -134,8 +145,7 @@
 /* =========================================================
    Taiga UI Theme Bridge
    ========================================================= */
-
-tui-root[tuiTheme='light'] {
+[tuiTheme='light'] {
   /* ---------------------------------------------------------
      Base backgrounds
      --------------------------------------------------------- */
@@ -195,7 +205,7 @@ tui-root[tuiTheme='light'] {
   /* ---------------------------------------------------------
      Shape
      --------------------------------------------------------- */
-
+  --tui-radius-xs: var(--cm-radius-sm);
   --tui-radius-s: var(--cm-radius-sm);
   --tui-radius-m: var(--cm-radius-md);
   --tui-radius-l: var(--cm-radius-lg);
@@ -312,6 +322,13 @@ html[data-theme='high-contrast'] {
   --cm-border: #ffffff;
   --cm-border-hover: #ffff00;
   --cm-focus: #ffff00;
+
+  /* ---------------------------------------------------------
+     Shadow
+     --------------------------------------------------------- */
+
+  --cm-shadow-sm: 0 2px 8px rgb(0 0 0 / 0.3);
+  --cm-shadow-md: 0 4px 8px rgb(0 0 0 / 0.35), 0 12px 28px rgb(0 0 0 / 0.45);
 
   /* Keep the photograph visible, with stronger contrast behind the text. */
   --cm-hero-overlay-start: color-mix(in srgb, var(--cm-primary) 94%, transparent);
