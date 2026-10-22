@@ -21,6 +21,9 @@
     "test:debug": "vitest --inspect-brk --no-file-parallelism",
     "test:e2e": "vitest run --config vitest.e2e.config.mts"
   },
+  "engines": {
+    "node": ">=24.22.1 <25"
+  },
   "dependencies": {
     "@mikro-orm/core": "^7.1.13",
     "@mikro-orm/nestjs": "^7.0.2",
