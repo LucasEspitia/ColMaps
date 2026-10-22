@@ -1,1 +1,239 @@
-<p>search works!</p>
+<section class="relative min-h-full bg-cm-background text-cm-text">
+  <div class="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <!-- HERO -->
+    <header class="mb-10 max-w-3xl space-y-5">
+      <div
+        class="inline-flex items-center gap-2 text-sm font-semibold tracking-widest text-cm-primary"
+      >
+        <tui-icon icon="@tui.compass" aria-hidden="true" />
+        <span>COLMAPS / DISCOVER</span>
+      </div>
+
+      <h1 class="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+        Discover Colombia.
+        <span class="block text-cm-primary">Your way.</span>
+      </h1>
+
+      <p class="max-w-2xl text-base leading-relaxed text-cm-text-muted sm:text-lg">
+        From breathtaking landscapes to cultural treasures. Choose what inspires you and start
+        exploring.
+      </p>
+    </header>
+
+    <!-- DISCOVERY WORKSPACE -->
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div class="min-w-0 space-y-6">
+        <!-- CATEGORY SELECTION -->
+        <section
+          class="rounded-cm-lg border border-cm-border bg-cm-surface p-5 shadow-cm-sm sm:p-7"
+          aria-labelledby="categories-heading"
+        >
+          <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+            <div class="flex items-start gap-3">
+              <span
+                class="grid size-11 shrink-0 place-items-center rounded-cm-md bg-cm-primary/10 text-cm-primary"
+              >
+                <tui-icon icon="@tui.layers" aria-hidden="true" />
+              </span>
+
+              <div class="space-y-1">
+                <h2 id="categories-heading" class="text-xl font-semibold">What interests you?</h2>
+
+                <p class="text-sm text-cm-text-muted">Select the places you'd love to discover.</p>
+              </div>
+            </div>
+
+            @if (selectedCategories().length > 0) {
+              <button
+                type="button"
+                class="min-h-11 rounded-cm-sm px-3 text-sm font-medium text-cm-primary hover:bg-cm-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
+                (click)="clearCategories()"
+              >
+                Clear all
+              </button>
+            }
+          </div>
+
+          <!-- CATEGORY GRID -->
+          <div
+            class="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4"
+            role="group"
+            aria-label="Point of interest categories"
+          >
+            @for (category of categories; track category.id) {
+              <button
+                type="button"
+                class="relative flex min-h-32 flex-col items-start justify-between gap-4 rounded-cm-lg border p-4 text-left transition-colors hover:bg-cm-surface-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cm-focus"
+                [class.border-cm-primary]="isSelected(category.id)"
+                [class.bg-cm-primary/10]="isSelected(category.id)"
+                [class.border-cm-border]="!isSelected(category.id)"
+                [class.bg-cm-surface]="!isSelected(category.id)"
+                [attr.aria-pressed]="isSelected(category.id)"
+                (click)="toggleCategory(category.id)"
+              >
+                <div class="flex w-full items-start justify-between gap-2">
+                  <span
+                    class="grid size-10 shrink-0 place-items-center rounded-cm-md"
+                    [class.bg-cm-primary]="isSelected(category.id)"
+                    [class.text-cm-on-primary]="isSelected(category.id)"
+                    [class.bg-cm-surface-hover]="!isSelected(category.id)"
+                    [class.text-cm-text-muted]="!isSelected(category.id)"
+                  >
+                    <tui-icon [icon]="category.icon" aria-hidden="true" />
+                  </span>
+
+                  @if (isSelected(category.id)) {
+                    <tui-icon
+                      icon="@tui.check-circle-2"
+                      class="shrink-0 text-cm-primary"
+                      aria-hidden="true"
+                    />
+                  }
+                </div>
+
+                <span class="text-sm font-medium leading-snug">
+                  {{ category.label }}
+                </span>
+              </button>
+            }
+          </div>
+
+          <p class="mt-5 text-xs text-cm-text-muted">
+            No selection means all categories will be displayed.
+          </p>
+        </section>
+
+        <!-- FUTURE FEATURES -->
+        <section
+          class="rounded-cm-lg border border-cm-border bg-cm-surface p-5 sm:p-7"
+          aria-labelledby="future-features-heading"
+        >
+          <div class="mb-6 flex flex-wrap items-start justify-between gap-3">
+            <div class="space-y-1">
+              <h2 id="future-features-heading" class="text-lg font-semibold">
+                More ways to explore
+              </h2>
+
+              <p class="text-sm text-cm-text-muted">More discovery tools are on the way.</p>
+            </div>
+
+            <span
+              class="rounded-full border border-cm-border bg-cm-surface-hover px-3 py-1 text-xs font-medium text-cm-text-muted"
+            >
+              Coming soon
+            </span>
+          </div>
+
+          <div class="space-y-5">
+            <!-- PLACE SEARCH -->
+            <div class="space-y-2">
+              <label for="place-search" class="block text-sm font-medium"> Search places </label>
+
+              <tui-textfield iconStart="@tui.search">
+                <input
+                  id="place-search"
+                  tuiInput
+                  type="text"
+                  placeholder="Cities, landmarks, destinations..."
+                  disabled
+                />
+              </tui-textfield>
+            </div>
+
+            <!-- ROUTE PLANNING -->
+            <fieldset disabled class="space-y-3">
+              <legend class="mb-2 text-sm font-medium">Plan your route</legend>
+
+              <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div class="space-y-2">
+                  <label for="route-from" class="block text-sm text-cm-text-muted">
+                    Starting point
+                  </label>
+
+                  <tui-textfield iconStart="@tui.map-pin">
+                    <input id="route-from" tuiInput type="text" placeholder="From" disabled />
+                  </tui-textfield>
+                </div>
+
+                <div class="space-y-2">
+                  <label for="route-to" class="block text-sm text-cm-text-muted">
+                    Destination
+                  </label>
+
+                  <tui-textfield iconStart="@tui.flag">
+                    <input id="route-to" tuiInput type="text" placeholder="To" disabled />
+                  </tui-textfield>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+      </div>
+
+      <!-- EXPLORATION SUMMARY -->
+      <aside
+        class="min-w-0 rounded-cm-lg border border-cm-border bg-cm-surface p-5 shadow-cm-sm lg:sticky lg:top-6"
+        aria-labelledby="exploration-heading"
+      >
+        <div class="space-y-5">
+          <div
+            class="flex size-12 items-center justify-center rounded-cm-lg bg-cm-primary/10 text-cm-primary"
+          >
+            <tui-icon icon="@tui.map-pinned" aria-hidden="true" />
+          </div>
+
+          <div class="space-y-2">
+            <h2 id="exploration-heading" class="text-xl font-semibold">Your exploration</h2>
+
+            <p class="text-sm leading-relaxed text-cm-text-muted">
+              Your next discovery starts here. Review your interests before opening the map.
+            </p>
+          </div>
+
+          <div class="border-y border-cm-border py-5">
+            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-cm-text-muted">
+              Selected interests
+            </p>
+
+            @if (selectedCategories().length === 0) {
+              <div class="flex items-center gap-2">
+                <tui-icon icon="@tui.check-circle-2" class="text-cm-primary" aria-hidden="true" />
+
+                <span class="text-sm font-medium"> All {{ categories.length }} categories </span>
+              </div>
+            } @else {
+              <ul class="flex flex-wrap gap-2">
+                @for (category of categories; track category.id) {
+                  @if (isSelected(category.id)) {
+                    <li
+                      class="inline-flex items-center gap-1.5 rounded-full border border-cm-border bg-cm-surface-hover px-3 py-2 text-xs font-medium"
+                    >
+                      <tui-icon [icon]="category.icon" class="text-cm-primary" aria-hidden="true" />
+                      {{ category.label }}
+                    </li>
+                  }
+                }
+              </ul>
+            }
+          </div>
+
+          <a
+            tuiButton
+            appearance="primary"
+            size="l"
+            iconEnd="@tui.arrow-up-right"
+            class="w-full"
+            [routerLink]="['/map']"
+            [queryParams]="mapQueryParams()"
+          >
+            Explore map
+          </a>
+
+          <p class="text-center text-xs text-cm-text-muted">
+            You can change your filters anytime on the map.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

@@ -5,6 +5,8 @@ import type { PoiDetail } from './data-access/poi.types';
 import type { PoiDetailState } from './models/poi-detail-state';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { provideRouter, Router } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 
 import { MapCanvas } from './components/map-canvas/map-canvas';
 import { PoiPreview } from './components/poi-preview/poi-preview';
@@ -40,7 +42,10 @@ describe('MapComponent', () => {
     getById.mockReturnValue(new Subject<PoiDetail>());
     TestBed.configureTestingModule({
       imports: [MapComponent],
-      providers: [{ provide: PoiService, useValue: { getById } }],
+      providers: [
+        provideRouter([{ path: 'map', component: MapComponent }]),
+        { provide: PoiService, useValue: { getById } },
+      ],
     });
     TestBed.overrideComponent(MapComponent, {
       remove: { imports: [MapCanvas, PoiPreview, MapToolbar] },
@@ -48,7 +53,7 @@ describe('MapComponent', () => {
     });
   });
 
-  it('should synchronize category selection and clearing between the toolbar and canvas', () => {
+  it('should synchronize category selection and clearing between the toolbar and canvas', async () => {
     const fixture = TestBed.createComponent(MapComponent);
     fixture.detectChanges();
     const toolbar = fixture.debugElement.query(By.directive(MapToolbarStub))
@@ -61,17 +66,53 @@ describe('MapComponent', () => {
 
     const categories: FeatureCategory[] = ['museums_culture', 'nature'];
     toolbar.categoriesChanged.emit(categories);
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(toolbar.selectedCategories()).toEqual(categories);
     expect(canvas.categories()).toEqual(categories);
 
     toolbar.categoriesChanged.emit([]);
+    await fixture.whenStable();
     fixture.detectChanges();
 
     expect(toolbar.selectedCategories()).toEqual([]);
     expect(canvas.categories()).toEqual([]);
     expect(getById).not.toHaveBeenCalled();
+  });
+
+  it('should read categories from the URL and update or clear the category parameter', async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl('/map?categories=nature,museums_culture', MapComponent);
+    const toolbar = harness.routeDebugElement!.query(By.directive(MapToolbarStub))
+      .componentInstance as MapToolbarStub;
+    const canvas = harness.routeDebugElement!.query(By.directive(MapCanvasStub))
+      .componentInstance as MapCanvasStub;
+    const router = TestBed.inject(Router);
+
+    expect(toolbar.selectedCategories()).toEqual(['nature', 'museums_culture']);
+    expect(canvas.categories()).toEqual(['nature', 'museums_culture']);
+
+    toolbar.categoriesChanged.emit(['viewpoints']);
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+
+    expect(router.parseUrl(router.url).queryParams).toEqual({
+      categories: 'viewpoints',
+    });
+    expect(canvas.categories()).toEqual(['viewpoints']);
+
+    toolbar.categoriesChanged.emit([]);
+    await harness.fixture.whenStable();
+    harness.detectChanges();
+
+    expect(router.url).toBe('/map');
+    expect(toolbar.selectedCategories()).toEqual([]);
+    expect(canvas.categories()).toEqual([]);
+
+    await harness.navigateByUrl('/map?categories=attractions', MapComponent);
+    expect(canvas.categories()).toEqual(['attractions']);
+    expect(toolbar.selectedCategories()).toEqual(['attractions']);
   });
 
   it('should show the selected POI preview and reset selection and state when closed', () => {
