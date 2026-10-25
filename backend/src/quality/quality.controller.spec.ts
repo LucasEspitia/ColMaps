@@ -29,6 +29,7 @@ describe('QualityController (HTTP)', () => {
     getSummary: vi.fn<QualityService['getSummary']>(),
     getRuns: vi.fn<QualityService['getRuns']>(),
     getRun: vi.fn<QualityService['getRun']>(),
+    getHistory: vi.fn<QualityService['getHistory']>(),
   };
   const id = '5e40bf86-788b-44d7-9c1c-5d92aad1c199';
 
@@ -57,7 +58,9 @@ describe('QualityController (HTTP)', () => {
 
   it('GET /summary returns the service summary', async () => {
     const summary = { totalRuns: 0, latestRun: null, metrics: [] };
-    service.getSummary.mockResolvedValue(summary);
+    service.getSummary.mockResolvedValue(
+      summary as unknown as Awaited<ReturnType<QualityService['getSummary']>>,
+    );
 
     const response = await request(server)
       .get('/api/quality/summary')
@@ -109,6 +112,84 @@ describe('QualityController (HTTP)', () => {
       startedAt: startedAt.toISOString(),
     });
     expect(service.getRun).toHaveBeenCalledExactlyOnceWith(id);
+  });
+
+  it.each([
+    ['', 30],
+    ['&limit=1', 1],
+    ['&limit=100', 100],
+  ])('GET /history applies the limit for %s', async (suffix, limit) => {
+    const history = {
+      metric: 'performance',
+      device: 'desktop',
+      pageUrl: null,
+      points: [],
+    };
+    service.getHistory.mockResolvedValue(history);
+
+    const response = await request(server)
+      .get(`/api/quality/history?metric=performance&device=desktop${suffix}`)
+      .expect(200);
+
+    expect(response.body).toEqual(history);
+    expect(service.getHistory).toHaveBeenCalledExactlyOnceWith({
+      metric: 'performance',
+      device: 'desktop',
+      limit,
+    });
+  });
+
+  it('GET /history forwards the page URL and serializes history points', async () => {
+    const pageUrl = 'http://localhost/map?zoom=5&layer=routes';
+    const startedAt = new Date('2026-01-01T00:00:00Z');
+    const point = {
+      runId: id,
+      value: 95,
+      unit: 'score',
+      target: null,
+      pageUrl,
+      startedAt,
+      commitSha: null,
+    };
+    service.getHistory.mockResolvedValue({
+      metric: 'performance',
+      device: 'mobile',
+      pageUrl,
+      points: [point],
+    });
+
+    const response = await request(server)
+      .get('/api/quality/history')
+      .query({ metric: 'performance', device: 'mobile', pageUrl, limit: 5 })
+      .expect(200);
+
+    expect(service.getHistory).toHaveBeenCalledExactlyOnceWith({
+      metric: 'performance',
+      device: 'mobile',
+      pageUrl,
+      limit: 5,
+    });
+    expect(response.body).toEqual({
+      metric: 'performance',
+      device: 'mobile',
+      pageUrl,
+      points: [{ ...point, startedAt: startedAt.toISOString() }],
+    });
+  });
+
+  it.each([
+    '',
+    'metric=performance',
+    'device=desktop',
+    'metric=performance&device=desktop&limit=0',
+    'metric=performance&device=desktop&limit=101',
+    'metric=performance&device=desktop&limit=1.5',
+    'metric=performance&device=desktop&limit=abc',
+    'metric=performance&device=desktop&pageUrl=http%3A%2F%2F',
+    'metric=performance&device=desktop&unexpected=true',
+  ])('GET /history rejects invalid query parameters: %s', async (query) => {
+    await request(server).get(`/api/quality/history?${query}`).expect(400);
+    expect(service.getHistory).not.toHaveBeenCalled();
   });
 
   it('rejects malformed UUIDs before calling the service', async () => {

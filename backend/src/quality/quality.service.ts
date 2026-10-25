@@ -5,6 +5,7 @@ import { EntityRepository } from '@mikro-orm/postgresql';
 
 import { QualityRun } from './entities/quality-run.entity';
 import { QualityQueryDto } from './dto/quality-query.dto';
+import { QualityHistoryQueryDto } from './dto/quality-history-query.dto';
 
 @Injectable()
 export class QualityService {
@@ -61,5 +62,55 @@ export class QualityService {
     }
 
     return run;
+  }
+
+  async getHistory(query: QualityHistoryQueryDto) {
+    const { metric, device, pageUrl, limit } = query;
+
+    const runs = await this.runRepository.find(
+      {
+        status: 'passed',
+        results: {
+          metric,
+          device,
+          ...(pageUrl ? { pageUrl } : {}),
+        },
+      },
+      {
+        populate: ['results'],
+        orderBy: {
+          startedAt: 'DESC',
+          id: 'DESC',
+        },
+        limit,
+      },
+    );
+
+    const points = runs.flatMap((run) =>
+      run.results
+        .getItems()
+        .filter(
+          (result) =>
+            result.metric === metric &&
+            result.device === device &&
+            (!pageUrl || result.pageUrl === pageUrl),
+        )
+        .map((result) => ({
+          runId: run.id,
+          value: result.value,
+          unit: result.unit,
+          target: result.target ?? null,
+          pageUrl: result.pageUrl ?? null,
+          startedAt: run.startedAt,
+          commitSha: run.commitSha ?? null,
+        })),
+    );
+
+    return {
+      metric,
+      device,
+      pageUrl: pageUrl ?? null,
+      points: points.reverse(),
+    };
   }
 }

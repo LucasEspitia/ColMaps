@@ -50,3 +50,20 @@ export interface QualityRunsResponse {
   page: number;
   limit: number;
 }
+
+export interface QualityHistoryPoint {
+  runId: string;
+  value: number;
+  unit: string;
+  target: string | null;
+  pageUrl: string | null;
+  startedAt: string;
+  commitSha: string | null;
+}
+
+export interface QualityHistory {
+  metric: string;
+  device: string;
+  pageUrl: string | null;
+  points: QualityHistoryPoint[];
+}

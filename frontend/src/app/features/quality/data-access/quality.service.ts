@@ -2,7 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import type { QualitySummary, QualityRun, QualityRunsResponse } from './quality.types';
+import type {
+  QualitySummary,
+  QualityRun,
+  QualityRunsResponse,
+  QualityHistory,
+} from './quality.types';
 import { API_BASE_URL } from '../../../core/config/api.config';
 
 @Injectable({
@@ -25,5 +30,11 @@ export class QualityService {
 
   getRun(id: string): Observable<QualityRun> {
     return this.http.get<QualityRun>(`${this.endpoint}/runs/${encodeURIComponent(id)}`);
+  }
+
+  getHistory(metric: string, device: string, limit = 30): Observable<QualityHistory> {
+    return this.http.get<QualityHistory>(`${this.endpoint}/history`, {
+      params: { metric, device, limit },
+    });
   }
 }
