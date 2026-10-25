@@ -76,8 +76,8 @@
           "enumItems": [],
           "mappedType": "string"
         },
-        "page_url": {
-          "name": "page_url",
+        "page": {
+          "name": "page",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,

@@ -8,6 +8,7 @@ import {
 } from '@mikro-orm/decorators/legacy';
 
 import { QualityRun } from './quality-run.entity';
+import type { QualityPage } from '../types/quality.types';
 
 @Entity({ tableName: 'quality_results' })
 export class QualityResult {
@@ -35,7 +36,7 @@ export class QualityResult {
   device!: string;
 
   @Property({ type: 'string', nullable: true })
-  pageUrl?: string;
+  page?: QualityPage;
 
   @Property({ type: 'json', nullable: true })
   details?: Record<string, unknown>;

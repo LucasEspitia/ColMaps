@@ -24,3 +24,13 @@ export const QUALITY_ENVIRONMENTS = [
 ] as const;
 
 export type QualityEnvironment = (typeof QUALITY_ENVIRONMENTS)[number];
+
+export const QUALITY_PAGES = [
+  'home',
+  'map',
+  'search',
+  'about',
+  'quality',
+] as const;
+
+export type QualityPage = (typeof QUALITY_PAGES)[number];
