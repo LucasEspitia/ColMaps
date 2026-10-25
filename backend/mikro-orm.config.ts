@@ -21,6 +21,7 @@ export default defineConfig({
   migrations: {
     path: './dist/migrations',
     pathTs: './src/migrations',
+    dropTables: false,
   },
 
   schemaGenerator: {
