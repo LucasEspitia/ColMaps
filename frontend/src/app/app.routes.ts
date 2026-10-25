@@ -24,6 +24,11 @@ export const routes: Routes = [
     title: 'About | ColMaps',
     loadComponent: () => import('./features/about/about').then((m) => m.About),
   },
+  {
+    path: 'quality',
+    title: 'Quality Dashboard | ColMaps',
+    loadComponent: () => import('./features/quality/quality').then((m) => m.Quality),
+  },
   // * Redirect To Home
   {
     path: '**',
