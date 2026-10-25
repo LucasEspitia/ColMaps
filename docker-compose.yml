@@ -42,7 +42,7 @@ services:
 
     environment:
       DB_HOST: db
-      DB_PORT: ${DB_PORT:-5432}
+      DB_PORT: 5432
       DB_NAME: ${DB_NAME:-colmaps}
       DB_USER: ${DB_USER:-colmaps}
       DB_PASSWORD: ${DB_PASSWORD:-colmaps_pwd}
@@ -55,6 +55,41 @@ services:
         condition: service_healthy
       data-pipeline:
         condition: service_completed_successfully
+
+  migrate:
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    working_dir: /app/backend
+
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-colmaps}
+      DB_USER: ${DB_USER:-colmaps}
+      DB_PASSWORD: ${DB_PASSWORD:-colmaps_pwd}
+
+    volumes:
+      - ./backend:/app/backend
+      - backend_node_modules:/app/backend/node_modules
+
+    command:
+      - npx
+      - mikro-orm
+      - migration:up
+      - --config
+      - ./mikro-orm.config.ts
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    restart: "no"
+
   backend:
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     build:
@@ -83,6 +118,8 @@ services:
 
     depends_on:
       data-import:
+        condition: service_completed_successfully
+      migrate:
         condition: service_completed_successfully
 
   frontend:
