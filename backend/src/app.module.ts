@@ -14,6 +14,7 @@ import { QualityModule } from './quality/quality.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['../.env', '.env'],
     }),
     ThrottlerModule.forRoot([
       {

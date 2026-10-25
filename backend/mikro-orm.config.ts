@@ -1,7 +1,10 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
 
 import { defineConfig } from '@mikro-orm/postgresql';
 import { Migrator } from '@mikro-orm/migrations';
+
+// Load the environment before evaluating the ORM options (also used by the CLI).
+config({ path: ['../.env', '.env'], quiet: true });
 
 export default defineConfig({
   host: process.env.DB_HOST,
