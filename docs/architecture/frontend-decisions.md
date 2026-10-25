@@ -40,10 +40,10 @@ Source references describe the current implementation. Rationales below follow t
 
 The original production-build comparison is preserved as a historical observation, not a benchmark of this checkout:
 
-| Configuration | Initial bundle | Estimated transfer |
-| --- | ---: | ---: |
-| Map loaded eagerly | 1.40 MB | 301.55 kB |
-| Map loaded lazily | 468.03 kB | 104.00 kB |
+| Configuration      | Initial bundle | Estimated transfer |
+| ------------------ | -------------: | -----------------: |
+| Map loaded eagerly |        1.40 MB |          301.55 kB |
+| Map loaded lazily  |      468.03 kB |          104.00 kB |
 
 The recorded raw reduction was approximately 66.6%. The original text compared this with a 500 kB warning threshold. Current production budgets in [angular.json](../../frontend/angular.json) are **1.5 MB warning / 2 MB error** for initial bundles and **4 kB / 8 kB** for component styles. Neither the measurements nor the former threshold have been revalidated here.
 
@@ -101,3 +101,17 @@ HTTP Request + Cookies → AccessibilityStorage (REQUEST) → Preference Validat
 - **Solution:** Angular's `@angular/build:unit-test` builder runs Vitest; Angular ESLint checks TypeScript/templates. Existing tests cover component creation, panel interaction, preference validation/application, cookie parsing/writing and SSR request isolation. App tests supply router/Taiga providers and stub `matchMedia` and jsdom visibility.
 - **Rationale:** Separate storage, preference logic and UI make dependencies replaceable in focused tests.
 - **Trade-offs:** DOM stubs do not prove real keyboard behavior, WebGL rendering, SSR delivery or assistive-technology compatibility. The map test is a creation check. No coverage percentage or full-browser test result is claimed.
+
+## Decision: Taiga UI Charts for quality metrics visualization
+
+- **Problem:** ColMaps requires a responsive and accessible dashboard to visualize historical quality measurements, including Lighthouse scores and Core Web Vitals. Implementing a custom chart would introduce additional rendering logic, maintenance responsibilities, and accessibility considerations.
+- **Solution:** Use `@taiga-ui/addon-charts`, particularly `TuiLineChart`, to visualize historical measurements retrieved from the Quality API. Keep data retrieval, metric transformations, and visualization responsibilities separated within the Angular architecture.
+- **Rationale:** Taiga UI is already integrated into ColMaps, making its charting library a consistent choice for the existing component ecosystem. Reusing established visualization components reduces custom implementation effort and allows development to focus on collecting, analyzing, and presenting reproducible quality measurements.
+- **Trade-offs:** The dashboard depends on Taiga UI's charting API and its compatibility with Angular. Advanced visualizations may require additional customization. Chart accessibility must still be evaluated, and visual rendering alone does not guarantee assistive-technology compatibility.
+
+## Decision: Angular Linker and dependency inlining for Vitest chart tests
+
+- **Problem:** The `QualityHistoryChart` component renders successfully in the Angular application but fails during Vitest module initialization with `ReferenceError: Cannot access 'TuiLineChart' before initialization`. The failure occurs inside Taiga UI Charts before component assertions execute, preventing tests from validating the dashboard's behavior.
+- **Solution:** Introduce a dedicated Vitest configuration that uses `@angular/compiler-cli/linker/babel` to process Taiga UI Charts' partially compiled Angular declarations. Configure Vitest's `server.deps.inline` to process the chart dependency through Vite instead of loading it directly as an external Node.js module.
+- **Rationale:** Angular libraries distributed using partial compilation require Angular's linker before execution. Dependency inlining allows Vitest to transform the chart library within its module-processing pipeline. This provides an environment-specific compatibility mechanism without modifying production components or replacing the chart with test-specific implementations.
+- **Trade-offs:** The configuration introduces additional Babel processing and maintenance overhead. It is coupled to Angular's linker, Vitest's dependency-loading behavior, and Taiga UI's package structure. The transformation filter must match the actual module paths. The configuration does not inherently resolve JavaScript circular dependencies, and its effectiveness must be verified by executing the test suite. Passing unit tests does not replace browser-level verification of chart rendering, responsiveness, or accessibility.
