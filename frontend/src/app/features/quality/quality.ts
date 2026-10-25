@@ -28,6 +28,7 @@ import { QualityHistoryChart } from './components/quality-history-chart/quality-
     QualityHistoryChart,
   ],
   templateUrl: './quality.html',
+  styleUrl: './quality.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Quality {

@@ -82,7 +82,7 @@
                 class="min-w-0"
                 [class.max-sm:hidden]="overviewSelection() !== 'Total executions'"
               >
-                <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                <article tuiCardLarge appearance="floating" class="h-full min-w-0">
                   <div
                     aria-hidden="true"
                     class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
@@ -102,7 +102,7 @@
 
               <!-- Measurements -->
               <div class="min-w-0" [class.max-sm:hidden]="overviewSelection() !== 'Measurements'">
-                <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                <article tuiCardLarge appearance="floating" class="h-full min-w-0">
                   <div
                     aria-hidden="true"
                     class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
@@ -125,7 +125,7 @@
                 class="min-w-0"
                 [class.max-sm:hidden]="overviewSelection() !== 'Latest execution'"
               >
-                <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                <article tuiCardLarge appearance="floating" class="h-full min-w-0">
                   <div
                     aria-hidden="true"
                     class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
@@ -170,7 +170,7 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
               @for (item of lighthouseMetrics; track item.key) {
                 <div class="min-w-0" [class.max-sm:hidden]="lighthouseSelection() !== item.label">
-                  <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                  <article tuiCardLarge appearance="floating" class="h-full min-w-0">
                     <div
                       aria-hidden="true"
                       class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
@@ -262,7 +262,7 @@
             <div class="grid gap-4 sm:grid-cols-3 sm:gap-6">
               @for (item of webVitals; track item.key) {
                 <div class="min-w-0" [class.max-sm:hidden]="vitalSelection() !== item.label">
-                  <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                  <article tuiCardLarge appearance="floating" class="h-full min-w-0">
                     <div
                       aria-hidden="true"
                       class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"

@@ -10,37 +10,46 @@
       <div class="flex flex-col gap-1">
         <label for="history-metric" class="text-sm font-medium text-cm-text"> Metric </label>
 
-        <select
-          id="history-metric"
-          class="rounded-cm-lg border border-cm-border bg-cm-surface px-3 py-2 text-cm-text"
-          [value]="metric()"
-          (change)="setMetric($any($event.target).value)"
+        <tui-textfield
+          class="w-40"
+          tuiChevron
+          tuiTextfieldSize="m"
+          [tuiTextfieldCleaner]="false"
+          [stringify]="stringifyMetric"
         >
-          @for (option of metrics; track option.value) {
-            <option [value]="option.value">
-              {{ option.label }}
-            </option>
-          }
-        </select>
+          <input
+            id="history-metric"
+            tuiSelect
+            [ngModel]="metric()"
+            (ngModelChange)="metric.set($event)"
+          />
+          <tui-data-list-wrapper *tuiDropdown [items]="metricOptions" />
+        </tui-textfield>
       </div>
 
       <div class="flex flex-col gap-1">
         <label for="history-device" class="text-sm font-medium text-cm-text"> Device </label>
 
-        <select
-          id="history-device"
-          class="rounded-cm-lg border border-cm-border bg-cm-surface px-3 py-2 text-cm-text"
-          [value]="device()"
-          (change)="setDevice($any($event.target).value)"
+        <tui-textfield
+          class="w-28"
+          tuiChevron
+          tuiTextfieldSize="m"
+          [tuiTextfieldCleaner]="false"
+          [stringify]="stringifyDevice"
         >
-          <option value="mobile">Mobile</option>
-          <option value="desktop">Desktop</option>
-        </select>
+          <input
+            id="history-device"
+            tuiSelect
+            [ngModel]="device()"
+            (ngModelChange)="device.set($event)"
+          />
+          <tui-data-list-wrapper *tuiDropdown [items]="deviceOptions" />
+        </tui-textfield>
       </div>
     </div>
   </div>
 
-  <div #chartContainer class="relative min-w-0 w-full">
+  <div class="relative min-w-0 w-full">
     @if (history().status === 'loading') {
       <div class="flex min-h-64 items-center justify-center text-cm-text-muted" role="status">
         Loading historical measurements...
@@ -65,9 +74,11 @@
       >
         <div class="w-full text-cm-secondary">
           <tui-line-chart
+            class="relative block w-full"
+            [style.height.px]="chartHeight"
             [dots]="true"
             [height]="chartHeight"
-            [width]="chartWidth()"
+            [width]="chartWidth"
             [x]="0"
             [y]="0"
             [value]="chartPoints()"

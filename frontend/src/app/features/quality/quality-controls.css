@@ -1,0 +1,14 @@
+@reference '../../../styles.css';
+
+/* Taiga UI uses !important for readonly/focused select backgrounds. */
+:host tui-textfield[tuiChevron] {
+  @apply bg-cm-surface! text-cm-text outline outline-cm-border -outline-offset-1;
+}
+
+:host tui-textfield[tuiChevron]:hover {
+  @apply bg-cm-surface-hover! outline-cm-primary;
+}
+
+:host tui-textfield[tuiChevron]:focus-within {
+  @apply bg-cm-surface-pressed! outline-2 outline-cm-primary -outline-offset-2;
+}

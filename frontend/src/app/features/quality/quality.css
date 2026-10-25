@@ -1,0 +1,6 @@
+@import './quality-controls.css';
+@reference '../../../styles.css';
+
+:host [tuiCardLarge] {
+  @apply border border-cm-border bg-cm-surface;
+}

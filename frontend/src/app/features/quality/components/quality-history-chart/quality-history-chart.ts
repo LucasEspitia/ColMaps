@@ -1,17 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  afterNextRender,
-  computed,
-  DestroyRef,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { TuiLineChart } from '@taiga-ui/addon-charts';
+import { TuiLineChart } from '@taiga-ui/addon-charts/components/line-chart';
+import { TuiTextfield } from '@taiga-ui/core';
+import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { combineLatest, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
@@ -23,15 +16,13 @@ type HistoryState =
 
 @Component({
   selector: 'app-quality-history-chart',
-  imports: [TuiLineChart],
+  imports: [FormsModule, TuiLineChart, TuiTextfield, TuiChevron, TuiDataListWrapper, TuiSelect],
+  styleUrl: './quality-history-chart.css',
   templateUrl: './quality-history-chart.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QualityHistoryChart {
   private readonly qualityService = inject(QualityService);
-  private readonly destroyRef = inject(DestroyRef);
-
-  private readonly container = viewChild.required<ElementRef<HTMLElement>>('chartContainer');
 
   readonly metric = signal('performance');
   readonly device = signal('mobile');
@@ -46,7 +37,14 @@ export class QualityHistoryChart {
     { value: 'inp', label: 'INP' },
   ];
 
-  readonly chartWidth = signal(600);
+  readonly metricOptions = this.metrics.map(({ value }) => value);
+  readonly deviceOptions = ['mobile', 'desktop'];
+  readonly stringifyMetric = (value: string): string =>
+    this.metrics.find((option) => option.value === value)?.label ?? value;
+  readonly stringifyDevice = (value: string): string =>
+    value === 'desktop' ? 'Desktop' : 'Mobile';
+
+  readonly chartWidth = 600;
   readonly chartHeight = 200;
 
   readonly history = toSignal(
@@ -101,7 +99,7 @@ export class QualityHistoryChart {
   readonly chartPoints = computed<[number, number][]>(() => {
     const points = this.points();
     const { min, max } = this.range();
-    const width = this.chartWidth();
+    const width = this.chartWidth;
     const height = this.chartHeight;
 
     return points.map((point, index) => {
@@ -112,28 +110,4 @@ export class QualityHistoryChart {
       return [x, y];
     });
   });
-
-  constructor() {
-    afterNextRender(() => {
-      const element = this.container().nativeElement;
-
-      const observer = new ResizeObserver(([entry]) => {
-        if (entry) {
-          this.chartWidth.set(Math.max(1, Math.floor(entry.contentRect.width)));
-        }
-      });
-
-      observer.observe(element);
-
-      this.destroyRef.onDestroy(() => observer.disconnect());
-    });
-  }
-
-  setMetric(value: string): void {
-    this.metric.set(value);
-  }
-
-  setDevice(value: string): void {
-    this.device.set(value);
-  }
 }
