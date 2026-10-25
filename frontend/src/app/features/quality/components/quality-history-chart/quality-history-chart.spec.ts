@@ -17,13 +17,13 @@ describe('QualityHistoryChart', () => {
   const history = (values: number[]): QualityHistory => ({
     metric: 'performance',
     device: 'mobile',
-    pageUrl: null,
+    page: null,
     points: values.map((value, index) => ({
       runId: String(index),
       value,
       unit: 'score',
       target: null,
-      pageUrl: null,
+      page: null,
       startedAt: `2026-10-${String(index + 1).padStart(2, '0')}T00:00:00Z`,
       commitSha: null,
     })),

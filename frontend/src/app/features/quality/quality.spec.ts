@@ -36,7 +36,7 @@ describe('Quality', () => {
               of({
                 metric: 'performance',
                 device: 'mobile',
-                pageUrl: null,
+                page: null,
                 points: [],
               }),
           },
@@ -55,14 +55,14 @@ describe('Quality', () => {
       of({
         metric: 'performance',
         device: 'mobile',
-        pageUrl: null,
+        page: null,
         points: [
           {
             runId: 'run-1',
             value: 75,
             unit: 'score',
             target: null,
-            pageUrl: null,
+            page: null,
             startedAt: '2026-10-25T12:00:00Z',
             commitSha: null,
           },

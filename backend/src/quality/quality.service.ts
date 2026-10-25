@@ -65,7 +65,7 @@ export class QualityService {
   }
 
   async getHistory(query: QualityHistoryQueryDto) {
-    const { metric, device, pageUrl, limit } = query;
+    const { metric, device, page, limit } = query;
 
     const runs = await this.runRepository.find(
       {
@@ -73,7 +73,7 @@ export class QualityService {
         results: {
           metric,
           device,
-          ...(pageUrl ? { pageUrl } : {}),
+          ...(page ? { page } : {}),
         },
       },
       {
@@ -93,14 +93,14 @@ export class QualityService {
           (result) =>
             result.metric === metric &&
             result.device === device &&
-            (!pageUrl || result.pageUrl === pageUrl),
+            (!page || result.page === page),
         )
         .map((result) => ({
           runId: run.id,
           value: result.value,
           unit: result.unit,
           target: result.target ?? null,
-          pageUrl: result.pageUrl ?? null,
+          page: result.page ?? null,
           startedAt: run.startedAt,
           commitSha: run.commitSha ?? null,
         })),
@@ -109,7 +109,7 @@ export class QualityService {
     return {
       metric,
       device,
-      pageUrl: pageUrl ?? null,
+      page: page ?? null,
       points: points.reverse(),
     };
   }

@@ -122,7 +122,7 @@ describe('QualityController (HTTP)', () => {
     const history = {
       metric: 'performance',
       device: 'desktop',
-      pageUrl: null,
+      page: null,
       points: [],
     };
     service.getHistory.mockResolvedValue(history);
@@ -140,39 +140,39 @@ describe('QualityController (HTTP)', () => {
   });
 
   it('GET /history forwards the page URL and serializes history points', async () => {
-    const pageUrl = 'http://localhost/map?zoom=5&layer=routes';
+    const page = 'map' as const;
     const startedAt = new Date('2026-01-01T00:00:00Z');
     const point = {
       runId: id,
       value: 95,
       unit: 'score',
       target: null,
-      pageUrl,
+      page,
       startedAt,
       commitSha: null,
     };
     service.getHistory.mockResolvedValue({
       metric: 'performance',
       device: 'mobile',
-      pageUrl,
+      page,
       points: [point],
     });
 
     const response = await request(server)
       .get('/api/quality/history')
-      .query({ metric: 'performance', device: 'mobile', pageUrl, limit: 5 })
+      .query({ metric: 'performance', device: 'mobile', page, limit: 5 })
       .expect(200);
 
     expect(service.getHistory).toHaveBeenCalledExactlyOnceWith({
       metric: 'performance',
       device: 'mobile',
-      pageUrl,
+      page,
       limit: 5,
     });
     expect(response.body).toEqual({
       metric: 'performance',
       device: 'mobile',
-      pageUrl,
+      page,
       points: [{ ...point, startedAt: startedAt.toISOString() }],
     });
   });
@@ -185,7 +185,7 @@ describe('QualityController (HTTP)', () => {
     'metric=performance&device=desktop&limit=101',
     'metric=performance&device=desktop&limit=1.5',
     'metric=performance&device=desktop&limit=abc',
-    'metric=performance&device=desktop&pageUrl=http%3A%2F%2F',
+    'metric=performance&device=desktop&pageURL=map',
     'metric=performance&device=desktop&unexpected=true',
   ])('GET /history rejects invalid query parameters: %s', async (query) => {
     await request(server).get(`/api/quality/history?${query}`).expect(400);

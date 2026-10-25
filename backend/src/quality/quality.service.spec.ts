@@ -119,7 +119,7 @@ describe('QualityService', () => {
       await expect(service.getHistory(query)).resolves.toEqual({
         metric: query.metric,
         device: query.device,
-        pageUrl: null,
+        page: null,
         points: [],
       });
       expect(repository.find).toHaveBeenCalledExactlyOnceWith(
@@ -160,7 +160,7 @@ describe('QualityService', () => {
           value: 95,
           unit: 'score',
           target: '90',
-          pageUrl: 'https://example.com',
+          page: 'map',
         }),
         Object.assign(new QualityResult(), {
           run: newer,
@@ -180,14 +180,14 @@ describe('QualityService', () => {
       await expect(service.getHistory(query)).resolves.toEqual({
         metric: query.metric,
         device: query.device,
-        pageUrl: null,
+        page: null,
         points: [
           {
             runId: older.id,
             value: 0,
             unit: 'score',
             target: null,
-            pageUrl: null,
+            page: null,
             startedAt: older.startedAt,
             commitSha: null,
           },
@@ -196,7 +196,7 @@ describe('QualityService', () => {
             value: 95,
             unit: 'score',
             target: '90',
-            pageUrl: 'https://example.com',
+            page: 'map',
             startedAt: newer.startedAt,
             commitSha: 'abc123',
           },
@@ -205,33 +205,33 @@ describe('QualityService', () => {
     });
 
     it('filters both the repository query and populated results by page URL', async () => {
-      const pageUrl = 'https://example.com/map';
+      const page = 'map';
       const run = new QualityRun();
       run.results = new Collection<QualityResult>(
         run,
-        [pageUrl, 'https://example.com/other', undefined].map((url) =>
+        [page, 'search', undefined].map((page) =>
           Object.assign(new QualityResult(), {
             run,
             metric: query.metric,
             device: query.device,
             value: 95,
             unit: 'score',
-            pageUrl: url,
+            page: page,
           }),
         ),
       );
       repository.find.mockResolvedValue([run]);
 
-      const history = await service.getHistory({ ...query, pageUrl, limit: 5 });
+      const history = await service.getHistory({ ...query, page, limit: 5 });
 
-      expect(history.pageUrl).toBe(pageUrl);
+      expect(history.page).toBe(page);
       expect(history.points).toEqual([
         {
           runId: run.id,
           value: 95,
           unit: 'score',
           target: null,
-          pageUrl,
+          page,
           startedAt: run.startedAt,
           commitSha: null,
         },
@@ -242,7 +242,7 @@ describe('QualityService', () => {
           results: {
             metric: query.metric,
             device: query.device,
-            pageUrl,
+            page,
           },
         },
         {

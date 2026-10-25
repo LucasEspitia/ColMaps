@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, IsUrl, Max, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { QUALITY_PAGES, type QualityPage } from '../types/quality.types';
 
 export class QualityHistoryQueryDto {
   @IsString()
@@ -9,8 +10,8 @@ export class QualityHistoryQueryDto {
   device!: string;
 
   @IsOptional()
-  @IsUrl({ require_tld: false })
-  pageUrl?: string;
+  @IsIn(QUALITY_PAGES)
+  page?: QualityPage;
 
   @IsOptional()
   @Type(() => Number)

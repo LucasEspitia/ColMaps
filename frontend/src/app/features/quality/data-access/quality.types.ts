@@ -21,7 +21,7 @@ export interface QualityResult {
   unit: string;
   target?: string | null;
   device: string;
-  pageUrl?: string | null;
+  page?: string | null;
   details?: Record<string, unknown> | null;
 }
 
@@ -56,7 +56,7 @@ export interface QualityHistoryPoint {
   value: number;
   unit: string;
   target: string | null;
-  pageUrl: string | null;
+  page: string | null;
   startedAt: string;
   commitSha: string | null;
 }
@@ -64,6 +64,6 @@ export interface QualityHistoryPoint {
 export interface QualityHistory {
   metric: string;
   device: string;
-  pageUrl: string | null;
+  page: string | null;
   points: QualityHistoryPoint[];
 }
