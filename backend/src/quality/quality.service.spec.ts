@@ -12,6 +12,7 @@ describe('QualityService', () => {
   let service: QualityService;
   const repository = {
     count: vi.fn<EntityRepository<QualityRun>['count']>(),
+    find: vi.fn<EntityRepository<QualityRun>['find']>(),
     findOne: vi.fn<EntityRepository<QualityRun>['findOne']>(),
     findAndCount: vi.fn<EntityRepository<QualityRun>['findAndCount']>(),
   };
@@ -34,25 +35,26 @@ describe('QualityService', () => {
     });
     run.results = new Collection<QualityResult>(run, [metric]);
     repository.count.mockResolvedValue(3);
-    repository.findOne.mockResolvedValue(run);
+    repository.find.mockResolvedValue([run]);
 
     await expect(service.getSummary()).resolves.toEqual({
       totalRuns: 3,
       latestRun: run,
       metrics: [metric],
     });
-    expect(repository.findOne).toHaveBeenCalledExactlyOnceWith(
+    expect(repository.find).toHaveBeenCalledExactlyOnceWith(
       {},
       {
         orderBy: { startedAt: 'DESC' },
         populate: ['results'],
+        limit: 1,
       },
     );
   });
 
   it('returns an empty summary when no runs exist', async () => {
     repository.count.mockResolvedValue(0);
-    repository.findOne.mockResolvedValue(null);
+    repository.find.mockResolvedValue([]);
 
     await expect(service.getSummary()).resolves.toEqual({
       totalRuns: 0,
