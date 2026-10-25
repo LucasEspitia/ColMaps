@@ -23,6 +23,10 @@ export default defineConfig({
     pathTs: './src/migrations',
   },
 
+  schemaGenerator: {
+    skipTables: ['osm2pgsql_properties', 'osm_features', 'pois'],
+  },
+
   discovery: {
     warnWhenNoEntities: false,
   },
