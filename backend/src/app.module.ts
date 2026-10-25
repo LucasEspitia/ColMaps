@@ -26,7 +26,6 @@ import { QualityModule } from './quality/quality.module';
     MikroOrmModule.forRoot(mikroOrmConfig),
 
     PoiModule,
-
     QualityModule,
   ],
   controllers: [AppController],
