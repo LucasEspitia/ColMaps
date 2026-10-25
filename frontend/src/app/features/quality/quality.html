@@ -1,1 +1,354 @@
-<p>not implemented</p>
+<div class="bg-cm-background px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+  <div class="mx-auto flex w-full max-w-[1240px] flex-col gap-8">
+    <!-- Introduction -->
+    <section
+      aria-labelledby="quality-title"
+      class="rounded-cm-lg bg-cm-primary px-6 py-8 text-cm-on-primary sm:px-12 sm:py-16"
+    >
+      <p class="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-cm-on-primary-accent">
+        Engineering quality
+      </p>
+
+      <h1 id="quality-title" class="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+        Measuring what matters.
+      </h1>
+
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-cm-on-primary/90">
+        Explore ColMaps performance, accessibility and software quality through measurable,
+        reproducible evaluations.
+      </p>
+    </section>
+
+    @if (state(); as current) {
+      @switch (current.status) {
+        @case ('loading') {
+          <div
+            class="flex min-h-64 items-center justify-center"
+            role="status"
+            aria-label="Loading quality metrics"
+          >
+            <tui-loader size="l" />
+          </div>
+        }
+
+        @case ('error') {
+          <section tuiCardLarge appearance="floating" role="alert">
+            <div class="flex flex-col items-center gap-4 py-8 text-center">
+              <tui-icon icon="@tui.circle-alert" class="size-10 text-cm-secondary" />
+
+              <h2 class="text-2xl font-semibold text-cm-text">Quality data unavailable</h2>
+
+              <p class="max-w-md leading-relaxed text-cm-text-muted">
+                The latest quality measurements could not be retrieved.
+              </p>
+            </div>
+          </section>
+        }
+
+        @case ('success') {
+          <!-- Quality overview -->
+          <section aria-labelledby="overview-title" class="flex flex-col gap-6">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 id="overview-title" class="text-2xl font-semibold text-cm-text">
+                  Quality overview
+                </h2>
+
+                <p class="mt-2 leading-relaxed text-cm-text-muted">
+                  A snapshot of the latest automated evaluation.
+                </p>
+              </div>
+
+              @if (current.data.latestRun; as run) {
+                <div
+                  class="rounded-cm-md bg-cm-surface px-4 py-2 text-sm text-cm-text-muted shadow-cm-sm"
+                >
+                  {{ run.environment }} · {{ run.status }}
+                </div>
+              }
+            </div>
+
+            <!-- Mobile selector -->
+            <div class="sm:hidden">
+              <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
+                <input aria-label="Overview metric" tuiSelect [formControl]="overviewControl" />
+                <tui-data-list-wrapper *tuiDropdown [items]="overviewOptions" />
+              </tui-textfield>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-3 sm:gap-6">
+              <!-- Total executions -->
+              <div
+                class="min-w-0"
+                [class.max-sm:hidden]="overviewSelection() !== 'Total executions'"
+              >
+                <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                  <div
+                    aria-hidden="true"
+                    class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
+                  >
+                    <tui-icon icon="@tui.workflow" class="size-6" />
+                  </div>
+
+                  <h3 class="text-lg font-semibold text-cm-text">Total executions</h3>
+
+                  <p class="text-4xl font-bold tabular-nums text-cm-primary">
+                    {{ current.data.totalRuns }}
+                  </p>
+
+                  <p class="text-sm text-cm-text-muted">Recorded quality pipeline runs</p>
+                </article>
+              </div>
+
+              <!-- Measurements -->
+              <div class="min-w-0" [class.max-sm:hidden]="overviewSelection() !== 'Measurements'">
+                <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                  <div
+                    aria-hidden="true"
+                    class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
+                  >
+                    <tui-icon icon="@tui.activity" class="size-6" />
+                  </div>
+
+                  <h3 class="text-lg font-semibold text-cm-text">Measurements</h3>
+
+                  <p class="text-4xl font-bold tabular-nums text-cm-primary">
+                    {{ current.data.metrics.length }}
+                  </p>
+
+                  <p class="text-sm text-cm-text-muted">Metrics in the latest evaluation</p>
+                </article>
+              </div>
+
+              <!-- Latest execution -->
+              <div
+                class="min-w-0"
+                [class.max-sm:hidden]="overviewSelection() !== 'Latest execution'"
+              >
+                <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                  <div
+                    aria-hidden="true"
+                    class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
+                  >
+                    <tui-icon icon="@tui.git-commit-horizontal" class="size-6" />
+                  </div>
+
+                  <h3 class="text-lg font-semibold text-cm-text">Latest execution</h3>
+
+                  <p class="wrap-break-word text-xl font-semibold text-cm-primary">
+                    {{ current.data.latestRun?.status ?? 'Not available' }}
+                  </p>
+
+                  <p class="text-sm text-cm-text-muted">
+                    {{ current.data.latestRun?.source ?? 'Awaiting the first CI run' }}
+                  </p>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <!-- Lighthouse scores -->
+          <section aria-labelledby="lighthouse-title" class="flex flex-col gap-6">
+            <div>
+              <h2 id="lighthouse-title" class="text-2xl font-semibold text-cm-text">
+                Lighthouse scores
+              </h2>
+
+              <p class="mt-2 leading-relaxed text-cm-text-muted">
+                Performance, accessibility, SEO and best practices.
+              </p>
+            </div>
+
+            <!-- Mobile selector -->
+            <div class="sm:hidden">
+              <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
+                <input aria-label="Lighthouse metric" tuiSelect [formControl]="lighthouseControl" />
+                <tui-data-list-wrapper *tuiDropdown [items]="lighthouseOptions" />
+              </tui-textfield>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+              @for (item of lighthouseMetrics; track item.key) {
+                <div class="min-w-0" [class.max-sm:hidden]="lighthouseSelection() !== item.label">
+                  <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                    <div
+                      aria-hidden="true"
+                      class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
+                    >
+                      <tui-icon [icon]="item.icon" class="size-6" />
+                    </div>
+
+                    <h3 class="text-lg font-semibold text-cm-text">
+                      {{ item.label }}
+                    </h3>
+
+                    @if (getMetric(current.data, item.key); as metric) {
+                      <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-bold tabular-nums text-cm-primary">
+                          {{ metric.value }}
+                        </span>
+
+                        <span class="text-sm text-cm-text-muted">
+                          {{ metric.unit }}
+                        </span>
+                      </div>
+                    } @else {
+                      <p class="text-4xl font-bold text-cm-text-muted">—</p>
+                    }
+
+                    <p class="text-sm text-cm-text-muted">Latest available score</p>
+                  </article>
+                </div>
+              }
+            </div>
+          </section>
+
+          <!-- Historical analysis -->
+          <section aria-labelledby="history-title" class="flex flex-col gap-6">
+            <div>
+              <h2 id="history-title" class="text-2xl font-semibold text-cm-text">
+                Quality evolution
+              </h2>
+
+              <p class="mt-2 leading-relaxed text-cm-text-muted">
+                Explore how software quality evolves across CI executions.
+              </p>
+            </div>
+
+            @defer (on viewport) {
+              <app-quality-history-chart />
+            } @placeholder {
+              <div
+                class="flex min-h-72 items-center justify-center rounded-cm-lg bg-cm-surface p-6 shadow-cm-sm sm:min-h-96"
+              >
+                <p class="text-center text-cm-text-muted">Historical measurements</p>
+              </div>
+            } @loading {
+              <div
+                class="flex min-h-72 items-center justify-center rounded-cm-lg bg-cm-surface sm:min-h-96"
+                role="status"
+                aria-label="Loading historical chart"
+              >
+                <tui-loader size="l" />
+              </div>
+            } @error {
+              <div
+                class="rounded-cm-lg bg-cm-surface p-8 text-center text-cm-text-muted"
+                role="alert"
+              >
+                The history visualization could not be loaded.
+              </div>
+            }
+          </section>
+
+          <!-- Core Web Vitals -->
+          <section aria-labelledby="vitals-title" class="flex flex-col gap-6">
+            <div>
+              <h2 id="vitals-title" class="text-2xl font-semibold text-cm-text">Core Web Vitals</h2>
+
+              <p class="mt-2 leading-relaxed text-cm-text-muted">
+                Responsiveness, visual stability and loading performance.
+              </p>
+            </div>
+
+            <!-- Mobile selector -->
+            <div class="sm:hidden">
+              <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
+                <input aria-label="Core Web Vital" tuiSelect [formControl]="vitalControl" />
+                <tui-data-list-wrapper *tuiDropdown [items]="vitalOptions" />
+              </tui-textfield>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-3 sm:gap-6">
+              @for (item of webVitals; track item.key) {
+                <div class="min-w-0" [class.max-sm:hidden]="vitalSelection() !== item.label">
+                  <article tuiCardLarge appearance="floating" class="h-full min-w-0 border border-cm-border">
+                    <div
+                      aria-hidden="true"
+                      class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
+                    >
+                      <tui-icon [icon]="item.icon" class="size-6" />
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-cm-text">
+                      {{ item.label }}
+                    </h3>
+
+                    @if (getMetric(current.data, item.key); as metric) {
+                      <div class="flex items-baseline gap-2">
+                        <span class="text-3xl font-bold tabular-nums text-cm-primary">
+                          {{ metric.value }}
+                        </span>
+
+                        <span class="text-sm text-cm-text-muted">
+                          {{ metric.unit }}
+                        </span>
+                      </div>
+                    } @else {
+                      <p class="text-3xl font-bold text-cm-text-muted">—</p>
+                    }
+
+                    <p class="text-sm text-cm-text-muted">Good threshold: {{ item.target }}</p>
+                  </article>
+                </div>
+              }
+            </div>
+          </section>
+
+          <!-- Latest execution details -->
+          <section aria-labelledby="execution-title">
+            <article tuiCardLarge appearance="floating" class="min-w-0">
+              <div
+                aria-hidden="true"
+                class="flex size-12 items-center justify-center rounded-cm-md bg-cm-background text-cm-secondary"
+              >
+                <tui-icon icon="@tui.history" class="size-6" />
+              </div>
+
+              <h2 id="execution-title" class="text-2xl font-semibold text-cm-text">
+                Latest execution
+              </h2>
+
+              @if (current.data.latestRun; as run) {
+                <dl class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+                  <div class="flex min-w-0 flex-col gap-2">
+                    <dt class="text-sm text-cm-text-muted">Source</dt>
+                    <dd class="wrap-break-word font-medium text-cm-text">
+                      {{ run.source }}
+                    </dd>
+                  </div>
+
+                  <div class="flex min-w-0 flex-col gap-2">
+                    <dt class="text-sm text-cm-text-muted">Environment</dt>
+                    <dd class="wrap-break-word font-medium text-cm-text">
+                      {{ run.environment }}
+                    </dd>
+                  </div>
+
+                  <div class="flex min-w-0 flex-col gap-2">
+                    <dt class="text-sm text-cm-text-muted">Status</dt>
+                    <dd class="font-medium text-cm-text">
+                      {{ run.status }}
+                    </dd>
+                  </div>
+
+                  <div class="flex min-w-0 flex-col gap-2">
+                    <dt class="text-sm text-cm-text-muted">Commit</dt>
+                    <dd class="break-all font-mono text-sm text-cm-text">
+                      {{ run.commitSha ?? 'Not available' }}
+                    </dd>
+                  </div>
+                </dl>
+              } @else {
+                <p class="leading-relaxed text-cm-text-muted">
+                  No executions have been recorded yet. Results will appear after the first
+                  automated quality evaluation.
+                </p>
+              }
+            </article>
+          </section>
+        }
+      }
+    }
+  </div>
+</div>

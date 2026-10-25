@@ -1,9 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
-import { TuiCard } from '@taiga-ui/layout';
+import { TuiCardLarge } from '@taiga-ui/layout';
 import { TuiLoader, TuiIcon, TuiTextfield } from '@taiga-ui/core';
-import { TuiChevron, TuiSelect } from '@taiga-ui/kit';
+import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, startWith } from 'rxjs';
@@ -23,7 +23,8 @@ import { QualityHistoryChart } from './components/quality-history-chart/quality-
     TuiTextfield,
     TuiChevron,
     TuiSelect,
-    TuiCard,
+    TuiDataListWrapper,
+    TuiCardLarge,
     QualityHistoryChart,
   ],
   templateUrl: './quality.html',
@@ -44,7 +45,7 @@ export class Quality {
 
   protected readonly vitalControl = new FormControl('LCP', { nonNullable: true });
 
-  // Signals notify the OnPush view for native selection and programmatic form updates.
+  // Signals notify the OnPush view for dropdown selection and programmatic form updates.
   protected readonly overviewSelection = toSignal(this.overviewControl.valueChanges, {
     initialValue: this.overviewControl.value,
   });
