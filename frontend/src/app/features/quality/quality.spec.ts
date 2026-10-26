@@ -1,4 +1,4 @@
-import { ComponentFixture, DeferBlockState, TestBed } from '@angular/core/testing';
+import { ComponentFixture, DeferBlockBehavior, DeferBlockState, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NgControl } from '@angular/forms';
 import { TuiSelectDirective } from '@taiga-ui/kit';
@@ -21,6 +21,7 @@ describe('Quality', () => {
       },
     );
     await TestBed.configureTestingModule({
+      deferBlockBehavior: DeferBlockBehavior.Manual,
       imports: [Quality],
       providers: [
         {
@@ -50,6 +51,27 @@ describe('Quality', () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
+  it('applies global page and device filters to the summary and history', async () => {
+    const service = TestBed.inject(QualityService);
+    const getSummary = vi.spyOn(service, 'getSummary');
+    const getHistory = vi.spyOn(service, 'getHistory');
+
+    const page = fixture.debugElement.query(By.css('#quality-page'));
+    page.injector.get(TuiSelectDirective).setValue('home');
+    await fixture.whenStable();
+    expect(getSummary).toHaveBeenLastCalledWith('home', 'mobile');
+
+    const device = fixture.debugElement.query(By.css('#quality-device'));
+    device.injector.get(TuiSelectDirective).setValue('desktop');
+    await fixture.whenStable();
+    expect(getSummary).toHaveBeenLastCalledWith('home', 'desktop');
+
+    const [history] = await fixture.getDeferBlocks();
+    await history.render(DeferBlockState.Complete);
+    await fixture.whenStable();
+    expect(getHistory).toHaveBeenLastCalledWith('performance', 'desktop', 'home');
+  });
+
   it('loads the deferred history component with the real Taiga chart', async () => {
     vi.spyOn(TestBed.inject(QualityService), 'getHistory').mockReturnValue(
       of({
@@ -77,7 +99,7 @@ describe('Quality', () => {
     const child: HTMLElement = fixture.nativeElement.querySelector('app-quality-history-chart');
     expect(child.querySelector('tui-line-chart svg')).not.toBeNull();
     expect(child.textContent).toContain('Latest: 75 score');
-    expect(TestBed.inject(QualityService).getHistory).toHaveBeenCalledWith('performance', 'mobile');
+    expect(TestBed.inject(QualityService).getHistory).toHaveBeenCalledWith('performance', 'mobile', 'map');
   });
 
   for (const [label, options] of [

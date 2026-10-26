@@ -26,26 +26,6 @@
           <tui-data-list-wrapper *tuiDropdown [items]="metricOptions" />
         </tui-textfield>
       </div>
-
-      <div class="flex flex-col gap-1">
-        <label for="history-device" class="text-sm font-medium text-cm-text"> Device </label>
-
-        <tui-textfield
-          class="w-28"
-          tuiChevron
-          tuiTextfieldSize="m"
-          [tuiTextfieldCleaner]="false"
-          [stringify]="stringifyDevice"
-        >
-          <input
-            id="history-device"
-            tuiSelect
-            [ngModel]="device()"
-            (ngModelChange)="device.set($event)"
-          />
-          <tui-data-list-wrapper *tuiDropdown [items]="deviceOptions" />
-        </tui-textfield>
-      </div>
     </div>
   </div>
 

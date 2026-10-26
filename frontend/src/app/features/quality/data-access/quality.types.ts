@@ -67,3 +67,10 @@ export interface QualityHistory {
   page: string | null;
   points: QualityHistoryPoint[];
 }
+
+export const QUALITY_PAGES = ['home', 'map', 'search', 'about', 'quality'] as const;
+
+export type QualityPage = (typeof QUALITY_PAGES)[number];
+
+export const QUALITY_DEVICES = ['desktop', 'mobile'];
+export type QualityDevice = (typeof QUALITY_DEVICES)[number];

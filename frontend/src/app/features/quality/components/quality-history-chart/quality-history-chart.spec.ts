@@ -53,6 +53,8 @@ describe('QualityHistoryChart', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(QualityHistoryChart);
+    fixture.componentRef.setInput('page', 'map');
+    fixture.componentRef.setInput('device', 'mobile');
     await fixture.whenStable();
   });
 
@@ -61,9 +63,8 @@ describe('QualityHistoryChart', () => {
   });
 
   it('shows loading followed by an empty state', async () => {
-    expect(getHistory).toHaveBeenCalledWith('performance', 'mobile');
+    expect(getHistory).toHaveBeenCalledWith('performance', 'mobile', 'map');
     expect(fixture.nativeElement.querySelector('#history-metric').value).toBe('Performance');
-    expect(fixture.nativeElement.querySelector('#history-device').value).toBe('Mobile');
 
     expect(fixture.nativeElement.querySelector('[role="status"]')).not.toBeNull();
 
@@ -109,6 +110,21 @@ describe('QualityHistoryChart', () => {
     expect(data.points[0].value).toBe(80);
   });
 
+  it('reloads history when the parent changes the page', async () => {
+    const previous = response;
+    response = new Subject<QualityHistory>();
+    fixture.componentRef.setInput('page', 'home');
+    await fixture.whenStable();
+
+    expect(getHistory).toHaveBeenLastCalledWith('performance', 'mobile', 'home');
+    previous.next(history([99]));
+    expect(fixture.componentInstance.history().status).toBe('loading');
+
+    response.next(history([25]));
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('Latest: 25 score');
+  });
+
   it.each([[0], [50, 50]])(
     'renders finite coordinates for constant values %j',
     async (...values) => {
@@ -138,7 +154,7 @@ describe('QualityHistoryChart', () => {
 
     await fixture.whenStable();
 
-    expect(getHistory).toHaveBeenLastCalledWith('best-practices', 'mobile');
+    expect(getHistory).toHaveBeenLastCalledWith('best-practices', 'mobile', 'map');
     expect(metric.nativeElement.value).toBe('Best Practices');
 
     expect(fixture.nativeElement.querySelector('[role="status"]')).not.toBeNull();
@@ -146,13 +162,11 @@ describe('QualityHistoryChart', () => {
     const previous = response;
     response = new Subject<QualityHistory>();
 
-    const device = fixture.debugElement.query(By.css('#history-device'));
-    device.injector.get(TuiSelectDirective).setValue('desktop');
+    fixture.componentRef.setInput('device', 'desktop');
 
     await fixture.whenStable();
 
-    expect(getHistory).toHaveBeenLastCalledWith('best-practices', 'desktop');
-    expect(device.nativeElement.value).toBe('Desktop');
+    expect(getHistory).toHaveBeenLastCalledWith('best-practices', 'desktop', 'map');
 
     // A superseded request must not overwrite current state.
     previous.next(history([99]));

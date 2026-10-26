@@ -47,27 +47,82 @@
 
         @case ('success') {
           <!-- Quality overview -->
-          <section aria-labelledby="overview-title" class="flex flex-col gap-6">
-            <div class="flex flex-wrap items-end justify-between gap-4">
-              <div>
+          <section aria-labelledby="overview-title" class="flex flex-col gap-5">
+            <div class="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <!-- Title -->
+              <div class="min-w-0">
                 <h2 id="overview-title" class="text-2xl font-semibold text-cm-text">
                   Quality overview
                 </h2>
 
                 <p class="mt-2 leading-relaxed text-cm-text-muted">
-                  A snapshot of the latest automated evaluation.
+                  Explore the latest available quality measurements by page and device.
                 </p>
               </div>
 
-              @if (current.data.latestRun; as run) {
+              <!-- Global filters -->
+              <div class="grid w-full grid-cols-2 gap-3 md:w-auto md:shrink-0">
+                <!-- Page -->
+                <div class="flex min-w-0 flex-col gap-1">
+                  <label for="quality-page" class="text-sm font-medium text-cm-text"> Page </label>
+
+                  <tui-textfield
+                    class="w-full md:w-32"
+                    tuiChevron
+                    tuiTextfieldSize="m"
+                    [tuiTextfieldCleaner]="false"
+                    [stringify]="stringifyPage"
+                  >
+                    <input
+                      id="quality-page"
+                      tuiSelect
+                      [ngModel]="page()"
+                      (ngModelChange)="page.set($event)"
+                    />
+
+                    <tui-data-list-wrapper *tuiDropdown [items]="pageOptions" />
+                  </tui-textfield>
+                </div>
+
+                <!-- Device -->
+                <div class="flex min-w-0 flex-col gap-1">
+                  <label for="quality-device" class="text-sm font-medium text-cm-text">
+                    Device
+                  </label>
+
+                  <tui-textfield
+                    class="w-full md:w-32"
+                    tuiChevron
+                    tuiTextfieldSize="m"
+                    [tuiTextfieldCleaner]="false"
+                    [stringify]="stringifyDevice"
+                  >
+                    <input
+                      id="quality-device"
+                      tuiSelect
+                      [ngModel]="device()"
+                      (ngModelChange)="device.set($event)"
+                    />
+
+                    <tui-data-list-wrapper *tuiDropdown [items]="deviceOptions" />
+                  </tui-textfield>
+                </div>
+              </div>
+            </div>
+
+            <!-- Latest execution status -->
+            @if (current.data.latestRun; as run) {
+              <div class="flex">
                 <div
                   class="rounded-cm-md bg-cm-surface px-4 py-2 text-sm text-cm-text-muted shadow-cm-sm"
                 >
                   {{ run.environment }} · {{ run.status }}
                 </div>
-              }
-            </div>
+              </div>
+            }
+          </section>
 
+          <section aria-label="Execution overview" class="flex flex-col gap-6">
             <!-- Mobile selector -->
             <div class="sm:hidden">
               <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
@@ -116,7 +171,9 @@
                     {{ current.data.metrics.length }}
                   </p>
 
-                  <p class="text-sm text-cm-text-muted">Metrics in the latest evaluation</p>
+                  <p class="text-sm text-cm-text-muted">
+                    Available measurements for selected filters
+                  </p>
                 </article>
               </div>
 
@@ -216,7 +273,7 @@
             </div>
 
             @defer (on viewport) {
-              <app-quality-history-chart />
+              <app-quality-history-chart [page]="page()" [device]="device()" />
             } @placeholder {
               <div
                 class="flex min-h-72 items-center justify-center rounded-cm-lg bg-cm-surface p-6 shadow-cm-sm sm:min-h-96"

@@ -7,6 +7,7 @@ import type {
   QualityRun,
   QualityRunsResponse,
   QualityHistory,
+  QualityPage,
 } from './quality.types';
 import { API_BASE_URL } from '../../../core/config/api.config';
 
@@ -18,8 +19,10 @@ export class QualityService {
   private readonly apiUrl = inject(API_BASE_URL);
   private readonly endpoint = `${this.apiUrl}/quality`;
 
-  getSummary(): Observable<QualitySummary> {
-    return this.http.get<QualitySummary>(`${this.endpoint}/summary`);
+  getSummary(page: QualityPage, device: string): Observable<QualitySummary> {
+    return this.http.get<QualitySummary>(`${this.endpoint}/summary`, {
+      params: { page, device },
+    });
   }
 
   getRuns(): Observable<QualityRunsResponse> {
@@ -32,9 +35,14 @@ export class QualityService {
     return this.http.get<QualityRun>(`${this.endpoint}/runs/${encodeURIComponent(id)}`);
   }
 
-  getHistory(metric: string, device: string, limit = 30): Observable<QualityHistory> {
+  getHistory(
+    metric: string,
+    device: string,
+    page: QualityPage,
+    limit = 30,
+  ): Observable<QualityHistory> {
     return this.http.get<QualityHistory>(`${this.endpoint}/history`, {
-      params: { metric, device, limit },
+      params: { metric, device, page, limit },
     });
   }
 }

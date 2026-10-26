@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
@@ -9,7 +9,7 @@ import { combineLatest, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { QualityService } from '../../data-access/quality.service';
-import type { QualityHistory } from '../../data-access/quality.types';
+import type { QualityHistory, QualityPage, QualityDevice } from '../../data-access/quality.types';
 
 type HistoryState =
   { status: 'loading' } | { status: 'error' } | { status: 'success'; data: QualityHistory };
@@ -24,8 +24,9 @@ type HistoryState =
 export class QualityHistoryChart {
   private readonly qualityService = inject(QualityService);
 
+  readonly page = input.required<QualityPage>();
+  readonly device = input.required<QualityDevice>();
   readonly metric = signal('performance');
-  readonly device = signal('mobile');
 
   readonly metrics = [
     { value: 'performance', label: 'Performance' },
@@ -38,19 +39,20 @@ export class QualityHistoryChart {
   ];
 
   readonly metricOptions = this.metrics.map(({ value }) => value);
-  readonly deviceOptions = ['mobile', 'desktop'];
   readonly stringifyMetric = (value: string): string =>
     this.metrics.find((option) => option.value === value)?.label ?? value;
-  readonly stringifyDevice = (value: string): string =>
-    value === 'desktop' ? 'Desktop' : 'Mobile';
 
   readonly chartWidth = 600;
   readonly chartHeight = 200;
 
   readonly history = toSignal(
-    combineLatest([toObservable(this.metric), toObservable(this.device)]).pipe(
-      switchMap(([metric, device]) =>
-        this.qualityService.getHistory(metric, device).pipe(
+    combineLatest([
+      toObservable(this.metric),
+      toObservable(this.device),
+      toObservable(this.page),
+    ]).pipe(
+      switchMap(([metric, device, page]) =>
+        this.qualityService.getHistory(metric, device, page).pipe(
           map((data): HistoryState => ({
             status: 'success',
             data,
