@@ -56,19 +56,60 @@ describe('QualityController (HTTP)', () => {
     await app?.close();
   });
 
-  it('GET /summary returns the service summary', async () => {
-    const summary = { totalRuns: 0, latestRun: null, metrics: [] };
-    service.getSummary.mockResolvedValue(
-      summary as unknown as Awaited<ReturnType<QualityService['getSummary']>>,
-    );
+  it.each(['home', 'map', 'search', 'about', 'quality'])(
+    'GET /summary accepts page %s and forwards its filters',
+    async (page) => {
+      const summary = { totalRuns: 0, latestRun: null, metrics: [] };
+      service.getSummary.mockResolvedValue(
+        summary as unknown as Awaited<ReturnType<QualityService['getSummary']>>,
+      );
 
-    const response = await request(server)
-      .get('/api/quality/summary')
+      const response = await request(server)
+        .get('/api/quality/summary')
+        .query({ page, device: 'mobile' })
+        .expect(200);
+
+      expect(response.body).toEqual(summary);
+      expect(service.getSummary).toHaveBeenCalledExactlyOnceWith({
+        page,
+        device: 'mobile',
+      });
+    },
+  );
+
+  it('GET /summary accepts desktop measurements', async () => {
+    service.getSummary.mockResolvedValue({
+      totalRuns: 0,
+      latestRun: new QualityRun(),
+      metrics: [],
+    });
+    await request(server)
+      .get('/api/quality/summary?page=map&device=desktop')
       .expect(200);
-
-    expect(response.body).toEqual(summary);
-    expect(service.getSummary).toHaveBeenCalledExactlyOnceWith();
+    expect(service.getSummary).toHaveBeenCalledExactlyOnceWith({
+      page: 'map',
+      device: 'desktop',
+    });
   });
+
+  it.each([
+    '',
+    'page=map',
+    'device=mobile',
+    'page=&device=mobile',
+    'page=invalid&device=mobile',
+    'page=map&device=',
+    'page=map&device=tablet',
+    'page=map&device=mobile&unexpected=true',
+    'page=map&page=home&device=mobile',
+    'page=map&device=mobile&device=desktop',
+  ])(
+    'GET /summary rejects missing, invalid or unknown filters: %s',
+    async (query) => {
+      await request(server).get(`/api/quality/summary?${query}`).expect(400);
+      expect(service.getSummary).not.toHaveBeenCalled();
+    },
+  );
 
   it.each([
     ['', 1, 20],

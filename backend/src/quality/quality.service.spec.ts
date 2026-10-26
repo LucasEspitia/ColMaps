@@ -32,23 +32,32 @@ describe('QualityService', () => {
       value: 95,
       unit: 'score',
       device: 'desktop',
+      page: 'map',
     });
     run.results = new Collection<QualityResult>(run, [metric]);
     repository.count.mockResolvedValue(3);
     repository.find.mockResolvedValue([run]);
 
-    await expect(service.getSummary()).resolves.toEqual({
+    await expect(
+      service.getSummary({ page: 'map', device: 'desktop' }),
+    ).resolves.toEqual({
       totalRuns: 3,
       latestRun: run,
       metrics: [metric],
     });
-    expect(repository.find).toHaveBeenCalledExactlyOnceWith(
+    expect(repository.count).toHaveBeenCalledExactlyOnceWith();
+    expect(repository.find).toHaveBeenNthCalledWith(
+      1,
       {},
       {
-        orderBy: { startedAt: 'DESC' },
-        populate: ['results'],
+        orderBy: { startedAt: 'DESC', id: 'DESC' },
         limit: 1,
       },
+    );
+    expect(repository.find).toHaveBeenNthCalledWith(
+      2,
+      { status: 'passed', results: { page: 'map', device: 'desktop' } },
+      { populate: ['results'], orderBy: { startedAt: 'DESC', id: 'DESC' } },
     );
   });
 
@@ -56,9 +65,70 @@ describe('QualityService', () => {
     repository.count.mockResolvedValue(0);
     repository.find.mockResolvedValue([]);
 
-    await expect(service.getSummary()).resolves.toEqual({
+    await expect(
+      service.getSummary({ page: 'map', device: 'desktop' }),
+    ).resolves.toEqual({
       totalRuns: 0,
       latestRun: null,
+      metrics: [],
+    });
+  });
+
+  it('keeps the latest execution separate from the latest matching value of each metric', async () => {
+    const latest = Object.assign(new QualityRun(), { status: 'failed' });
+    const newer = new QualityRun();
+    const older = new QualityRun();
+    const result = (
+      run: QualityRun,
+      metric: string,
+      value: number,
+      page = 'map',
+      device = 'mobile',
+    ) =>
+      Object.assign(new QualityResult(), {
+        run,
+        metric,
+        value,
+        page,
+        device,
+        unit: 'score',
+      });
+    const performance = result(newer, 'performance', 0);
+    const accessibility = result(older, 'accessibility', 95);
+    newer.results = new Collection<QualityResult>(newer, [
+      result(newer, 'performance', 99, 'home'),
+      result(newer, 'accessibility', 99, 'map', 'desktop'),
+      performance,
+    ]);
+    older.results = new Collection<QualityResult>(older, [
+      result(older, 'performance', 80),
+      accessibility,
+      result(older, 'seo', 100, 'search'),
+    ]);
+    repository.count.mockResolvedValue(10);
+    repository.find
+      .mockResolvedValueOnce([latest])
+      .mockResolvedValueOnce([newer, older]);
+
+    await expect(
+      service.getSummary({ page: 'map', device: 'mobile' }),
+    ).resolves.toEqual({
+      totalRuns: 10,
+      latestRun: latest,
+      metrics: [performance, accessibility],
+    });
+  });
+
+  it('returns the global latest run even when no metrics match the selected filters', async () => {
+    const latest = new QualityRun();
+    repository.count.mockResolvedValue(4);
+    repository.find.mockResolvedValueOnce([latest]).mockResolvedValueOnce([]);
+
+    await expect(
+      service.getSummary({ page: 'home', device: 'mobile' }),
+    ).resolves.toEqual({
+      totalRuns: 4,
+      latestRun: latest,
       metrics: [],
     });
   });

@@ -34,3 +34,6 @@ export const QUALITY_PAGES = [
 ] as const;
 
 export type QualityPage = (typeof QUALITY_PAGES)[number];
+
+export const QUALITY_DEVICES = ['desktop', 'mobile'];
+export type QualityDevice = (typeof QUALITY_DEVICES)[number];
