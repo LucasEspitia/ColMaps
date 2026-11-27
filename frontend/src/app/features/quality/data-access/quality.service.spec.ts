@@ -32,7 +32,7 @@ describe('QualityService', () => {
   it('requests summary filtered by page and device', () => {
     service.getSummary('map', 'mobile').subscribe();
 
-    const request = httpMock.expectOne(`${endpoint}/summary`);
+    const request = httpMock.expectOne((request) => request.url === `${endpoint}/summary`);
 
     expect(request.request.method).toBe('GET');
     expect(request.request.params.get('page')).toBe('map');
@@ -44,7 +44,7 @@ describe('QualityService', () => {
   it('requests paginated runs', () => {
     service.getRuns().subscribe();
 
-    const request = httpMock.expectOne(`${endpoint}/runs`);
+    const request = httpMock.expectOne((request) => request.url === `${endpoint}/runs`);
 
     expect(request.request.method).toBe('GET');
     expect(request.request.params.get('page')).toBe('1');
@@ -68,7 +68,7 @@ describe('QualityService', () => {
   it('requests history with filters and default limit', () => {
     service.getHistory('performance', 'desktop', 'about').subscribe();
 
-    const request = httpMock.expectOne(`${endpoint}/history`);
+    const request = httpMock.expectOne((request) => request.url === `${endpoint}/history`);
 
     expect(request.request.method).toBe('GET');
     expect(request.request.params.get('metric')).toBe('performance');

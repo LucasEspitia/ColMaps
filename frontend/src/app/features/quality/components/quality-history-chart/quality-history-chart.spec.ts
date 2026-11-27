@@ -104,7 +104,7 @@ describe('QualityHistoryChart', () => {
     expect(chartInstance.value()).toEqual(points);
     expect(chartInstance.dots()).toBe(true);
 
-    expect(fixture.nativeElement.textContent).toContain('Latest: 80 score');
+    expect(fixture.componentInstance.points().map((point) => point.value)).toEqual([20, 80]);
 
     // Input data should not be mutated by the component.
     expect(data.points[0].value).toBe(80);
@@ -122,7 +122,7 @@ describe('QualityHistoryChart', () => {
 
     response.next(history([25]));
     await fixture.whenStable();
-    expect(fixture.nativeElement.textContent).toContain('Latest: 25 score');
+    expect(fixture.componentInstance.points().map((point) => point.value)).toEqual([25]);
   });
 
   it.each([[0], [50, 50]])(
