@@ -76,11 +76,16 @@
                     <input
                       id="quality-page"
                       tuiSelect
+                      appQualitySelectKeyboard
                       [ngModel]="page()"
                       (ngModelChange)="page.set($event)"
                     />
 
-                    <tui-data-list-wrapper *tuiDropdown [items]="pageOptions" />
+                    <tui-data-list-wrapper
+                      class="[&_[tuiOption]:is(:hover,:focus)]:[outline:2px_solid_var(--cm-focus)]! [&_[tuiOption]:is(:hover,:focus)]:-outline-offset-2!"
+                      *tuiDropdown
+                      [items]="pageOptions"
+                    />
                   </tui-textfield>
                 </div>
 
@@ -100,11 +105,16 @@
                     <input
                       id="quality-device"
                       tuiSelect
+                      appQualitySelectKeyboard
                       [ngModel]="device()"
                       (ngModelChange)="device.set($event)"
                     />
 
-                    <tui-data-list-wrapper *tuiDropdown [items]="deviceOptions" />
+                    <tui-data-list-wrapper
+                      class="[&_[tuiOption]:is(:hover,:focus)]:[outline:2px_solid_var(--cm-focus)]! [&_[tuiOption]:is(:hover,:focus)]:-outline-offset-2!"
+                      *tuiDropdown
+                      [items]="deviceOptions"
+                    />
                   </tui-textfield>
                 </div>
               </div>
@@ -126,8 +136,17 @@
             <!-- Mobile selector -->
             <div class="sm:hidden">
               <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
-                <input aria-label="Overview metric" tuiSelect [formControl]="overviewControl" />
-                <tui-data-list-wrapper *tuiDropdown [items]="overviewOptions" />
+                <input
+                  aria-label="Overview metric"
+                  tuiSelect
+                  appQualitySelectKeyboard
+                  [formControl]="overviewControl"
+                />
+                <tui-data-list-wrapper
+                  class="[&_[tuiOption]:is(:hover,:focus)]:[outline:2px_solid_var(--cm-focus)]! [&_[tuiOption]:is(:hover,:focus)]:-outline-offset-2!"
+                  *tuiDropdown
+                  [items]="overviewOptions"
+                />
               </tui-textfield>
             </div>
 
@@ -204,6 +223,34 @@
             </div>
           </section>
 
+          <!-- Historical analysis -->
+          <section aria-labelledby="history-title" class="flex flex-col gap-6">
+            @defer (on viewport) {
+              <app-quality-history-chart [page]="page()" [device]="device()" />
+            } @placeholder {
+              <div
+                class="flex min-h-72 items-center justify-center rounded-cm-lg bg-cm-surface p-6 shadow-cm-sm sm:min-h-96"
+              >
+                <p class="text-center text-cm-text-muted">Historical measurements</p>
+              </div>
+            } @loading {
+              <div
+                class="flex min-h-72 items-center justify-center rounded-cm-lg bg-cm-surface sm:min-h-96"
+                role="status"
+                aria-label="Loading historical chart"
+              >
+                <tui-loader size="l" />
+              </div>
+            } @error {
+              <div
+                class="rounded-cm-lg bg-cm-surface p-8 text-center text-cm-text-muted"
+                role="alert"
+              >
+                The history visualization could not be loaded.
+              </div>
+            }
+          </section>
+
           <!-- Lighthouse scores -->
           <section aria-labelledby="lighthouse-title" class="flex flex-col gap-6">
             <div>
@@ -219,8 +266,17 @@
             <!-- Mobile selector -->
             <div class="sm:hidden">
               <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
-                <input aria-label="Lighthouse metric" tuiSelect [formControl]="lighthouseControl" />
-                <tui-data-list-wrapper *tuiDropdown [items]="lighthouseOptions" />
+                <input
+                  aria-label="Lighthouse metric"
+                  tuiSelect
+                  appQualitySelectKeyboard
+                  [formControl]="lighthouseControl"
+                />
+                <tui-data-list-wrapper
+                  class="[&_[tuiOption]:is(:hover,:focus)]:[outline:2px_solid_var(--cm-focus)]! [&_[tuiOption]:is(:hover,:focus)]:-outline-offset-2!"
+                  *tuiDropdown
+                  [items]="lighthouseOptions"
+                />
               </tui-textfield>
             </div>
 
@@ -260,44 +316,6 @@
             </div>
           </section>
 
-          <!-- Historical analysis -->
-          <section aria-labelledby="history-title" class="flex flex-col gap-6">
-            <div>
-              <h2 id="history-title" class="text-2xl font-semibold text-cm-text">
-                Quality evolution
-              </h2>
-
-              <p class="mt-2 leading-relaxed text-cm-text-muted">
-                Explore how software quality evolves across CI executions.
-              </p>
-            </div>
-
-            @defer (on viewport) {
-              <app-quality-history-chart [page]="page()" [device]="device()" />
-            } @placeholder {
-              <div
-                class="flex min-h-72 items-center justify-center rounded-cm-lg bg-cm-surface p-6 shadow-cm-sm sm:min-h-96"
-              >
-                <p class="text-center text-cm-text-muted">Historical measurements</p>
-              </div>
-            } @loading {
-              <div
-                class="flex min-h-72 items-center justify-center rounded-cm-lg bg-cm-surface sm:min-h-96"
-                role="status"
-                aria-label="Loading historical chart"
-              >
-                <tui-loader size="l" />
-              </div>
-            } @error {
-              <div
-                class="rounded-cm-lg bg-cm-surface p-8 text-center text-cm-text-muted"
-                role="alert"
-              >
-                The history visualization could not be loaded.
-              </div>
-            }
-          </section>
-
           <!-- Core Web Vitals -->
           <section aria-labelledby="vitals-title" class="flex flex-col gap-6">
             <div>
@@ -311,8 +329,17 @@
             <!-- Mobile selector -->
             <div class="sm:hidden">
               <tui-textfield tuiChevron [tuiTextfieldCleaner]="false">
-                <input aria-label="Core Web Vital" tuiSelect [formControl]="vitalControl" />
-                <tui-data-list-wrapper *tuiDropdown [items]="vitalOptions" />
+                <input
+                  aria-label="Core Web Vital"
+                  tuiSelect
+                  appQualitySelectKeyboard
+                  [formControl]="vitalControl"
+                />
+                <tui-data-list-wrapper
+                  class="[&_[tuiOption]:is(:hover,:focus)]:[outline:2px_solid_var(--cm-focus)]! [&_[tuiOption]:is(:hover,:focus)]:-outline-offset-2!"
+                  *tuiDropdown
+                  [items]="vitalOptions"
+                />
               </tui-textfield>
             </div>
 

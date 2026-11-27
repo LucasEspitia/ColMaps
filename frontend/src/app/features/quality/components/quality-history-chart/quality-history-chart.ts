@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { TuiLineChart } from '@taiga-ui/addon-charts/components/line-chart';
+import { TuiLineChart, TuiAxes, TuiChartHint } from '@taiga-ui/addon-charts';
 import { TuiTextfield } from '@taiga-ui/core';
 import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 import { combineLatest, of } from 'rxjs';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 
 import { QualityService } from '../../data-access/quality.service';
+import { QualitySelectKeyboard } from '../../quality-select-keyboard';
 import type { QualityHistory, QualityPage, QualityDevice } from '../../data-access/quality.types';
 
 type HistoryState =
@@ -16,7 +18,18 @@ type HistoryState =
 
 @Component({
   selector: 'app-quality-history-chart',
-  imports: [FormsModule, TuiLineChart, TuiTextfield, TuiChevron, TuiDataListWrapper, TuiSelect],
+  imports: [
+    DatePipe,
+    FormsModule,
+    TuiLineChart,
+    TuiChartHint,
+    TuiAxes,
+    TuiTextfield,
+    TuiChevron,
+    TuiDataListWrapper,
+    TuiSelect,
+    QualitySelectKeyboard,
+  ],
   styleUrl: './quality-history-chart.css',
   templateUrl: './quality-history-chart.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,7 +56,7 @@ export class QualityHistoryChart {
     this.metrics.find((option) => option.value === value)?.label ?? value;
 
   readonly chartWidth = 600;
-  readonly chartHeight = 200;
+  readonly chartHeight = 450;
 
   readonly history = toSignal(
     combineLatest([
@@ -66,6 +79,43 @@ export class QualityHistoryChart {
       initialValue: { status: 'loading' } as HistoryState,
     },
   );
+
+  readonly axisXLabels = computed(() => {
+    const points = this.points();
+
+    if (!points.length) {
+      return [];
+    }
+
+    return Array.from({ length: 5 }, (_, index) => {
+      const pointIndex = Math.round((index / 4) * (points.length - 1));
+
+      return new Date(points[pointIndex].startedAt).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        timeZone: 'UTC',
+      });
+    });
+  });
+
+  readonly axisYLabels = computed(() => {
+    const { min, max } = this.range();
+    const metric = this.metric();
+
+    return Array.from({ length: 5 }, (_, index) => {
+      const value = min + (index / 4) * (max - min);
+
+      if (metric === 'lcp' || metric === 'inp') {
+        return `${(value / 1000).toFixed(2)} s`;
+      }
+
+      if (metric === 'cls') {
+        return value.toFixed(3);
+      }
+
+      return value.toFixed(0);
+    });
+  });
 
   readonly points = computed(() => {
     const state = this.history();

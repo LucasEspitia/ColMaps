@@ -1,12 +1,19 @@
-import { ComponentFixture, DeferBlockBehavior, DeferBlockState, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  DeferBlockBehavior,
+  DeferBlockState,
+  TestBed,
+} from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { NgControl } from '@angular/forms';
 import { TuiSelectDirective } from '@taiga-ui/kit';
-import { of } from 'rxjs';
+import { TuiDropdownOpen } from '@taiga-ui/core';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Quality } from './quality';
 import { QualityService } from './data-access/quality.service';
+import { QualityHistoryChart } from './components/quality-history-chart/quality-history-chart';
 
 describe('Quality', () => {
   let fixture: ComponentFixture<Quality>;
@@ -50,6 +57,34 @@ describe('Quality', () => {
   });
 
   afterEach(() => vi.unstubAllGlobals());
+
+  it('keeps the focused filter mounted while its new summary loads', async () => {
+    const response = new Subject<{ totalRuns: number; latestRun: null; metrics: [] }>();
+    vi.spyOn(TestBed.inject(QualityService), 'getSummary').mockReturnValue(response);
+    const page = fixture.debugElement.query(By.css('#quality-page'));
+    const element: HTMLInputElement = page.nativeElement;
+    element.focus();
+    page.injector.get(TuiSelectDirective).setValue('home');
+    await fixture.whenStable();
+
+    expect(fixture.nativeElement.querySelector('#quality-page')).toBe(element);
+    expect(document.activeElement).toBe(element);
+
+    response.next({ totalRuns: 1, latestRun: null, metrics: [] });
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(element);
+  });
+
+  it('opens a focused dropdown with Enter', async () => {
+    const page = fixture.debugElement.query(By.css('#quality-page'));
+    const open = vi
+      .spyOn(page.injector.get(TuiDropdownOpen).open, 'set')
+      .mockImplementation(() => undefined);
+    page.nativeElement.focus();
+    page.nativeElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await fixture.whenStable();
+    expect(open).toHaveBeenCalledWith(true);
+  });
 
   it('applies global page and device filters to the summary and history', async () => {
     const service = TestBed.inject(QualityService);
@@ -98,8 +133,13 @@ describe('Quality', () => {
 
     const child: HTMLElement = fixture.nativeElement.querySelector('app-quality-history-chart');
     expect(child.querySelector('tui-line-chart svg')).not.toBeNull();
-    expect(child.textContent).toContain('Latest: 75 score');
-    expect(TestBed.inject(QualityService).getHistory).toHaveBeenCalledWith('performance', 'mobile', 'map');
+    const chart = fixture.debugElement.query(By.directive(QualityHistoryChart));
+    expect(chart.componentInstance.latest()?.value).toBe(75);
+    expect(TestBed.inject(QualityService).getHistory).toHaveBeenCalledWith(
+      'performance',
+      'mobile',
+      'map',
+    );
   });
 
   for (const [label, options] of [

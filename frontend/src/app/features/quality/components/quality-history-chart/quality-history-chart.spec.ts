@@ -175,9 +175,5 @@ describe('QualityHistoryChart', () => {
 
     response.next(history([10]));
     await fixture.whenStable();
-
-    expect(fixture.nativeElement.querySelector('[role="img"]').getAttribute('aria-label')).toBe(
-      'Evolution of best-practices on desktop',
-    );
   });
 });

@@ -1,7 +1,7 @@
 <section class="flex min-w-0 flex-col gap-6">
   <div class="flex flex-wrap items-end justify-between gap-4">
     <div class="flex flex-col gap-1">
-      <h3 class="text-xl font-semibold text-cm-text">Historical evolution</h3>
+      <h2 class="text-2xl font-semibold text-cm-text">Historical evolution</h2>
 
       <p class="text-sm text-cm-text-muted">Quality measurements across recent executions.</p>
     </div>
@@ -20,10 +20,15 @@
           <input
             id="history-metric"
             tuiSelect
+            appQualitySelectKeyboard
             [ngModel]="metric()"
             (ngModelChange)="metric.set($event)"
           />
-          <tui-data-list-wrapper *tuiDropdown [items]="metricOptions" />
+          <tui-data-list-wrapper
+            class="[&_[tuiOption]:is(:hover,:focus)]:[outline:2px_solid_var(--cm-focus)]! [&_[tuiOption]:is(:hover,:focus)]:-outline-offset-2!"
+            *tuiDropdown
+            [items]="metricOptions"
+          />
         </tui-textfield>
       </div>
     </div>
@@ -48,47 +53,36 @@
       </div>
     } @else {
       <div
-        class="flex flex-col gap-4"
-        role="img"
-        [attr.aria-label]="'Evolution of ' + metric() + ' on ' + device()"
+        class="flex h-[400px] min-w-0 flex-col rounded-cm-lg bg-cm-surface p-4 shadow-cm-sm sm:h-[450px] sm:p-6"
       >
-        <div class="w-full text-cm-secondary">
+        <tui-axes
+          class="block min-h-0 w-full flex-1 text-cm-secondary"
+          [horizontalLines]="4"
+          [verticalLines]="5"
+          [axisXLabels]="axisXLabels()"
+          [axisYLabels]="axisYLabels()"
+        >
           <tui-line-chart
-            class="relative block w-full"
-            [style.height.px]="chartHeight"
             [dots]="true"
+            [filled]="true"
             [height]="chartHeight"
             [width]="chartWidth"
             [x]="0"
             [y]="0"
             [value]="chartPoints()"
+            [tuiHintContent]="hintContent"
           />
-        </div>
+        </tui-axes>
 
-        <div class="flex flex-wrap justify-between gap-3 text-sm text-cm-text-muted">
-          <span> {{ points().length }} measurements </span>
+        <ng-template #hintContent let-index="index">
+          @if (points()[index]; as point) {
+            <div class="flex flex-col gap-1 p-2">
+              <strong>{{ point.value }} {{ point.unit }}</strong>
 
-          <span>
-            Range: {{ range().min.toPrecision(3) }}
-            –
-            {{ range().max.toPrecision(3) }}
-            {{ latest()?.unit }}
-          </span>
-
-          @if (latest(); as last) {
-            <span> Latest: {{ last.value }} {{ last.unit }} </span>
+              <span>{{ point.startedAt | date: 'medium' }}</span>
+            </div>
           }
-        </div>
-
-        <div class="flex justify-between gap-2 text-xs text-cm-text-muted">
-          <time [attr.datetime]="points()[0].startedAt">
-            {{ points()[0].startedAt }}
-          </time>
-
-          <time [attr.datetime]="points()[points().length - 1].startedAt">
-            {{ points()[points().length - 1].startedAt }}
-          </time>
-        </div>
+        </ng-template>
       </div>
     }
   </div>

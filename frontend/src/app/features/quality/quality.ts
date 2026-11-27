@@ -7,7 +7,8 @@ import { TuiLoader, TuiIcon, TuiTextfield } from '@taiga-ui/core';
 import { TuiChevron, TuiDataListWrapper, TuiSelect } from '@taiga-ui/kit';
 
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { combineLatest, catchError, map, of, startWith, switchMap } from 'rxjs';
+import { combineLatest, catchError, map, of, scan, startWith, switchMap } from 'rxjs';
+import { QualitySelectKeyboard } from './quality-select-keyboard';
 
 import { QualityService } from './data-access/quality.service';
 import { QualityState } from './models/quality-summary-state';
@@ -34,6 +35,7 @@ import { QualityHistoryChart } from './components/quality-history-chart/quality-
     TuiDataListWrapper,
     TuiCardLarge,
     QualityHistoryChart,
+    QualitySelectKeyboard,
   ],
   templateUrl: './quality.html',
   styleUrl: './quality.css',
@@ -114,6 +116,10 @@ export class Quality {
           startWith<QualityState>({ status: 'loading' }),
           catchError(() => of<QualityState>({ status: 'error' })),
         ),
+      ),
+      // Keep the controls mounted while refreshing so focus and chart selection survive.
+      scan((previous: QualityState, current: QualityState) =>
+        current.status === 'loading' && previous.status === 'success' ? previous : current,
       ),
     ),
     {
